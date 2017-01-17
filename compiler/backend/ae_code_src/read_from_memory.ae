@@ -1,0 +1,11 @@
+.COPY $0 $1
+-
+L[MEMADD]
+L[ONE]
+CF?
++
+L[$I]
+L[ZERO]
+S[OUT]
+J[.return]
+.END
