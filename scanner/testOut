@@ -1,0 +1,15 @@
+NO_OP
+NO_OP
+1.100000
+FLOAT
+RETURN VAL
+;
+main
+FUN
+a
+int
+DECLARE
+;
+main
+void(int)
+DECLARE

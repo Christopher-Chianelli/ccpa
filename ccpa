@@ -1,2 +1,3 @@
 #!/bin/bash
-echo "C Card Punching Apparatus for the Analytical Engine"
+#echo "C Card Punching Apparatus for the Analytical Engine"
+gcc -E $1 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | xmllint --format -

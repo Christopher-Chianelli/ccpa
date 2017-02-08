@@ -1,10 +1,12 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "cparse.h"
 // stuff from flex that bison needs to know about:
 extern int yylex();
 extern int yyparse();
 extern FILE *yyin;
+extern char *yytext;
 
 void yyerror(const char *s);
 %}
@@ -15,6 +17,7 @@ void yyerror(const char *s);
 	float fval;
 	char *sval;
     char vval;
+	struct expr expression;
 }
 
 //Tokens
@@ -23,6 +26,8 @@ void yyerror(const char *s);
 %token <sval> STR_LIT
 
 %token <vval> STRUCT
+%token <vval> UNION
+%token <vval> ENUM
 %token <vval> EXTERN
 
 %nonassoc <vval> OPEN_BRACKET
@@ -36,21 +41,34 @@ void yyerror(const char *s);
 
 %token <vval> RETURN
 
+%token <vval> TYPEDEF
+%token <vval> DOTS
+%token <vval> INLINE
+%token <vval> STATIC
 %token <sval> TYPE
 %token <sval> ID
 
-%left <sval> UNI //++, --
-%left <sval> MINUS //-
-%left <sval> OP1 //., ->
-%left <vval> STAR
-%right <sval> OP2 //!, &
-%left <sval> OP3 //* / %
-%left <sval> OP4 //+ -
-%left <sval> OP5 //<= >= < >
-%left <sval> OP6 //== !=
-%left <sval> OP7 //&&
-%left <sval> OP8 //||
-%right <sval> OP9 //+=, -=,...
+%left <sval> UNI//++,--
+%left <vval> MINUS//-
+%left <vval> PLUS//+
+%left <vval> ADDRESS//&
+%left <vval> STAR//*
+%right <vval> SIZEOF
+
+%left <sval> OP1//.,->
+%right <sval> OP2//!,~
+%left <sval> OP3//,%
+%left <sval> OP5//<<,>>
+%left <sval> OP6//<=,<,>,>=
+%left <sval> OP7//==,!=
+%left <sval> OP9//^
+%left <sval> OP10//|
+%left <sval> OP11//&&
+%left <sval> OP12//||
+%right <sval> OP13S//?
+%right <sval> OP13E//:
+%right <sval> OP14//+=,-=...
+
 %right <vval> EQUALS
 
 %token <vval> SEMICOLON
@@ -61,156 +79,338 @@ void yyerror(const char *s);
 
 %token <vval> OPEN_SQUARE
 %token <vval> CLOSE_SQUARE
+
+%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef
+%type <sval> variableName variable type typecast unamedDef dataDef endScope
+%type <ival> multistar
 %%
 // Grammar
 program:
-	global {}
+	global {$1.rep = concatStrings(2,$1.rep,destroyLocalScope());preorderTranversal($1);}
+	;
+
+startScope:
+    /* empty */ {createLocalScope();}
+	;
+
+endScope:
+    /* empty */ {$$ = destroyLocalScope();}
 	;
 
 global:
-    /* empty */ {}
-    | function global {printf("Parser: Function Declared\n");}
-	| structDef global {printf("Parser: Struct Declared\n");}
-    | EXTERN variableDeclaration SEMICOLON global {printf("Parser: Global variable declared\n");}
+    /* empty */ {$$=createEmptyExpr();}
+    | global function {$$=appendExprs($1,$2);}
+	| global functionDef endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
+	//| global functionDef ignore endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
+	| global dataStatement {$$=$1;}
+	| global STRUCT ID SEMICOLON {$$=$1;}
+	| global UNION ID SEMICOLON {$$=$1;}
+	| global ENUM ID SEMICOLON {$$=$1;}
+	| global variableList SEMICOLON {$$=appendExprs($1,$2);}
+	//| global ID OPEN_BRACKET ignore CLOSE_BRACKET {$$=$1;}
+	| global typeDef {$$=appendExprs($1,$2);}
+	| global externStatement {$$=appendExprs($1,$2);}
     ;
+
+externStatement:
+    EXTERN functionDef endScope SEMICOLON {$$=createEmptyExpr();declareVariable($2.type,$2.rep);}
+	//| EXTERN functionDef ignore endScope SEMICOLON {$$=createEmptyExpr();declareVariable($2.type,$2.rep);}
+	| EXTERN variableList SEMICOLON {$$=$2;}
+	| EXTERN dataStatement {$$=$2;}
+	| EXTERN STRUCT ID SEMICOLON {$$=createEmptyExpr();}
+	| EXTERN UNION ID SEMICOLON {$$=createEmptyExpr();}
+	| EXTERN ENUM ID SEMICOLON {$$=createEmptyExpr();}
+	;
+
+/*ignore:
+    ID {}
+	| STR_LIT {}
+	| INT {}
+	| FLOAT {}
+	| OPEN_BRACKET ignoreInBrackets CLOSE_BRACKET {}
+	| OPEN_BRACKET TYPE CLOSE_BRACKET {}
+	| ignore ignore {}
+	;
+
+ignoreInBrackets:
+     {}
+    | ignore {}
+	| ignoreInBrackets COMMA ignore {}
+	| ignoreInBrackets EQUALS ignore {}
+	;*/
+
+functionQuantifiers:
+    INLINE {}
+	| STATIC INLINE {}
+	//| INLINE ignore  {}
+	;
 
 function:
-    type ID OPEN_BRACKET arglist CLOSE_BRACKET OPEN_BLOCK codeBlock CLOSE_BLOCK {printf("Parser: Function\n");}
+    functionDef OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=createExpr(concatStrings(2,"\nFUN\n",$5),$3,$1,NO_EXPR);declareVariable($1.type,$1.rep);}
     ;
+
+functionDef:
+    type ID OPEN_BRACKET startScope arglist CLOSE_BRACKET {$$=createTextExpr(functionType($1,0,$5),$2);declareVariable($$.type,$$.rep);}
+	| type OPEN_BRACKET multistar ID OPEN_BRACKET arglist CLOSE_BRACKET CLOSE_BRACKET startScope OPEN_BRACKET arglist CLOSE_BRACKET {$$=createTextExpr(functionType(functionType(extractType($1),$3,$6),0,$11),$4);declareVariable($$.type,$$.rep);}
+	| functionQuantifiers functionDef {$$=$2;}
+	;
 
 arglist:
-    /* empty */ {printf("Parser: Empty arg list\n");}
-    | type variable {printf("Parser: arg\n");}
-    | type variable COMMA arglist {printf("Parser: arg list\n");}
-    ;
-
-code:
-    OPEN_BLOCK codeBlock CLOSE_BLOCK {printf("Parser: Code Block\n");}
-    | variableDeclaration SEMICOLON {printf("Parser: Declare Statement\n");}
-    | expression SEMICOLON {printf("Parser: Expression Statement\n");}
-    | ifStatement {printf("Parser: IF Statement\n");}
-    | returnStatement {printf("Parser: Return Statement\n");}
-    | whileLoop {printf("Parser: While Statement\n");}
-    | forLoop {printf("Parser: For Statement\n");}
-
-codeBlock:
-    /* empty */ {}
-    | OPEN_BLOCK codeBlock CLOSE_BLOCK codeBlock {printf("Parser: Code Statement\n");}
-    | variableDeclaration SEMICOLON codeBlock {printf("Parser: Declare Statement\n");}
-    | expression SEMICOLON codeBlock {printf("Parser: Expression Statement\n");}
-    | ifStatement codeBlock {printf("Parser: IF Statement\n");}
-    | returnStatement codeBlock {printf("Parser: Return Statement\n");}
-    | whileLoop codeBlock {printf("Parser: While Statement\n");}
-    | forLoop codeBlock {printf("Parser: For Statement\n");}
-
-variableDeclaration:
-    type expression {printf("Parser: Var Declaration\n");}
-    ;
-
-type:
-    TYPE {printf("Parser: Type\n");}
-	| STRUCT ID {printf("Parser: Struct Type\n");}
+	/* empty */ {$$ = createTypeExpr("");}
+	| DOTS {$$ = createTypeExpr("...");}
+	| type OPEN_BRACKET multistar variable CLOSE_BRACKET OPEN_BRACKET arglist CLOSE_BRACKET {$$ = createTypeExpr(functionType(extractType($1),$3,$7));declareVariable(functionType($1,$3,$7),$4);}
+	| type OPEN_BRACKET multistar CLOSE_BRACKET OPEN_BRACKET arglist CLOSE_BRACKET {$$ = createTypeExpr(functionType(extractType($1),$3,$6));}
+	| type {$$ = createTypeExpr(extractType($1));}
+	| type variable {$$ = createTypeExpr(extractType($1));declareVariable($1,$2);}
+	| type OPEN_SQUARE CLOSE_SQUARE {$$ = createTypeExpr(addStars(extractType($1),1));}
+	| type OPEN_SQUARE expression CLOSE_SQUARE {$$ = createTypeExpr(addStars(extractType($1),1));}
+	| arglist COMMA arglist {$$=appendExprs($1,$3);$$.type = concatStrings(3,$1.type,",",$3.type);}
 	;
 
-structDef:
-    STRUCT ID OPEN_BLOCK members CLOSE_BLOCK SEMICOLON{printf("Parser: Struct\n");}
-	;
-
-members:
-    variableDeclaration SEMICOLON {printf("Parser: Struct Var\n");}
-	| variableDeclaration SEMICOLON members {printf("Parser: Struct Var\n");}
+variableName:
+    ID {$$ = $1;}
+	| variableName OPEN_SQUARE CLOSE_SQUARE {$$ = $1;}
+	| variableName OPEN_SQUARE type CLOSE_SQUARE {$$ = $1;}
+	| variableName OPEN_SQUARE expression CLOSE_SQUARE {$$ = $1;}
+	| variableName OP13E INT {$$ = $1;}
+	| OP13E INT {$$ = "";}
 	;
 
 variable:
-    ID {printf("Parser: Var\n");}
-	| STAR variable {printf("Parser: Pointer Variable\n");}
+	variableName {$$ = $1;}
+	| OP9 {$$ = "";}
+	| OP9 variableName {$$ = $2;}
+	;
+
+variableList:
+      type variable {declareVariable($1,$2);$$ = createTypeExpr($1);}
+	//| type variable ignore {declareVariable($1,$2);$$ = createTypeExpr($1);}
+	| type OPEN_BRACKET multistar variable CLOSE_BRACKET OPEN_BRACKET arglist CLOSE_BRACKET {declareVariable(functionType($1,$3,$7),$4);$$ = createTypeExpr($1);}
+	| type variable EQUALS ternary {declareVariable($1,$2);$$=createExpr("=",getVariable($2),$4,NO_EXPR);}
+    | variableList COMMA multistar variable {declareVariable(addStars(getBaseType($1.type),$3),$4);$$ = $1;}
+	| variableList COMMA multistar variable EQUALS ternary {declareVariable(addStars(getBaseType($1.type),$3),$4);$$=appendExprs($1,createExpr("=",getVariable($4),$6,NO_EXPR));}
+	| variableList COMMA type variable {declareVariable($3,$4);$$ = $1;}
+	| variableList COMMA type variable EQUALS ternary {declareVariable($3,$4);$$=appendExprs($1,createExpr("=",getVariable($4),$6,NO_EXPR));}
+    ;
+
+code:
+    startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=$3;/*$$.rep = concatStrings(3,$$,$5,"\n");*/}
+    | variableList SEMICOLON {$$=$1;}
+    | expression SEMICOLON {$$=$1;}
+    | ifStatement {$$=$1;}
+    | returnStatement {$$=$1;}
+    | whileLoop {$$=$1;}
+    | forLoop {$$=$1;}
+	| typeDef {$$=$1;}
+	| SEMICOLON {$$=createEmptyExpr();}
+	;
+
+codeBlock:
+    /* empty */ {$$=createEmptyExpr();}
+    | codeBlock startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=appendExprs($1,$4);$$.rep = concatStrings(2,$$.rep,$6);}
+    | codeBlock variableList SEMICOLON {$$=appendExprs($1,$2);}
+    | codeBlock expression SEMICOLON {$$=appendExprs($1,$2);}
+    | codeBlock ifStatement {$$=appendExprs($1,$2);}
+    | codeBlock returnStatement {$$=appendExprs($1,$2);}
+    | codeBlock whileLoop {$$=appendExprs($1,$2);}
+    | codeBlock forLoop {$$=appendExprs($1,$2);}
+	| codeBlock typeDef SEMICOLON {$$=appendExprs($1,$2);}
+	| codeBlock SEMICOLON {$$=appendExprs($1,createEmptyExpr());}
+	;
+
+variableDeclaration:
+    variableList {$$=$1;}
+	| expression {$$=$1;}
+    ;
+
+typeDef:
+    TYPEDEF type variable SEMICOLON {$$=createEmptyExpr();addType($2,$3);}
+	| TYPEDEF type SEMICOLON {$$=createEmptyExpr();}
+	| TYPEDEF dataDef variable SEMICOLON {$$=createEmptyExpr();addType($2,$3);}
+	| TYPEDEF type OPEN_BRACKET multistar variable CLOSE_BRACKET OPEN_BRACKET arglist CLOSE_BRACKET SEMICOLON {$$=createEmptyExpr();addType(functionType($2,$4,$8),$5);}
+	;
+
+type:
+    TYPE {$$=$1;}
+	| STRUCT ID {$$=appendStr("struct ",$2);}
+	| UNION ID {$$=appendStr("struct ",$2);}
+	| ENUM ID {$$=appendStr("struct ",$2);}
+	| unamedDef {$$=$1;}
+	| type TYPE {$$=appendStr($1,$2);}
+	| type STRUCT ID  {$$=appendStr("struct ",$3);}
+	| type UNION ID {$$=appendStr("union ",$3);}
+	| type ENUM ID  {$$=appendStr("enum ",$3);}
+	| type STAR  {$$=addStars($1,1);}
+	| type unamedDef {$$=$2;}
+	;
+
+typecast:
+    OPEN_BRACKET type CLOSE_BRACKET {$$=$2;}
+	;
+
+multistar:
+    /* empty */ {$$=0;}
+	| multistar STAR {$$=$1 + 1;}
+	;
+
+dataStatement:
+    dataDef dataList SEMICOLON {$$=createEmptyExpr();}
+	;
+
+dataDef:
+     STRUCT ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="struct";}
+    | UNION ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="union";}
+	| ENUM ID OPEN_BLOCK enumList CLOSE_BLOCK {$$="enum";}
+	;
+
+unamedDef:
+    STRUCT OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="struct";}
+    | UNION OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="union";}
+    | ENUM OPEN_BLOCK enumList CLOSE_BLOCK {$$="enum";}
+	;
+
+
+enumList:
+    ID {}
+	| ID EQUALS expression {}
+	//| ID ignore EQUALS expression {}
+	| enumList COMMA enumList {}
+	;
+
+dataList:
+    /* empty */ {}
+    | variable {}
+	| dataList COMMA variable {}
+	;
+
+members:
+    variableList SEMICOLON {}
+	| dataDef dataList SEMICOLON {}
+	| variableList SEMICOLON members {}
+	| dataDef dataList SEMICOLON members {}
+	;
 
 expression:
-    assignment {printf("Parser: Expression\n");}
-	| expression COMMA assignment {printf("Parser: List Statement\n");}
+    assignment {$$=$1;}
+	| expression COMMA assignment {$$=createExpr(",",$1,$3,NO_EXPR);}
 	;
 
 assignment:
-    disjunct {}
-    | assignment OP9 disjunct {printf("Parser: Assignment\n");}
-	| assignment EQUALS disjunct {printf("Parser: Assignment\n");}
+    ternary {$$=$1;}
+    | assignment OP14 ternary {$$=createExpr($2,$1,$3,NO_EXPR);}
+	| assignment EQUALS ternary {$$=createExpr("=",$1,$3,NO_EXPR);}
+	;
+
+ternary:
+    disjunct {$$=$1;}
+	| disjunct OP13S assignment OP13E assignment {$$=createExpr("?",$1,$3,$5);}
 	;
 
 disjunct:
-    conjunct {}
-	| disjunct OP8 conjunct {printf("Parser: OR\n");}
+    conjunct {$$=$1;}
+	| disjunct OP12 conjunct {$$=createExpr($2,$1,$3,NO_EXPR);}
     ;
 
 conjunct:
-	equalable {}
-	| conjunct OP7 equalable {printf("Parser: AND\n");}
+	orAble {}
+	| conjunct OP11 orAble {$$=createExpr($2,$1,$3,NO_EXPR);}
+	;
+
+orAble:
+    xorAble {}
+	| orAble OP10 xorAble {$$=createExpr($2,$1,$3,NO_EXPR);}
+	;
+
+xorAble:
+    andAble {}
+	| xorAble OP9 andAble {$$=createExpr($2,$1,$3,NO_EXPR);}
+	;
+
+andAble:
+    equalable {}
+	| andAble ADDRESS equalable {$$=createExpr("&",$1,$3,NO_EXPR);}
 	;
 
 equalable:
 	comparable {}
-	| equalable OP6 comparable {printf("Parser: Equality\n");}
+	| equalable OP7 comparable {$$=createExpr($2,$1,$3,NO_EXPR);}
 	;
 
 comparable:
+    shift {}
+	| comparable OP6 shift {$$=createExpr($2,$1,$3,NO_EXPR);}
+	;
+
+shift:
     sum {}
-	| comparable OP5 sum {printf("Parser: Comparision\n");}
+	| shift OP5 sum {$$=createExpr($2,$1,$3,NO_EXPR);}
 	;
 
 sum:
     factor {}
-	| sum OP4 factor {printf("Parser: Sum\n");}
-	| sum MINUS factor {printf("Parser: Difference\n");}
+	| sum PLUS factor {$$=createExpr("+",$1,$3,NO_EXPR);}
+	| sum MINUS factor {$$=createExpr("-",$1,$3,NO_EXPR);}
 	;
 
 factor:
     term {}
-	| factor OP3 term {printf("Parser: Product\n");}
-	| factor STAR term {printf("Parser: Product\n");}
+	| factor OP3 term {$$=createExpr($2,$1,$3,NO_EXPR);}
+	| factor STAR term {$$=createExpr("*",$1,$3,NO_EXPR);}
 	;
 
 term:
     operand {}
-	| MINUS operand {printf("Parser: Negation\n");}
-	| OP2 term {printf("Parser: Uni Op Left\n");}
-	| STAR term {printf("Parser: Uni Op Left\n");}
-	| UNI operand {printf("Parser: Uni Op Left\n");}
+	| MINUS operand {$$=createExpr("-U",$2,NO_EXPR,NO_EXPR);}
+	| PLUS operand {$$=createExpr("+U",$2,NO_EXPR,NO_EXPR);}
+	| OP2 term {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
+	| STAR term {$$=createExpr("GET_MEM",$2,NO_EXPR,NO_EXPR);}
+	| ADDRESS operand {$$=createExpr("ADDRESS",$2,NO_EXPR,NO_EXPR);}
+	| UNI operand {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
+	| typecast term {$$=$2;$$.type=$1;}
+	| SIZEOF typecast {$$=createExpr("sizeof",createStringExpr($2),NO_EXPR,NO_EXPR);}
+	| SIZEOF operand {$$=createExpr("sizeof",$2,NO_EXPR,NO_EXPR);}
+	;
 
 operand:
-    ID {printf("Parser: Variable\n");}
-    | INT {printf("Parser: Int\n");}
-    | FLOAT {printf("Parser: Float\n");}
-    | STR_LIT {printf("Parser: String\n");}
-    | ID OPEN_BRACKET callList CLOSE_BRACKET {printf("Parser: Function Call\n");}
-	| operand OP1 ID {printf("Parser: Get\n");}
-	| operand UNI {printf("Parser: Uni Op Right\n");}
-	| operand OPEN_SQUARE expression CLOSE_SQUARE {printf("Parser: Array Access\n");}
-	| OPEN_BRACKET expression CLOSE_BRACKET {printf("Parser: Change Order of Ops\n");}
+      ID {$$=getVariable($1);}
+    | INT {$$=createIntExpr($1);}
+    | FLOAT {$$=createFloatExpr($1);}
+    | STR_LIT {$$=createStringExpr($1);}
+    | operand OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
+	| operand OP1 ID {$$=createExpr($2,$1,getVariable($3),NO_EXPR);}
+	| operand UNI {$$=createExpr($2,$1,NO_EXPR,NO_EXPR);}
+	| operand OPEN_SQUARE expression CLOSE_SQUARE {$$=createExpr("[]",$1,$3,NO_EXPR);}
+	| OPEN_BRACKET expression CLOSE_BRACKET {$$=$2;}
+	| operand ID {$$=createEmptyExpr();}
     ;
 
 callList:
-    /* empty */ {printf("Parser: Empty Call List\n");}
-    | expression {printf("Parser: Call Item\n");}
+    /* empty */ {$$=createEmptyExpr();}
+    | assignment {$$=$1;$$.type = extractType($$.type);}
+	| type {$$=createTypeExpr($1);}
+	| callList COMMA assignment {$$=appendExprs($1,$3);$$.type = concatStrings(3,$1.type,",",extractType($3.type));}
+	| callList COMMA type {$$=appendExprs($1,createTypeExpr($3));$$.type = concatStrings(3,$1.type,",",$3);}
     ;
 
 ifStatement:
-    IF OPEN_BRACKET expression CLOSE_BRACKET code ELSE code {printf("Parser: IF WITH ELSE\n");}
-	| IF OPEN_BRACKET expression CLOSE_BRACKET code {printf("Parser: IF\n");}
+    IF OPEN_BRACKET expression CLOSE_BRACKET code ELSE code {$$=createExpr("if/else",$3,$5,$7);}
+	| IF OPEN_BRACKET expression CLOSE_BRACKET code {$$=createExpr("if",$3,$5,NO_EXPR);}
     ;
 
 returnStatement:
-    RETURN SEMICOLON {printf("Parser: RETURN\n");}
-    | RETURN expression SEMICOLON {printf("Parser: RETURN VALUE\n");}
+    RETURN SEMICOLON {$$=createExpr("RETURN",NO_EXPR,NO_EXPR,NO_EXPR);}
+    | RETURN expression SEMICOLON {$$=createExpr("RETURN VAL",$2,NO_EXPR,NO_EXPR);}
     ;
 
 whileLoop:
-    WHILE OPEN_BRACKET expression CLOSE_BRACKET code {printf("Parser: WHILE LOOP\n");}
+    WHILE OPEN_BRACKET expression CLOSE_BRACKET code {$$=createExpr("while",$3,$5,NO_EXPR);}
     ;
 
 forLoop:
-    FOR OPEN_BRACKET variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {printf("Parser: FOR LOOP\n");}
-    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {printf("Parser: FOR LOOP\n");}
-    | FOR OPEN_BRACKET variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code {printf("Parser: FOR LOOP\n");}
-    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {printf("Parser: FOR LOOP\n");}
+    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$11),$6,createExpr(";",$10,$8,NO_EXPR),NO_EXPR),NO_EXPR);}
+    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,createExpr(";",$8,$6,NO_EXPR),NO_EXPR);}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$10),$6,$9,NO_EXPR),createVariableExpr("",$10));}
+    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("while",$4,$7,NO_EXPR);}
     ;
 %%
 
@@ -220,6 +420,23 @@ int main(int argc, char** argv) {
             yyin = fopen( argv[0], "r" );
     else
             yyin = stdin;
+
+	my_typedefs.type = NULL;
+	my_typedefs.next = NULL;
+
+	existingStrings.string = "";
+	existingStrings.next = NULL;
+
+	NO_EXPR.type = "";
+	NO_EXPR.rep = "";
+
+	variables = malloc(sizeof(struct variableStack));
+	variables->prev = NULL;
+	variables->vars = malloc(sizeof(struct variableList));
+	variables->vars->type = NULL;
+	variables->vars->name = NULL;
+	variables->vars->next = NULL;
+
 	// parse through the input until there is no more:
 	do {
 		yyparse();
@@ -227,6 +444,6 @@ int main(int argc, char** argv) {
 }
 
 void yyerror(const char *s) {
-	fprintf(stderr, "Error: %s\n",s);
+	fprintf(stderr, "%s %d: Syntax Error: %s\n",filename, lineNumber, yytext);
 	exit(1);
 }
