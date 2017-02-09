@@ -80,7 +80,7 @@ void yyerror(const char *s);
 %token <vval> OPEN_SQUARE
 %token <vval> CLOSE_SQUARE
 
-%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef
+%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef lValue
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
 %type <ival> multistar
 %%
@@ -102,7 +102,7 @@ global:
     | global function {$$=appendExprs($1,$2);}
 	| global functionDef endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
 	//| global functionDef ignore endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
-	| global dataStatement {$$=$1;}
+	| global dataStatement {$$=appendExprs($1,$2);}
 	| global STRUCT ID SEMICOLON {$$=$1;}
 	| global UNION ID SEMICOLON {$$=$1;}
 	| global ENUM ID SEMICOLON {$$=$1;}
@@ -194,7 +194,7 @@ variableList:
     ;
 
 code:
-    startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=$3;/*$$.rep = concatStrings(3,$$,$5,"\n");*/}
+    startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=$3;$$.rep = concatStrings(3,$$.rep,$5,"\n");}
     | variableList SEMICOLON {$$=$1;}
     | expression SEMICOLON {$$=$1;}
     | ifStatement {$$=$1;}
@@ -254,25 +254,25 @@ multistar:
 	;
 
 dataStatement:
-    dataDef dataList SEMICOLON {$$=createEmptyExpr();}
+    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);}
 	;
 
 dataDef:
-     STRUCT ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="struct";}
-    | UNION ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="union";}
-	| ENUM ID OPEN_BLOCK enumList CLOSE_BLOCK {$$="enum";}
+     STRUCT ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nSTRUCT\n",$7);declareStruct($2,$7);}
+    | UNION ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nUNION\n",$7);declareStruct($2,$7);}
+	| ENUM ID OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nENUM\n",$7);declareStruct($2,$7);}
 	;
 
 unamedDef:
-    STRUCT OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="struct";}
-    | UNION OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$="union";}
-    | ENUM OPEN_BLOCK enumList CLOSE_BLOCK {$$="enum";}
+    STRUCT OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_STRUCT\n",$6);}
+    | UNION OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_UNION\n",$6);}
+    | ENUM OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_ENUM\n",$6);}
 	;
 
 
 enumList:
-    ID {}
-	| ID EQUALS expression {}
+    ID {declareVariable("int",$1);}
+	| ID EQUALS expression {declareVariable("int",$1);}
 	//| ID ignore EQUALS expression {}
 	| enumList COMMA enumList {}
 	;
@@ -297,8 +297,15 @@ expression:
 
 assignment:
     ternary {$$=$1;}
-    | assignment OP14 ternary {$$=createExpr($2,$1,$3,NO_EXPR);}
-	| assignment EQUALS ternary {$$=createExpr("=",$1,$3,NO_EXPR);}
+    | lValue OP14 ternary {$$=createExpr($2,$1,$3,NO_EXPR);}
+	| lValue EQUALS ternary {$$=createExpr("=",$1,$3,NO_EXPR);}
+	;
+
+lValue:
+    ID {$$=createExpr("SET_MEM",getVariable($1),NO_EXPR,NO_EXPR);}
+	| ID OP1 ID {$$=createExpr(concatStrings(2,"SET_",$2),getVariable($1),getStructMember(variableType($1),$3),NO_EXPR);}
+	| STAR OPEN_BRACKET expression CLOSE_BRACKET {$$=createExpr("DEREFERENCE_SET",$3,NO_EXPR,NO_EXPR);}
+	| STAR lValue {$$=createExpr("DEREFERENCE_SET",$2,NO_EXPR,NO_EXPR);}
 	;
 
 ternary:
@@ -377,7 +384,7 @@ operand:
     | FLOAT {$$=createFloatExpr($1);}
     | STR_LIT {$$=createStringExpr($1);}
     | operand OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
-	| operand OP1 ID {$$=createExpr($2,$1,getVariable($3),NO_EXPR);}
+	| ID OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),getVariable($1),getStructMember(variableType($1),$3),NO_EXPR);}
 	| operand UNI {$$=createExpr($2,$1,NO_EXPR,NO_EXPR);}
 	| operand OPEN_SQUARE expression CLOSE_SQUARE {$$=createExpr("[]",$1,$3,NO_EXPR);}
 	| OPEN_BRACKET expression CLOSE_BRACKET {$$=$2;}

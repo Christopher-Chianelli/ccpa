@@ -18,6 +18,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class TreeOptimizer {
+	private static Document doc;
+	
 	private static Document readFromInput() throws Exception
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -54,22 +56,16 @@ public class TreeOptimizer {
 			
 			if (children.item(0).getNodeName().equals("op"))
 				removeNoOpsFromOp(op,children.item(0));
-			else
-				op.removeChild(children.item(0));
 			
 			if (children.item(1) == null)
 			{
 				if (children.item(0).getNodeName().equals("op"))
 					removeNoOpsFromOp(op,children.item(0));
-				else
-					op.removeChild(children.item(0));
 			}
 			else
 			{
 				if (children.item(1).getNodeName().equals("op"))
 					removeNoOpsFromOp(op,children.item(1));
-				else
-					op.removeChild(children.item(1));
 			}
 			
 			if (op.getChildNodes().getLength() == 1)

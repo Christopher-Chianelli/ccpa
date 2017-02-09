@@ -4,6 +4,7 @@
 #define OPERATOR 0
 #define VARIABLE 1
 #define DECLARE 2
+#define DATA 3
 
 struct stack
 {
@@ -24,6 +25,8 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"FLOAT") ||
         !strcmp(op,"STRING") ||
         !strcmp(op,"GET_MEM") ||
+        !strcmp(op,"SET_MEM") ||
+        !strcmp(op,"DEREFERENCE_SET") ||
         !strcmp(op,"RETURN VAL") )
             return 1;
     else if (!strcmp(op,"+") ||
@@ -33,7 +36,10 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"*") ||
         !strcmp(op,"/") ||
         !strcmp(op,"%") ||
-        !strcmp(op,".") ||
+        !strcmp(op,"SET_MEMBER") ||
+        !strcmp(op,"SET_ACCESS") ||
+        !strcmp(op,"GET_MEMBER") ||
+        !strcmp(op,"GET_ACCESS") ||
         !strcmp(op,"=") ||
         !strcmp(op,"AND") ||
         !strcmp(op,"AND-bitwise") ||
@@ -44,7 +50,6 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"GT") ||
         !strcmp(op,"LE") ||
         !strcmp(op,"GE") ||
-        !strcmp(op,"ACCESS") ||
         !strcmp(op,"RS") ||
         !strcmp(op,"LS") ||
         !strcmp(op,"if") ||
@@ -60,6 +65,16 @@ int getNumToPop(char *op, int *type)
     {
         *type = DECLARE;
         return 3;
+    }
+    else if (!strcmp(op,"STRUCT"))
+    {
+        *type = DATA;
+        return 1;
+    }
+    else if (!strcmp(op,"UNAMED_STRUCT"))
+    {
+        *type = DATA;
+        return 0;
     }
     else
     {
@@ -111,15 +126,28 @@ int main(int argc, char **argv)
             {
                 push(concatStrings(3,"<value>",buf,"</value>"),&s);
             }
-            else//type == DECLARE
+            else if (type == DECLARE)
             {
                 while (toPop > 1){
                     element = concatStrings(3,element,"",pop(&s));
                     toPop--;
                 }
                 char *scope = pop(&s);
-                scope[strlen(scope) - 5] = '\0';
-                push(concatStrings(4,scope,"<uses>",element,"</uses></op>"),&s);
+                char *end = scope + strlen(scope);
+                while (*end != '<')
+                    end--;
+                char *endTag = findOrCreateString("%s",end);
+                *end = '\0';
+
+                push(concatStrings(5,scope,"<uses>",element,"</uses>",endTag),&s);
+            }
+            else if (type == DATA)
+            {
+                while (toPop > 0){
+                    element = concatStrings(3,element,"",pop(&s));
+                    toPop--;
+                }
+                push(concatStrings(5,"<data kind=\"",buf,"\">",element,"</data>"),&s);
             }
         }
     }

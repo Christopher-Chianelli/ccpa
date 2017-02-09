@@ -18,6 +18,13 @@ struct variableList
     struct variableList *next;
 };
 
+struct structList
+{
+    char *name;
+    char *members;
+    struct structList *next;
+};
+
 struct variableStack
 {
     struct variableStack *prev;
@@ -49,6 +56,7 @@ struct strings
 extern struct typedefs my_typedefs;
 extern struct strings existingStrings;
 extern struct variableStack *variables;
+extern struct structList structs;
 extern struct expr NO_EXPR;
 extern int ignoreTable;
 extern int lineNumber;
@@ -57,9 +65,11 @@ extern char filename[256];
 extern void addType(char *name, char *type);
 extern int isType(char **type);
 extern void declareVariable(char *type, char *name);
+extern void declareStruct(char *name, char *members);
 extern void createLocalScope();
 extern char *destroyLocalScope();
 extern char *findVariable(struct variableStack *stack, char *name);
+extern struct expr getStructMember(char *name, char *member);
 extern char *variableType(char *name);
 
 extern struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr arg3);

@@ -10,6 +10,7 @@ struct typedefs my_typedefs;
 struct strings existingStrings;
 struct variableStack *variables;
 struct expr NO_EXPR;
+struct structList structs;
 char filename[256];
 
 void addType(char *type, char *name)
@@ -58,11 +59,17 @@ int isType(char **name)
 void declareVariable(char *type, char *name)
 {
 	struct variableList *temp = variables->vars;
+	struct variableStack *old = variables->prev;
+	variables->prev = NULL;
 	if (findVariable(variables, name) != NULL)
 	{
+		variables->prev = old;
 		fprintf(stderr, "%s line %d: Error: Variable \"%s\" already defined\n",filename,lineNumber,name);
 		return;
 	}
+
+	variables->prev = old;
+
 	if (temp->type == NULL)
 	{
 		temp->type = type;
@@ -79,6 +86,37 @@ void declareVariable(char *type, char *name)
 	temp->next->type = type;
 	temp->next->next = NULL;
 }
+void declareStruct(char *name, char *members)
+{
+	struct structList *temp = &structs;
+	if (temp->name == NULL)
+	{
+		temp->name = name;
+		temp->members = members;
+		temp->next = NULL;
+		return;
+	}
+	while (temp->next != NULL)
+	{
+		temp = temp->next;
+	}
+	temp->next = allocate(sizeof(struct structList));
+	temp->next->name = name;
+	temp->next->members = members;
+	temp->next->next = NULL;
+}
+
+struct expr getStructMember(char *name, char *member)
+{
+	struct structList *temp = &structs;
+	char *test;
+	while (temp && temp->name != NULL && strcmp(temp->name,name))
+	    temp = temp->next;
+
+	//TODO: Later
+	return createVariableExpr("",member);
+}
+
 char *findVariable(struct variableStack *stack, char *name)
 {
 	if (stack == NULL || name == NULL)
@@ -152,8 +190,14 @@ struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr
 		op = "LE";
 	else if (!strcmp(op,">="))
 		op = "GE";
-	else if (!strcmp(op,"->"))
-		op = "ACCESS";
+	else if (!strcmp(op,"SET_->"))
+		op = "SET_ACCESS";
+	else if (!strcmp(op,"GET_->"))
+		op = "GET_ACCESS";
+	else if (!strcmp(op,"SET_."))
+		op = "SET_MEMBER";
+	else if (!strcmp(op,"GET_."))
+		op = "GET_MEMBER";
 	else if (!strcmp(op,">>"))
 		op = "RS";
 	else if (!strcmp(op,"<<"))
@@ -260,6 +304,8 @@ struct expr createFunctionCall(struct expr fun, struct expr args)
 struct expr createTypeExpr(char *type)
 {
     struct expr out = createExpr("",NO_EXPR,NO_EXPR,NO_EXPR);
+	if (!strcmp(type,"void"))
+	    type="";
 	out.type = type;
 	return out;
 }
