@@ -12,6 +12,15 @@ struct stack
     struct stack *prev;
 };
 
+struct stack *s;
+
+char *pop(struct stack **s)
+{
+    char *out = (*s)->text;
+    *s = (*s)->prev;
+    return out;
+}
+
 int getNumToPop(char *op, int *type)
 {
     *type = OPERATOR;
@@ -25,6 +34,7 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"FLOAT") ||
         !strcmp(op,"STRING") ||
         !strcmp(op,"GET_MEM") ||
+        !strcmp(op,"ADDRESS") ||
         !strcmp(op,"SET_MEM") ||
         !strcmp(op,"DEREFERENCE_SET") ||
         !strcmp(op,"RETURN VAL") )
@@ -55,9 +65,9 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"LS") ||
         !strcmp(op,"if") ||
         !strcmp(op,"[]") ||
-        !strcmp(op,"while") ||
         !strcmp(op,"FUN") ||
-        !strcmp(op,"CALL"))
+        !strcmp(op,"CALL")
+        )
             return 2;
     else if (!strcmp(op,"if/else") ||
         !strcmp(op,"?"))
@@ -77,18 +87,17 @@ int getNumToPop(char *op, int *type)
         *type = DATA;
         return 0;
     }
+    else if (!strcmp(op,"while"))
+    {
+        if (!strcmp(s->text,"<value></value>"))
+            pop(&s);
+        return 2;
+    }
     else
     {
         *type = VARIABLE;
         return 0;
     }
-}
-
-char *pop(struct stack **s)
-{
-    char *out = (*s)->text;
-    *s = (*s)->prev;
-    return out;
 }
 
 void push(char *data, struct stack **s)
@@ -102,7 +111,7 @@ void push(char *data, struct stack **s)
 int main(int argc, char **argv)
 {
     struct stack data;
-    struct stack *s = &data;
+    s = &data;
     char buf[1024*8];
     int type = 0;
     printf("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");

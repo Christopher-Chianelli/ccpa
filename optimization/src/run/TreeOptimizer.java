@@ -36,6 +36,8 @@ public class TreeOptimizer {
 			int oldLength = statements.getLength();
 			if (statement.getNodeName().equals("op"))
 			    removeNoOpsFromOp(program,statement);
+			else if (statement.getNodeName().equals("value"))
+				program.removeChild(statement);
 			if (oldLength > statements.getLength()){
 				i = -1;
 			}
@@ -56,16 +58,22 @@ public class TreeOptimizer {
 			
 			if (children.item(0).getNodeName().equals("op"))
 				removeNoOpsFromOp(op,children.item(0));
+			else if (children.item(0).getNodeName().equals("value"))
+				op.removeChild(children.item(0));
 			
 			if (children.item(1) == null)
 			{
 				if (children.item(0).getNodeName().equals("op"))
 					removeNoOpsFromOp(op,children.item(0));
+				else if (children.item(0).getNodeName().equals("value"))
+					op.removeChild(children.item(0));
 			}
 			else
 			{
 				if (children.item(1).getNodeName().equals("op"))
 					removeNoOpsFromOp(op,children.item(1));
+				else if (children.item(1).getNodeName().equals("value"))
+					op.removeChild(children.item(1));
 			}
 			
 			if (op.getChildNodes().getLength() == 1)

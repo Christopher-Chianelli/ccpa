@@ -194,7 +194,7 @@ variableList:
     ;
 
 code:
-    startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=$3;$$.rep = concatStrings(3,$$.rep,$5,"\n");}
+    startScope OPEN_BLOCK codeBlock CLOSE_BLOCK endScope {$$=$3;$$.rep = concatStrings(2,$$.rep,$5);}
     | variableList SEMICOLON {$$=$1;}
     | expression SEMICOLON {$$=$1;}
     | ifStatement {$$=$1;}
@@ -409,7 +409,7 @@ whileLoop:
 forLoop:
     FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$11),$6,createExpr(";",$10,$8,NO_EXPR),NO_EXPR),NO_EXPR);}
     | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,createExpr(";",$8,$6,NO_EXPR),NO_EXPR);}
-    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$10),$6,$9,NO_EXPR),createVariableExpr("",$10));}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$10),$6,$9,NO_EXPR),createTextExpr("",$10));}
     | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("while",$4,$7,NO_EXPR);}
     ;
 %%
