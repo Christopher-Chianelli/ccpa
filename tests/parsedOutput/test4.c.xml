@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<program>
+  <op name=";">
+    <op name="FUN">
+      <value>main</value>
+      <op name=";">
+        <op name="CALL">
+          <value>moo</value>
+          <op name=";">
+            <value>y</value>
+            <op name="INT">
+              <value>9</value>
+            </op>
+          </op>
+        </op>
+        <op name=";">
+          <op name="CALL">
+            <value>printf</value>
+            <op name=";">
+              <op name="GET_MEM">
+                <value>y</value>
+              </op>
+              <op name=";">
+                <value>y</value>
+                <op name=";">
+                  <op name="ADDRESS">
+                    <value>y</value>
+                  </op>
+                  <op name="STRING">
+                    <value>"Address of y = %d, value of y = %d, value of *y = %d\n"</value>
+                  </op>
+                </op>
+              </op>
+            </op>
+          </op>
+          <op name=";">
+            <op name="CALL">
+              <value>printf</value>
+              <op name=";">
+                <value>x</value>
+                <op name=";">
+                  <op name="ADDRESS">
+                    <value>x</value>
+                  </op>
+                  <op name="STRING">
+                    <value>"Address of x = %d, value of x = %d\n"</value>
+                  </op>
+                </op>
+              </op>
+            </op>
+            <op name=";">
+              <op name="=">
+                <op name="ADDRESS">
+                  <value>x</value>
+                </op>
+                <value>y</value>
+              </op>
+              <op name="=">
+                <op name="INT">
+                  <value>1</value>
+                </op>
+                <value>x</value>
+              </op>
+            </op>
+          </op>
+        </op>
+      </op>
+      <uses>
+        <value>int*</value>
+        <value>y</value>
+      </uses>
+      <uses>
+        <value>int</value>
+        <value>x</value>
+      </uses>
+      <uses>
+        <value>int()</value>
+        <value>main</value>
+      </uses>
+    </op>
+    <uses>
+      <value>int()</value>
+      <value>main</value>
+    </uses>
+    <uses>
+      <value>void(int,int*)</value>
+      <value>moo</value>
+    </uses>
+    <uses>
+      <value>void(char*,...)</value>
+      <value>printf</value>
+    </uses>
+  </op>
+  <op name="FUN">
+    <value>moo</value>
+    <op name="=">
+      <value>a</value>
+      <op name="GET_MEM">
+        <value>b</value>
+      </op>
+    </op>
+    <uses>
+      <value>void(int,int*)</value>
+      <value>moo</value>
+    </uses>
+    <uses>
+      <value>int*</value>
+      <value>b</value>
+    </uses>
+    <uses>
+      <value>int</value>
+      <value>a</value>
+    </uses>
+  </op>
+</program>

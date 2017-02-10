@@ -9,6 +9,9 @@
     extern void updateFileInfo(char *info);
     extern void yyerror(const char *);
 %}
+
+%option nounput
+
 DOTS     "..."
 DIGIT    [0-9]
 LETTER   [a-zA-Z]

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<program>
+  <op name=";">
+    <op name="FUN">
+      <value>main</value>
+      <op name="if/else">
+        <op name="RETURN VAL">
+          <op name="INT">
+            <value>1</value>
+          </op>
+        </op>
+        <op name="RETURN VAL">
+          <op name="INT">
+            <value>0</value>
+          </op>
+        </op>
+        <op name="LT">
+          <op name="INT">
+            <value>2</value>
+          </op>
+          <op name="INT">
+            <value>1</value>
+          </op>
+        </op>
+      </op>
+      <uses>
+        <value>int()</value>
+        <value>main</value>
+      </uses>
+    </op>
+    <uses>
+      <value>int()</value>
+      <value>main</value>
+    </uses>
+  </op>
+</program>

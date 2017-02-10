@@ -1,0 +1,13 @@
+#!/bin/bash
+cd scanner
+make clean
+make
+cd ..
+
+for i in `ls tests`
+do
+if [ -f "tests/$i" ]
+then
+    ./ccpa "tests/$i" > "tests/parsedOutput/$i.xml"
+fi
+done

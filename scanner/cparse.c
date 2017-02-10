@@ -109,7 +109,6 @@ void declareStruct(char *name, char *members)
 struct expr getStructMember(char *name, char *member)
 {
 	struct structList *temp = &structs;
-	char *test;
 	while (temp && temp->name != NULL && strcmp(temp->name,name))
 	    temp = temp->next;
 
