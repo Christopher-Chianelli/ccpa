@@ -10,7 +10,7 @@
           </op>
           <op name="GET_ACCESS">
             <value>c</value>
-            <value>test</value>
+            <value>pointer</value>
           </op>
         </op>
         <op name=";">
@@ -25,10 +25,17 @@
           </op>
           <op name=";">
             <value/>
-            <op name="NO_OP"/>
+            <op name=";">
+              <value/>
+              <op name="NO_OP"/>
+            </op>
           </op>
         </op>
       </op>
+      <uses>
+        <value>struct myStruct*</value>
+        <value>pointer</value>
+      </uses>
       <uses>
         <value>struct myStruct</value>
         <value>test</value>

@@ -5,7 +5,7 @@ extern void *malloc(int);
 struct linkedList
 {
     int x;
-    struct linkedList *l;
+    struct linkedList *next;
 };
 
 int factorial(int n)

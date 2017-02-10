@@ -7,6 +7,7 @@ struct myStruct
 int main()
 {
     struct myStruct test;
+    struct myStruct *pointer;
     test.a = 10;
-    test->c = 3.0;
+    pointer->c = 3.0;
 }

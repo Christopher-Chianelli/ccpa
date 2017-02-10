@@ -198,7 +198,7 @@
     <value>linkedList</value>
     <uses>
       <value>struct linkedList*</value>
-      <value>l</value>
+      <value>next</value>
     </uses>
     <uses>
       <value>int</value>
