@@ -80,7 +80,7 @@ void yyerror(const char *s);
 %token <vval> OPEN_SQUARE
 %token <vval> CLOSE_SQUARE
 
-%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef lValue
+%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
 %type <ival> multistar
 %%
@@ -297,15 +297,8 @@ expression:
 
 assignment:
     ternary {$$=$1;}
-    | lValue OP14 ternary {$$=createExpr($2,$1,$3,NO_EXPR);}
-	| lValue EQUALS ternary {$$=createExpr("=",$1,$3,NO_EXPR);}
-	;
-
-lValue:
-    ID {$$=createExpr("SET_MEM",getVariable($1),NO_EXPR,NO_EXPR);}
-	| ID OP1 ID {$$=createExpr(concatStrings(2,"SET_",$2),getVariable($1),getStructMember(variableType($1),$3),NO_EXPR);}
-	| STAR OPEN_BRACKET expression CLOSE_BRACKET {$$=createExpr("DEREFERENCE_SET",$3,NO_EXPR,NO_EXPR);}
-	| STAR lValue {$$=createExpr("DEREFERENCE_SET",$2,NO_EXPR,NO_EXPR);}
+    | assignment OP14 ternary {$$=createExpr($2,$1,$3,NO_EXPR);}
+	| assignment EQUALS ternary {$$=createExpr("=",$1,$3,NO_EXPR);}
 	;
 
 ternary:

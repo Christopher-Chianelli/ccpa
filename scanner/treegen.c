@@ -38,6 +38,7 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"%") ||
         !strcmp(op,"SET_MEMBER") ||
         !strcmp(op,"SET_ACCESS") ||
+        !strcmp(op,"SET_[]") ||
         !strcmp(op,"GET_MEMBER") ||
         !strcmp(op,"GET_ACCESS") ||
         !strcmp(op,"=") ||
