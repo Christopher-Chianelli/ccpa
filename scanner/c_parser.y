@@ -365,9 +365,9 @@ term:
 	| OP2 term {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
 	| STAR term {$$=createExpr("GET_MEM",$2,NO_EXPR,NO_EXPR);}
 	| ADDRESS operand {$$=createExpr("ADDRESS",$2,NO_EXPR,NO_EXPR);}
-	| UNI operand {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
+	| UNI operand {$$=createExpr(concatStrings(2,"PRE",$1),$2,NO_EXPR,NO_EXPR);}
 	| typecast term {$$=$2;$$.type=$1;}
-	| SIZEOF typecast {$$=createExpr("sizeof",createStringExpr($2),NO_EXPR,NO_EXPR);}
+	| SIZEOF typecast {$$=createExpr("sizeof",createVariableExpr($2,$2),NO_EXPR,NO_EXPR);}
 	| SIZEOF operand {$$=createExpr("sizeof",$2,NO_EXPR,NO_EXPR);}
 	;
 
@@ -378,7 +378,7 @@ operand:
     | STR_LIT {$$=createStringExpr($1);}
     | operand OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
 	| ID OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),getVariable($1),getStructMember(variableType($1),$3),NO_EXPR);}
-	| operand UNI {$$=createExpr($2,$1,NO_EXPR,NO_EXPR);}
+	| operand UNI {$$=createExpr(concatStrings(2,"POST",$2),$1,NO_EXPR,NO_EXPR);}
 	| operand OPEN_SQUARE expression CLOSE_SQUARE {$$=createExpr("[]",$1,$3,NO_EXPR);}
 	| OPEN_BRACKET expression CLOSE_BRACKET {$$=$2;}
 	| operand ID {$$=createEmptyExpr();}
@@ -407,9 +407,9 @@ whileLoop:
     ;
 
 forLoop:
-    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$11),$6,createExpr(";",$10,$8,NO_EXPR),NO_EXPR),NO_EXPR);}
+    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr(concatStrings(2,";\n",$11),$4,createExpr("while",$6,createExpr(";",$10,$8,NO_EXPR),NO_EXPR),NO_EXPR);}
     | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,createExpr(";",$8,$6,NO_EXPR),NO_EXPR);}
-    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(";",$4,createExpr(concatStrings(2,"while\n",$10),$6,$9,NO_EXPR),createTextExpr("",$10));}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(concatStrings(2,";\n",$10),$4,createExpr("while",$6,$9,NO_EXPR),createTextExpr("",$10));}
     | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("while",$4,$7,NO_EXPR);}
     ;
 %%
@@ -436,6 +436,10 @@ int main(int argc, char** argv) {
 	variables->vars->type = NULL;
 	variables->vars->name = NULL;
 	variables->vars->next = NULL;
+
+	structs.name = NULL;
+	structs.members = NULL;
+	structs.next = NULL;
 
 	// parse through the input until there is no more:
 	do {

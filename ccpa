@@ -1,3 +1,27 @@
 #!/bin/bash
 #echo "C Card Punching Apparatus for the Analytical Engine"
-gcc -E $1 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | xmllint --format -
+while getopts ":p:s:t" o; do
+    case "${o}" in
+        p)
+            gcc -E $2 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | xmllint --format -
+            exit 1
+            ;;
+
+        s)
+            gcc -E $2 | scanner/cparse
+            exit 1
+            ;;
+
+        t)
+            gcc -E $2 | scanner/cparse | scanner/treegen | xmllint --format -
+            exit 1
+            ;;
+
+        *)
+            echo "Invalid option"
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+gcc -E $1 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | java -cp "backend/treeToAE2/bin" run/TreeToAE2 | bash backend/mk_src/compile_ae2.bash

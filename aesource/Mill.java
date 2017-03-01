@@ -31,6 +31,7 @@ class Mill {
 
         panel = p;
         attendant = a;
+        a.setMill(this);
         reset();
         shiftFactor = new Vector(101);
         shiftFactor.setSize(101);

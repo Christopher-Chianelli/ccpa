@@ -1,21 +1,18 @@
 package run;
 
-import java.io.File;
-import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 public class TreeOptimizer {
 	private static Document doc;
@@ -46,6 +43,8 @@ public class TreeOptimizer {
 	
 	private static void removeNoOpsFromOp(Node root, Node op)
 	{
+		if (!op.getNodeName().equals("op"))
+			return;
 		NamedNodeMap attr = op.getAttributes();
 		String operation =  attr.getNamedItem("name").getTextContent();
 		if (operation.equals("NO_OP"))
@@ -131,14 +130,240 @@ public class TreeOptimizer {
 		return true;
 	}
 	
+	private static void changeCallOps(Node program)
+	{
+		NodeList statements = program.getChildNodes();
+		for (int i = 0; i < statements.getLength(); i++)
+		{
+			Node statement = statements.item(i);
+			changeCallOpsInStatement(statement, false);
+		}
+	}
+	
+	private static void changeCallOpsInStatement(Node statement, boolean isCall)
+	{
+		if (!statement.getNodeName().equals("op"))
+			return;
+		NamedNodeMap attr = statement.getAttributes();
+		String operation =  attr.getNamedItem("name").getTextContent();
+		if (operation.equals("CALL"))
+		{
+			changeCallOpsInStatement(statement.getLastChild(),true);
+		}
+		else if (operation.equals(";"))
+		{
+			if (isCall)
+			{
+				Attr newOp = doc.createAttribute("name");
+				newOp.setValue("COMBINE_ARGS");
+				
+				attr.setNamedItem(newOp);
+				
+				changeCallOpsInStatement(statement.getFirstChild(),true);
+				changeCallOpsInStatement(statement.getFirstChild().getNextSibling(),true);
+			}
+			else
+			{
+				changeCallOpsInStatement(statement.getFirstChild(),false);
+				changeCallOpsInStatement(statement.getFirstChild().getNextSibling(),false);
+			}
+		}
+		else if (operation.equals("NO_OP"))
+		{
+			if (isCall)
+			{
+				Attr newOp = doc.createAttribute("name");
+				newOp.setValue("NO_ARG");
+				
+				attr.setNamedItem(newOp);
+			}
+		}
+		else
+		{
+			NodeList children = statement.getChildNodes();
+			for (int i = 0; i < children.getLength(); i++)
+			{
+				changeCallOpsInStatement(children.item(i),isCall);
+			}
+		}
+	}
+	
+	private static void convertToFinalForm(Node program)
+	{
+		Element functions = doc.createElement("functions");
+		Element dataStructures = doc.createElement("structures");
+		Element init = doc.createElement("init");
+		
+		removeFunctions(program, functions);
+		
+		NodeList statements = program.getChildNodes();
+		for (int i = 0; i < statements.getLength(); i++)
+		{
+			Node statement = statements.item(i);
+			int oldLength = statements.getLength();
+			
+			if (statement.getNodeName().equals("op"))
+			{
+				NamedNodeMap attr = statement.getAttributes();
+				String operation =  attr.getNamedItem("name").getTextContent();
+				if (operation.equals("FUN"))
+				{
+					functions.appendChild(statement);
+				}
+				else if (operation.equals(";"))
+				{
+					convertSemicolon(statement,functions,dataStructures,init);
+				}
+			}
+			else
+			{
+				dataStructures.appendChild(statement);
+			}
+			
+			if (oldLength != statements.getLength()){
+				i = -1;
+			}
+		}
+		
+		while (program.hasChildNodes())
+			program.removeChild(program.getFirstChild());
+		
+		NodeList myFunctions = functions.getChildNodes();
+		
+		for (int i = 0; i < myFunctions.getLength();i++)
+		{
+			for (Node temp = myFunctions.item(i).getLastChild();temp != null;temp = temp.getPreviousSibling())
+			{
+				if (temp.getLastChild().getTextContent().equals(myFunctions.item(i).getFirstChild().getTextContent()))
+				{
+					myFunctions.item(i).removeChild(temp);
+					break;
+				}
+			}
+		}
+		
+		Element callMain = doc.createElement("op");
+		callMain.setAttribute("name", "CALL");
+		callMain.setAttribute("type", "void");
+		
+		Element mainName = doc.createElement("value");
+		mainName.setTextContent("main");
+		
+		callMain.appendChild(mainName);
+		
+		Element mainParams = doc.createElement("op");
+		mainParams.setAttribute("name", "NO_ARG");
+		mainParams.setAttribute("type", "");
+		
+		callMain.appendChild(mainParams);
+		
+		init.appendChild(callMain);
+		
+		Element haltProgram = doc.createElement("op");
+		haltProgram.setAttribute("name", "HALT");
+		init.appendChild(haltProgram);
+		
+		program.appendChild(init);
+		program.appendChild(functions);
+		program.appendChild(dataStructures);
+	}
+	
+	private static boolean removeFunctions(Node node, Element functions) {
+		if (node.getNodeName().equals("op") && node.getAttributes().getNamedItem("name").getTextContent().equals("FUN"))
+		{
+			Element noOp = doc.createElement("op");
+			noOp.setAttribute("name", "NO_OP");
+			node.getParentNode().replaceChild(noOp, node);
+			functions.appendChild(node);
+			return true;
+		}
+		
+		boolean out = false;
+		Node child = node.getFirstChild();
+		while (child != null)
+		{
+			if (removeFunctions(child,functions))
+			{
+				child = node.getFirstChild();
+				out = true;
+			}
+			else
+			{
+			    child = child.getNextSibling();
+			}
+		}
+		return out;
+	}
+
+	private static Node convertSemicolon(Node semicolon, Element functions, Element dataStructures, Element init)
+	{
+		Node first = semicolon.getFirstChild();
+		Node second = semicolon.getLastChild();
+		
+		Node firstConverted = convertPart(first, functions, dataStructures, init);
+		Node secondConverted = convertPart(second, functions, dataStructures, init);
+		
+		if (firstConverted != null && secondConverted != null)
+		{
+			semicolon.replaceChild(firstConverted, first);
+			semicolon.replaceChild(secondConverted, second);
+			init.appendChild(semicolon);
+			return semicolon;
+		}
+		else if (firstConverted != null)
+		{
+			init.appendChild(firstConverted);
+			return firstConverted;
+		}
+		else if (secondConverted != null)
+		{
+			init.appendChild(secondConverted);
+			return secondConverted;
+		}
+		else
+		{
+			return null;
+		}
+		
+	}
+	
+	private static Node convertPart(Node first, Element functions, Element dataStructures, Element init)
+	{
+		if (first == null)
+			return null;
+		
+		Node firstConverted;
+		
+		if (first.getNodeName().equals("op"))
+		{
+			NamedNodeMap attr = first.getAttributes();
+			if (attr.getNamedItem("name").getTextContent().equals(";"))
+			{
+				firstConverted = convertSemicolon(first,functions,dataStructures,init);
+			}
+			else
+			{
+				firstConverted = first;
+			}
+		}
+		else
+		{
+			firstConverted = null;
+			dataStructures.appendChild(first);
+		}
+		return firstConverted;
+	}
+	
 	public static void main(String[] args) throws Exception {
-		Document doc = readFromInput();
+		doc = readFromInput();
 		
 		Node program = doc.getFirstChild();
 		Node oldProgram = doc.getFirstChild();
 		
 		removeNoOps(program);
 		removeUnusedVariables(program);
+		changeCallOps(program);
+		convertToFinalForm(program);
 		
 		doc.replaceChild(program, oldProgram);
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();

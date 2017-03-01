@@ -21,15 +21,29 @@ char *pop(struct stack **s)
     return out;
 }
 
-int getNumToPop(char *op, int *type)
+int getNumToPop(char *op, int *opType, char **type)
 {
-    *type = OPERATOR;
-    if (!strcmp(op,"NO_OP"))
-        return 0;
+    *opType = OPERATOR;
+    *type = strrchr(op,':');
+    if (*type)
+    {
+        **type = '\0';
+        (*type)++;
+    }
+    else
+    {
+        *type = "";
+    }
+
+    if (!strcmp(op,"NO_OP") ||
+        !strcmp(op,"RETURN"))
+            return 0;
     else if (!strcmp(op,"-U") ||
         !strcmp(op,"+U") ||
-        !strcmp(op,"++") ||
-        !strcmp(op,"--") ||
+        !strcmp(op,"PRE++") ||
+        !strcmp(op,"PRE--") ||
+        !strcmp(op,"POST++") ||
+        !strcmp(op,"POST--") ||
         !strcmp(op,"INT") ||
         !strcmp(op,"FLOAT") ||
         !strcmp(op,"STRING") ||
@@ -37,7 +51,8 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"ADDRESS") ||
         !strcmp(op,"SET_MEM") ||
         !strcmp(op,"DEREFERENCE_SET") ||
-        !strcmp(op,"RETURN VAL") )
+        !strcmp(op,"RETURN VAL") ||
+        !strcmp(op,"sizeof"))
             return 1;
     else if (!strcmp(op,"+") ||
         !strcmp(op,"-") ||
@@ -52,9 +67,18 @@ int getNumToPop(char *op, int *type)
         !strcmp(op,"GET_MEMBER") ||
         !strcmp(op,"GET_ACCESS") ||
         !strcmp(op,"=") ||
+        !strcmp(op,"+=") ||
+        !strcmp(op,"-=") ||
+        !strcmp(op,"*=") ||
+        !strcmp(op,"/=") ||
+        !strcmp(op,"%=") ||
+        !strcmp(op,"AND-bitwise=") ||
+        !strcmp(op,"OR-bitwise=") ||
+        !strcmp(op,"^=") ||
         !strcmp(op,"AND") ||
         !strcmp(op,"AND-bitwise") ||
         !strcmp(op,"OR") ||
+        !strcmp(op,"OR-bitwise") ||
         !strcmp(op,"==") ||
         !strcmp(op,"!=") ||
         !strcmp(op,"LT") ||
@@ -74,17 +98,17 @@ int getNumToPop(char *op, int *type)
             return 3;
     else if (!strcmp(op,"DECLARE"))
     {
-        *type = DECLARE;
+        *opType = DECLARE;
         return 3;
     }
     else if (!strcmp(op,"STRUCT"))
     {
-        *type = DATA;
+        *opType = DATA;
         return 1;
     }
     else if (!strcmp(op,"UNAMED_STRUCT"))
     {
-        *type = DATA;
+        *opType = DATA;
         return 0;
     }
     else if (!strcmp(op,"while"))
@@ -95,7 +119,7 @@ int getNumToPop(char *op, int *type)
     }
     else
     {
-        *type = VARIABLE;
+        *opType = VARIABLE;
         return 0;
     }
 }
@@ -112,31 +136,34 @@ int main(int argc, char **argv)
 {
     struct stack data;
     s = &data;
+    data.prev = NULL;
+    data.text = NULL;
     char buf[1024*8];
-    int type = 0;
-    printf("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
+    int opType = 0;
+    char *type;
+    //printf("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
     printf("<program>");
     if (argc == 1)
     {
         while (fgets(buf,1024*8,stdin))
         {
             buf[strlen(buf) - 1] = '\0';
-            int toPop = getNumToPop(buf,&type);
+            int toPop = getNumToPop(buf,&opType,&type);
             char *element = "";
 
-            if (type == OPERATOR)
+            if (opType == OPERATOR)
             {
                 while (toPop > 0){
                     element = concatStrings(3,element,"",pop(&s));
                     toPop--;
                 }
-                push(concatStrings(5,"<op name=\"",buf,"\">",element,"</op>"),&s);
+                push(concatStrings(7,"<op name=\"",buf,"\" type=\"",type,"\">",element,"</op>"),&s);
             }
-            else if (type == VARIABLE)
+            else if (opType == VARIABLE)
             {
                 push(concatStrings(3,"<value>",buf,"</value>"),&s);
             }
-            else if (type == DECLARE)
+            else if (opType == DECLARE)
             {
                 while (toPop > 1){
                     element = concatStrings(3,element,"",pop(&s));
@@ -151,7 +178,7 @@ int main(int argc, char **argv)
 
                 push(concatStrings(5,scope,"<uses>",element,"</uses>",endTag),&s);
             }
-            else if (type == DATA)
+            else if (opType == DATA)
             {
                 while (toPop > 0){
                     element = concatStrings(3,element,"",pop(&s));

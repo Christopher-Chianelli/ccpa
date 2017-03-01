@@ -109,11 +109,38 @@ void declareStruct(char *name, char *members)
 struct expr getStructMember(char *name, char *member)
 {
 	struct structList *temp = &structs;
+	name = getBaseType(name + 7);
+
 	while (temp && temp->name != NULL && strcmp(temp->name,name))
 	    temp = temp->next;
 
-	//TODO: Later
-	return createVariableExpr("",member);
+	if (temp)
+	{
+		char *tempMember = strstr(temp->members,member);
+		while(tempMember && tempMember[strlen(member)] != '\n'){
+		    tempMember = strstr(tempMember + strlen(member),member);
+		}
+		if (tempMember)
+		{
+			char *typeEnd = strstr(tempMember,"\nDECLARE");
+			char *typeStart = tempMember + strlen(member) + 1;
+			*typeEnd = '\0';
+			char *type = allocate(sizeof(char)*(strlen(typeStart) + 1));
+			strcpy(type,typeStart);
+			*typeEnd = '\n';
+			return createVariableExpr(type,member);
+		}
+		else
+		{
+			fprintf(stderr,"%s: line %d: Error: struct %s does not have member %s\n",filename, lineNumber, name, member);
+			return createVariableExpr("",member);
+		}
+    }
+	else
+	{
+		fprintf(stderr,"%s: line %d: Error: %s is not a struct\n",filename, lineNumber, name);
+		return createVariableExpr("",member);
+	}
 }
 
 char *findVariable(struct variableStack *stack, char *name)
@@ -204,12 +231,16 @@ struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr
 	else if (!strcmp(op,"&"))
 		op = "AND-bitwise";
 	else if (!strcmp(op,"&="))
-		op = "SET-AND-bitwise";
+		op = "=AND-bitwise";
 	else if (!strcmp(op,"&&"))
 		op = "AND";
 	else if (!strcmp(op,"||"))
 		op = "OR";
-    out.rep = concatStrings(5,arg1.rep,arg2.rep,arg3.rep,op,"\n");
+	else if (!strcmp(op,"|"))
+		op = "OR-bitwise";
+	else if (!strcmp(op,"|="))
+		op = "=OR-bitwise";
+    out.rep = concatStrings(7,arg1.rep,arg2.rep,arg3.rep,op,":",out.type,"\n");
     return out;
 }
 
@@ -217,7 +248,7 @@ struct expr createEmptyExpr()
 {
     struct expr out;
     out.type = "";
-    out.rep = "NO_OP\n";
+    out.rep = "NO_OP:\n";
     return out;
 }
 
@@ -225,7 +256,7 @@ struct expr getVariable(char *var)
 {
 	struct expr out;
     out.type = variableType(var);
-	out.rep = concatStrings(2,var,"\n");
+	out.rep = concatStrings(4,var,":",(out.type)?out.type:"","\n");
 
 	if (out.type == NULL)
 	{
@@ -239,7 +270,7 @@ struct expr createIntExpr(int i)
 {
 	struct expr out;
     out.type = "int";
-	out.rep = concatStrings(2,findOrCreateString("%d",i),"\nINT\n");
+	out.rep = concatStrings(2,findOrCreateString("%d",i),"\nINT:int\n");
 
     return out;
 }
@@ -248,7 +279,7 @@ struct expr createFloatExpr(float f)
 {
 	struct expr out;
     out.type = "float";
-	out.rep = concatStrings(2,findOrCreateString("%f",f),"\nFLOAT\n");
+	out.rep = concatStrings(2,findOrCreateString("%f",f),"\nFLOAT:float\n");
 
     return out;
 }
@@ -257,7 +288,7 @@ struct expr createStringExpr(char *s)
 {
 	struct expr out;
     out.type = "char*";
-	out.rep = concatStrings(2,s,"\nSTRING\n");
+	out.rep = concatStrings(2,s,"\nSTRING:char*\n");
 
     return out;
 }
@@ -266,7 +297,7 @@ struct expr createVariableExpr(char *type, char *name)
 {
 	struct expr out;
     out.type = type;
-	out.rep = concatStrings(2,name,"\n");
+	out.rep = concatStrings(4,name,":",out.type,"\n");
 
     return out;
 }
@@ -275,7 +306,7 @@ struct expr createFunctionCall(struct expr fun, struct expr args)
 {
 	struct expr out;
     out.type = functionTypeAfterCall(fun.type);
-	out.rep = concatStrings(3,args.rep,fun.rep,"CALL\n");
+	out.rep = concatStrings(5,args.rep,fun.rep,"CALL:",out.type,"\n");
 
 	if (!strcmp(out.type,"")){
 		fprintf(stderr,"%s line %d: Error: ",filename,lineNumber);
@@ -434,11 +465,14 @@ char *getType(char *op, char *arg1, char *arg2, char *arg3)
 	    return NULL;
     if (!strcmp(op,"+") || !strcmp(op,"-") || !strcmp(op,"*") || !strcmp(op,"/") || !strcmp(op,"%"))
         return betterType(arg1,arg2);
-	else if (!strcmp(op,"=") || !strcmp(op,"+=") ||!strcmp(op,"-=") ||!strcmp(op,"/=") ||!strcmp(op,"*=") ||!strcmp(op,"&=") ||!strcmp(op,"|=") || !strcmp(op,"^=") || !strcmp(op,"[]"))
+	else if (!strcmp(op,"=") || !strcmp(op,"+=") ||!strcmp(op,"-=") ||
+	!strcmp(op,"/=") ||!strcmp(op,"*=") ||!strcmp(op,"&=") ||!strcmp(op,"|=") ||
+	 !strcmp(op,"^=") || !strcmp(op,"[]") || !strcmp(op,"PRE++") ||
+	  !strcmp(op,"POST++") || !strcmp(op,"PRE--") || !strcmp(op,"POST--"))
 	    return arg1;
-	else if (!strcmp(op,";") || !strcmp(op,","))
+	else if (!strcmp(op,";") || !strcmp(op,",") || !strcmp(op,"GET_->"))
 	    return arg2;
-	else if (!strcmp(op,"||") || !strcmp(op,"&&") || !strcmp(op,"==") || !strcmp(op,"!=") || !strcmp(op,">=") || !strcmp(op,"<=") || !strcmp(op,"<") || !strcmp(op,">"))
+	else if (!strcmp(op,"||") || !strcmp(op,"&&") || !strcmp(op,"==") || !strcmp(op,"!=") || !strcmp(op,">=") || !strcmp(op,"<=") || !strcmp(op,"<") || !strcmp(op,">") || !strcmp(op,"sizeof"))
 	    return "int";
     return "";
 }
@@ -632,6 +666,7 @@ char *functionTypeAfterCall(char *type)
 	char *out;
 	if (type == NULL)
 	    return NULL;
+
 	int pos = strlen(type) - 1;
 
 	while (type[pos] != '(')
@@ -642,7 +677,7 @@ char *functionTypeAfterCall(char *type)
 	}
 
 	out = allocate(sizeof(char)*pos);
-	strncpy(out,type,pos - 1);
+	strncpy(out,type,pos);
 	out[pos] = '\0';
 	char *buf = findOrCreateString(out);
 

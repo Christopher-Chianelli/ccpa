@@ -8,6 +8,6 @@ for i in `ls tests`
 do
 if [ -f "tests/$i" ]
 then
-    ./ccpa "tests/$i" > "tests/parsedOutput/$i.xml"
+    ./ccpa "tests/$i" > "tests/parsedOutput/$i.txt"
 fi
 done

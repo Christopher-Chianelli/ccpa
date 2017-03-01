@@ -1,0 +1,187 @@
+A write in columns
+N999 0
+N998 1
+N997 -1
+N994 0
+N991 99999999999999999999999999999999999999999999999999
+N990 -99999999999999999999999999999999999999999999999999
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+10
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+H
+.main
+N970 0
++
+L994
+L970
+S994
+N971 1
+N972 2
+-
+L971
+L972
+S970
+-
+L970
+L997
+S970
+L998'
+L999
+L970
+CF?2
+N970 1
+CF+1
+N970 0
+/
+L999
+L970
+CF?1
+CF+1
+CF+10
+N996 0
+N995 0
+-
+L994
+L995
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.$L0
+N995 0
+-
+L994
+L995
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.readInt
+A ask audience for a number
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printNewLine
+A write new line
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printInt
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995
++
+L995
+L999
+P
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printFloat
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995
++
+L995
+L999
+P
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printString
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995

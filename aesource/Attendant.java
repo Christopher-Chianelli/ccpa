@@ -19,11 +19,12 @@ class Attendant {
     private OutputApparatus annotationDevice = null;
     private Vector<Integer> callStack;//Added by Christopher Chianelli; return addresses for function calls
     private Scanner audience = new Scanner(System.in);
+    private Mill mill;
 
     //  Constructor
 
     Attendant(AnnunciatorPanel p) {
-        panel = p; 
+        panel = p;
         reset();
     }
 
@@ -36,6 +37,11 @@ class Attendant {
     void setCardReader(CardReader r)
     {
     	cardReader = r;
+    }
+    
+    void setMill(Mill m)
+    {
+    	mill = m;
     }
 
     //  Reset to starting conditions
@@ -699,7 +705,13 @@ class Attendant {
         	}
         	cardReader.mountCards(cardChain);
         	cardReader.advance(c.index + 1);
-        }else if (card.toLowerCase().startsWith(" notes location of next card on stack", 1))
+        }
+        else if (card.toLowerCase().startsWith(" replace next card with result from the egress axis", 1))
+        {
+        	Card next = (Card)cardChain.elementAt(c.index + 1);
+        	next.text = next.text.substring(0,1) + mill.outAxis().toString() + next.text.substring((next.text.indexOf(' ') >= 0)? next.text.indexOf(' ') : next.text.length());
+        }
+        else if (card.toLowerCase().startsWith(" notes location of next card on stack", 1))
         {
         	callStack.add(new Integer(c.index));
         }

@@ -1,6 +1,7 @@
 #define NULL (0)
 extern void printf(char*,...);
-extern void *malloc(int);
+
+void *malloc(int size){return NULL;}
 
 struct linkedList
 {
@@ -38,3 +39,4 @@ void main()
         temp = temp->next;
     }
 }
+

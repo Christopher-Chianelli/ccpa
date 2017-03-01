@@ -1,9 +1,6 @@
 #!/bin/bash
-cat $1.ae2 > out/$1.ae
-for i in grep -E "D[\\._(memget)]"
-do
-    cat ../ae_code_src/memget.ae2 >> out/$1.ae
-done
-python replace_calls.py out/$1.ae
-python replace_jumps.py out/$1.ae
-(bash replace_registers.bash `cat register_assignment.txt | tr ' ' ':'` < out/$1.ae) > out/$1.txt
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cat > $SCRIPT_DIR/out/temp
+python $SCRIPT_DIR/replace_calls.py $SCRIPT_DIR/out/temp
+python $SCRIPT_DIR/replace_jumps.py $SCRIPT_DIR/out/temp
+bash $SCRIPT_DIR/replace_registers.bash `cat $SCRIPT_DIR/register_assignment.txt | tr ' ' ':'` < $SCRIPT_DIR/out/temp
