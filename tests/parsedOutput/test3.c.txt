@@ -2,6 +2,11 @@ A write in columns
 N999 0
 N998 1
 N997 -1
+N986 2
+N987 10
+N989 1000000000000000000000000000000000000000000000000
+N979 1000000000000000000000000
+N988 50
 N994 0
 N991 99999999999999999999999999999999999999999999999999
 N990 -99999999999999999999999999999999999999999999999999
@@ -75,7 +80,7 @@ S995
 L970
 L999
 CB+13
-N970 3.000000
+N970 51300000000000000000000000000000000000000000000000
 +
 L999
 L999
@@ -106,7 +111,14 @@ L999
 L999
 A returns to location on the top of the stack
 .readInt
-A ask audience for a number
+A read next integer
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.readFloat
+A read next float
 N996 ?
 /
 L999
@@ -164,9 +176,65 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S995
-+
+/
 L995
+L989
+S982'
++
 L999
+L982
+S982
+-
+L982
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L982
+S982
+CF+4
+-
+L999
+L982
+S982
+*
+L995
+L987
+S984
+L984
+L987
+S984
+A set decimal places to 49
+A write numbers with decimal point
+P
+A write annotation  * 10^
+-
+L982
+L988
+S982
+A set decimal places to 0
+A write numbers with decimal point
 P
 -
 L994

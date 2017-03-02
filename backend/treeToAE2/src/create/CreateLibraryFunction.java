@@ -7,7 +7,15 @@ public class CreateLibraryFunction {
 	public static void defineReadInt()
 	{
 		System.out.println(".readInt");
-		System.out.println("A ask audience for a number");
+		System.out.println("A read next integer");
+		System.out.println("N[OUT] ?");
+		TreeToAE2.returnToCaller();
+	}
+	
+	public static void defineReadFloat()
+	{
+		System.out.println(".readFloat");
+		System.out.println("A read next float");
 		System.out.println("N[OUT] ?");
 		TreeToAE2.returnToCaller();
 	}
@@ -48,10 +56,21 @@ public class CreateLibraryFunction {
 		System.out.println("S[STACK_TOP]");
 		CreateMemoryOp.getVariableFromStack("0");
 		CreateMemoryOp.readFromAddress("DIRTY");
-		System.out.println("+");
-	    System.out.println("L[DIRTY]");
-	    System.out.println("L[ZERO]");
-	    System.out.printf("P\n");
+		
+		CreateMathOp.getExpPart("DIRTY", "EXP0");		
+		CreateMathOp.getDecPart("DIRTY", "DEC0");
+	    
+		System.out.println("A set decimal places to 49");
+		System.out.println("A write numbers with decimal point");
+	    System.out.println("P");
+	    System.out.println("A write annotation  * 10^");
+	    CreateMathOp.binaryOp("-", "EXP0", "FIFTY", "EXP0");
+	    
+	    System.out.println("A set decimal places to 0");
+		System.out.println("A write numbers with decimal point");
+	    System.out.println("P");
+	    
+	    
 	    System.out.println("-");
 		System.out.println("L[STACK_TOP]");
 		System.out.println("L[ONE]");

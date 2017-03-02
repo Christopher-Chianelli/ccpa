@@ -1,5 +1,6 @@
 package run;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -256,6 +257,11 @@ public class TreeToAE2 {
 		System.out.println("N[ZERO] 0");
 		System.out.println("N[ONE] 1");
 		System.out.println("N[MINUS_ONE] -1");
+		System.out.println("N[TWO] 2");
+		System.out.println("N[TEN] 10");
+		System.out.println("N[POW] " + new BigInteger("10").pow(48));
+		System.out.println("N[SIG] " + new BigInteger("10").pow(24));
+		System.out.println("N[FIFTY] 50");
 		System.out.println("N[STACK_TOP] 0");
 		System.out.println("N[MAX_NUM] 99999999999999999999999999999999999999999999999999");
 		System.out.println("N[MIN_NUM] -99999999999999999999999999999999999999999999999999");
@@ -271,6 +277,7 @@ public class TreeToAE2 {
 		}
 		
 		CreateLibraryFunction.defineReadInt();
+		CreateLibraryFunction.defineReadFloat();
 		CreateLibraryFunction.definePrintNewLine();
 		CreateLibraryFunction.definePrintInt();
 		CreateLibraryFunction.definePrintFloat();
@@ -366,6 +373,18 @@ public class TreeToAE2 {
 				returnFromFunction();
 				return;
 			}
+			else if (operation.equals("GET_MEM"))
+			{
+				printNode(children.item(0),regA);
+				CreateMemoryOp.readFromAddress(outR);
+				return;
+			}
+			else if (operation.equals("ADDRESS"))
+			{
+				printNode(children.item(0),regA);
+				CreateMemoryOp.moveToRegister("MEMADD", outR);
+				return;
+			}
 			else if (operation.equals("CALL"))
 			{
 				CreateMemoryOp.createCall();
@@ -378,7 +397,7 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(1), regA);
 				CreateMemoryOp.pushArgToStack(regA);
-				printNode(children.item(0), register);
+				printNode(children.item(0), outR);
 			}
 			else if (operation.equals("RETURN"))
 			{
@@ -415,19 +434,39 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals(","))
 			{
-				printNode(children.item(1),register);
-				printNode(children.item(0),register);
+				printNode(children.item(1),outR);
+				printNode(children.item(0),outR);
 			}
 			else if (operation.equals("+") || operation.equals("-") || operation.equals("/") || operation.equals("*") || operation.equals("%"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.binaryOp(operation,regA,regB,register);
+				if (type.equals("float"))
+				    CreateMathOp.floatBinaryOp(operation,regA,regB,outR);
+				else
+					CreateMathOp.binaryOp(operation,regA,regB,outR);
+			}
+			else if (operation.equals("AND-bitwise") || operation.equals("OR-bitwise") || operation.equals("^"))
+			{
+				printNode(children.item(1), regA);
+				printNode(children.item(0), regB);
+				CreateMathOp.bitwiseOp(operation,regA,regB,outR);
+			}
+			else if (operation.equals("~"))
+			{
+				printNode(children.item(0), regB);
+				CreateMathOp.bitwiseOp("^","MINUS_ONE",regB,outR);
 			}
 			else if (operation.equals("-U"))
 			{
 				printNode(children.item(0), regA);
-				CreateMathOp.binaryOp("-","ZERO",regA,register);
+				CreateMathOp.binaryOp("-","ZERO",regA,outR);
+			}
+			else if (operation.equals("+U"))
+			{
+				printNode(children.item(0), regA);
+				CreateMathOp.binaryOp("+","ZERO",regA,outR);
 			}
 			else if (operation.equals("POST++"))
 			{
@@ -467,51 +506,51 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regA,regB,register);
+				CreateMathOp.isLessThan(regA,regB,outR);
 				return;
 			}
 			else if (operation.equals("GT"))
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regB,regA,register);
+				CreateMathOp.isLessThan(regB,regA,outR);
 				return;
 			}
 			else if (operation.equals("LE"))
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regB,regA,register);
-				CreateMathOp.not(register,register);
+				CreateMathOp.isLessThan(regB,regA,outR);
+				CreateMathOp.not(outR,outR);
 				return;
 			}
 			else if (operation.equals("GE"))
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regA,regB,register);
-				CreateMathOp.not(register,register);
+				CreateMathOp.isLessThan(regA,regB,outR);
+				CreateMathOp.not(outR,outR);
 				return;
 			}
 			else if (operation.equals("=="))
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isEqual(regA,regB,register);
+				CreateMathOp.isEqual(regA,regB,outR);
 				return;
 			}
 			else if (operation.equals("!="))
 			{
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isEqual(regA,regB,register);
-				CreateMathOp.not(register,register);
+				CreateMathOp.isEqual(regA,regB,outR);
+				CreateMathOp.not(outR,outR);
 				return;
 			}
 			else if (operation.equals("!"))
 			{
 				printNode(children.item(0), regA);
-				CreateMathOp.not(regA,register);
+				CreateMathOp.not(regA,outR);
 				return;
 			}
 			else if (operation.equals("AND"))
@@ -533,17 +572,17 @@ public class TreeToAE2 {
 					index = myStrings.size();
 					myStrings.addLast(string);
 				}
-				System.out.printf("N[%s] %d\n", register, index);
+				System.out.printf("N[%s] %d\n", outR, index);
 			}
 			else if (operation.equals("INT"))
 			{
 				String num = children.item(0).getTextContent();
-				System.out.printf("N[%s] %s\n", register, num);
+				System.out.printf("N[%s] %s\n", outR, num);
 			}
 			else if (operation.equals("FLOAT"))
 			{
 				String num = children.item(0).getTextContent();
-				System.out.printf("N[%s] %s\n", register, num);
+				System.out.printf("N[%s] %s\n", outR, CreateMathOp.toFloat(num));
 			}
 		}
 		return;

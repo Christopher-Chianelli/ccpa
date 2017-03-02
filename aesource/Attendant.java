@@ -724,12 +724,21 @@ class Attendant {
         	else
         		cardReader.repeat(-offset);
         }
-        else if (card.toLowerCase().startsWith(" ask audience for a number",1))
+        else if (card.toLowerCase().startsWith(" read next integer",1))
         {
         	
-        	long audienceNumber = audience.nextLong();
+        	String audienceNumber = audience.nextLine();
         	Card next = (Card)cardChain.elementAt(c.index + 1);
-        	next.text = next.text.substring(0,5) + Long.toString(audienceNumber);
+        	next.text = next.text.substring(0,5) + audienceNumber;
+        	cardReader.mountCards(cardChain);
+        	cardReader.advance(c.index + 1);
+        }
+        else if (card.toLowerCase().startsWith(" read next float",1))
+        {
+        	
+        	String audienceNumber = audience.nextLine();
+        	Card next = (Card)cardChain.elementAt(c.index + 1);
+        	next.text = next.text.substring(0,5) + asFloatingPoint(audienceNumber);
         	cardReader.mountCards(cardChain);
         	cardReader.advance(c.index + 1);
         }
@@ -743,7 +752,27 @@ class Attendant {
         return ok;
     }
 
-    /*  Inform the attendant when an abnormality occurs in the
+    private String asFloatingPoint(String number) {
+    	int dot = number.indexOf('.');
+		int power = dot + 50;
+		
+		if (dot == 1 && number.charAt(0) == '0')
+		{
+			do
+			{
+				dot++;
+				power--;
+			}
+			while(number.charAt(dot) == '0');
+		}
+		
+		String powerString = String.format("%d", power);
+		String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');
+		
+		return powerString + decimalString;
+	}
+
+	/*  Inform the attendant when an abnormality occurs in the
         operation of the mill.  */
 
     private static final String MillAb = "Abnormality in the Mill: ";

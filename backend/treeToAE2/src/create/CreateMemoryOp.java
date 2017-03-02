@@ -82,6 +82,11 @@ public class CreateMemoryOp {
 		argOffsets.push(new Integer(argOffset + 1));
 	}
 	
+	public static void moveToRegister(String src, String dst)
+	{
+		CreateMathOp.binaryOp("+", "ZERO", src, dst);
+	}
+	
 	public static void createCall()
 	{
 		argOffsets.push(new Integer(argOffsets.peek() + 1));

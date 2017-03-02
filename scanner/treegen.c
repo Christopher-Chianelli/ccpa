@@ -40,6 +40,7 @@ int getNumToPop(char *op, int *opType, char **type)
             return 0;
     else if (!strcmp(op,"-U") ||
         !strcmp(op,"+U") ||
+        !strcmp(op,"~") ||
         !strcmp(op,"PRE++") ||
         !strcmp(op,"PRE--") ||
         !strcmp(op,"POST++") ||
@@ -49,8 +50,6 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"STRING") ||
         !strcmp(op,"GET_MEM") ||
         !strcmp(op,"ADDRESS") ||
-        !strcmp(op,"SET_MEM") ||
-        !strcmp(op,"DEREFERENCE_SET") ||
         !strcmp(op,"RETURN VAL") ||
         !strcmp(op,"sizeof"))
             return 1;
@@ -61,24 +60,23 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"*") ||
         !strcmp(op,"/") ||
         !strcmp(op,"%") ||
-        !strcmp(op,"SET_MEMBER") ||
-        !strcmp(op,"SET_ACCESS") ||
-        !strcmp(op,"SET_[]") ||
+        !strcmp(op,"^") ||
+        !strcmp(op,"AND") ||
+        !strcmp(op,"AND-bitwise") ||
+        !strcmp(op,"OR") ||
+        !strcmp(op,"OR-bitwise") ||
         !strcmp(op,"GET_MEMBER") ||
         !strcmp(op,"GET_ACCESS") ||
+        !strcmp(op,"[]") ||
         !strcmp(op,"=") ||
         !strcmp(op,"+=") ||
         !strcmp(op,"-=") ||
         !strcmp(op,"*=") ||
         !strcmp(op,"/=") ||
         !strcmp(op,"%=") ||
+        !strcmp(op,"^=") ||
         !strcmp(op,"AND-bitwise=") ||
         !strcmp(op,"OR-bitwise=") ||
-        !strcmp(op,"^=") ||
-        !strcmp(op,"AND") ||
-        !strcmp(op,"AND-bitwise") ||
-        !strcmp(op,"OR") ||
-        !strcmp(op,"OR-bitwise") ||
         !strcmp(op,"==") ||
         !strcmp(op,"!=") ||
         !strcmp(op,"LT") ||
@@ -88,7 +86,6 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"RS") ||
         !strcmp(op,"LS") ||
         !strcmp(op,"if") ||
-        !strcmp(op,"[]") ||
         !strcmp(op,"FUN") ||
         !strcmp(op,"CALL")
         )

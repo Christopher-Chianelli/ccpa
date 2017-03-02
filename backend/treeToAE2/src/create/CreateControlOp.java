@@ -15,13 +15,18 @@ public class CreateControlOp {
 		System.out.println("CF?1");
 		System.out.println("CF+1");
 		
-		int myLabel = labelCount;
-		System.out.printf("J[.$L%d]\n",labelCount);
-		labelCount += 1;
+		int myLabel = createLabel(1);
+		System.out.printf("J[.$L%d]\n",myLabel);
 		
 		TreeToAE2.printNode(children.item(0),"");
 		
 		System.out.printf(".$L%d\n",myLabel);
+	}
+	
+	public static int createLabel(int i)
+	{
+		labelCount += i;
+		return labelCount - i;
 	}
 	
 	public static void circuitAndStatement(NodeList children, String out, String regA)
@@ -36,9 +41,8 @@ public class CreateControlOp {
 		System.out.println("CF?1");
 		System.out.println("CF+1");
 		
-		int myLabel = labelCount;
+		int myLabel = createLabel(1);
 		System.out.printf("J[.$L%d]\n",myLabel);
-		labelCount += 1;
 		
 		TreeToAE2.printNode(children.item(0),regA);
 		System.out.println("/");
@@ -65,9 +69,8 @@ public class CreateControlOp {
 		System.out.println("CF?1");
 		System.out.println("CF+1");
 		
-		int myLabel = labelCount;
+		int myLabel = createLabel(1);
 		System.out.printf("J[.$L%d]\n",myLabel);
-		labelCount += 1;
 		
 		TreeToAE2.printNode(children.item(0),regA);
 		CreateMathOp.not(regA, regA);
@@ -89,9 +92,8 @@ public class CreateControlOp {
 		System.out.printf("L[%s]\n",regA);
 		System.out.println("CF?1");
 		
-		int myLabel = labelCount;
+		int myLabel = createLabel(2);
 		System.out.printf("J[.$L%d]\n",myLabel);
-		labelCount += 2;
 		
 		TreeToAE2.printNode(children.item(0),"");
 		
@@ -104,8 +106,7 @@ public class CreateControlOp {
 	
 	public static void whileStatement(NodeList children)
 	{
-		int myLabel = labelCount;
-		labelCount += 2;
+		int myLabel = createLabel(2);
 		
 		System.out.printf(".$L%d\n",myLabel);
 		TreeToAE2.printNode(children.item(1),"T0");

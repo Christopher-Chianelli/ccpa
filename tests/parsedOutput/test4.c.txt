@@ -2,6 +2,11 @@ A write in columns
 N999 0
 N998 1
 N997 -1
+N986 2
+N987 10
+N989 1000000000000000000000000000000000000000000000000
+N979 1000000000000000000000000
+N988 50
 N994 0
 N991 99999999999999999999999999999999999999999999999999
 N990 -99999999999999999999999999999999999999999999999999
@@ -87,6 +92,22 @@ S995
 L970
 L999
 CB+13
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L992
+S970
 N995 0
 -
 L994
@@ -152,7 +173,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+878
+CF+1011
 N995 0
 -
 L994
@@ -195,7 +216,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+835
+CF+968
 N995 0
 -
 L994
@@ -204,6 +225,22 @@ S994
 +
 L999
 L996
+S970
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L992
 S970
 N993 -1
 -
@@ -237,7 +274,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+735
+CF+796
 N995 0
 -
 L994
@@ -280,7 +317,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+750
+CF+867
 N995 0
 -
 L994
@@ -334,7 +371,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+638
+CF+699
 N995 0
 -
 L994
@@ -377,7 +414,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+653
+CF+770
 N995 0
 -
 L994
@@ -419,7 +456,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+547
+CF+608
 N995 0
 -
 L994
@@ -462,7 +499,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+568
+CF+685
 N995 0
 -
 L994
@@ -505,7 +542,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+525
+CF+642
 N995 0
 -
 L994
@@ -514,6 +551,22 @@ S994
 +
 L999
 L996
+S970
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L992
 S970
 N993 -1
 -
@@ -547,7 +600,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+425
+CF+470
 N995 0
 -
 L994
@@ -590,7 +643,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+440
+CF+541
 N995 0
 -
 L994
@@ -644,7 +697,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+328
+CF+373
 N995 0
 -
 L994
@@ -687,7 +740,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+343
+CF+444
 N995 0
 -
 L994
@@ -696,6 +749,25 @@ S994
 +
 L999
 L996
+S970
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
 S970
 N993 -1
 -
@@ -729,7 +801,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+243
+CF+269
 N995 0
 -
 L994
@@ -772,7 +844,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+258
+CF+340
 N995 0
 -
 L994
@@ -814,7 +886,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+152
+CF+178
 N995 0
 -
 L994
@@ -931,6 +1003,25 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S970
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S972
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
 +
 L999
 L999
@@ -961,7 +1052,14 @@ L999
 L999
 A returns to location on the top of the stack
 .readInt
-A ask audience for a number
+A read next integer
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.readFloat
+A read next float
 N996 ?
 /
 L999
@@ -1019,9 +1117,65 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S995
-+
+/
 L995
+L989
+S982'
++
 L999
+L982
+S982
+-
+L982
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L982
+S982
+CF+4
+-
+L999
+L982
+S982
+*
+L995
+L987
+S984
+L984
+L987
+S984
+A set decimal places to 49
+A write numbers with decimal point
+P
+A write annotation  * 10^
+-
+L982
+L988
+S982
+A set decimal places to 0
+A write numbers with decimal point
 P
 -
 L994

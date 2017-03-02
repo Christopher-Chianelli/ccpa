@@ -2,6 +2,11 @@ A write in columns
 N999 0
 N998 1
 N997 -1
+N986 2
+N987 10
+N989 1000000000000000000000000000000000000000000000000
+N979 1000000000000000000000000
+N988 50
 N994 0
 N991 99999999999999999999999999999999999999999999999999
 N990 -99999999999999999999999999999999999999999999999999
@@ -87,7 +92,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+347
+CF+908
 N995 0
 -
 L994
@@ -130,7 +135,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+304
+CF+865
 N995 0
 -
 L994
@@ -141,6 +146,505 @@ L999
 L996
 S970
 N970 1
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+708
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N970 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+779
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+617
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N970 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+694
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N971 51630000000000000000000000000000000000000000000000
+N972 51250000000000000000000000000000000000000000000000
+/
+L971
+L989
+S982'
++
+L999
+L982
+S982
+-
+L982
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L982
+S982
+CF+4
+-
+L999
+L982
+S982
+/
+L972
+L989
+S983'
++
+L999
+L983
+S983
+-
+L983
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L983
+S983
+CF+4
+-
+L999
+L983
+S983
+*
+L971
+L987
+S984
+L984
+L987
+S984
+*
+L972
+L987
+S985
+L985
+L987
+S985
+/
+L985
+L979
+S985'
+L984
+L985
+S984'
+*
+L984
+L979
+S984
+N993 50
++
+L999
+L984
+S970
+.$L0
+-
+L970
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L970
+S995
+CF+4
+-
+L999
+L970
+S995
+-
+L989
+L995
+S995
+-
+L995
+L997
+S995
+L998'
+L999
+L995
+CF?2
+N995 1
+CF+1
+N995 0
+/
+L999
+L995
+CF?10
+CF+1
+/
+L970
+L987
+S970'
++
+L993
+L998
+S993
+CB+64
++
+L982
+L988
+S982
++
+L983
+L988
+S983
+-
+L982
+L998
+S982
+-
+L983
+L998
+S983
+-
+L982
+L983
+S982
++
+L982
+L988
+S982
+-
+L970
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?2
+N995 1
+CF+1
+N995 -1
+*
+L982
+L995
+S995
+*
+L995
+L989
+S995
++
+L995
+L970
+S970
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+323
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N970 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+365
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
 N993 -1
 -
 L994
@@ -183,7 +687,7 @@ S994
 L999
 L996
 S970
-N970 1
+N970 0
 N993 -1
 -
 L994
@@ -216,50 +720,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+218
-N995 0
--
-L994
-L995
-S994
-+
-L999
-L996
-S970
-N970 1.000000
-N993 -1
--
-L994
-L993
-S992
-+
-L999
-L999
-S995
-L999
-L992
-A replace next card with result from the Egress Axis
-S000
-/
-L999
-L995
-CF?1
-CF+7
-+
-L999
-L998
-S995
-L970
-L999
-CB+13
-N995 0
-+
-L994
-L995
-S994
-A notes location of next card on stack
-CF?1
-CF+146
+CF+280
 N995 0
 -
 L994
@@ -302,7 +763,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+132
+CF+237
 N995 0
 -
 L994
@@ -312,7 +773,7 @@ S994
 L999
 L996
 S970
-N970 2
+N970 0
 N993 -1
 -
 L994
@@ -345,7 +806,49 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+89
+CF+194
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+32
 N995 0
 -
 L994
@@ -365,7 +868,14 @@ L999
 L999
 A returns to location on the top of the stack
 .readInt
-A ask audience for a number
+A read next integer
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.readFloat
+A read next float
 N996 ?
 /
 L999
@@ -423,9 +933,65 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S995
-+
+/
 L995
+L989
+S982'
++
 L999
+L982
+S982
+-
+L982
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L982
+S982
+CF+4
+-
+L999
+L982
+S982
+*
+L995
+L987
+S984
+L984
+L987
+S984
+A set decimal places to 49
+A write numbers with decimal point
+P
+A write annotation  * 10^
+-
+L982
+L988
+S982
+A set decimal places to 0
+A write numbers with decimal point
 P
 -
 L994
@@ -459,21 +1025,6 @@ S995
 CF?1
 CF+9
 A write annotation 
--
-L994
-L998
-S994
-/
-L999
-L999
-A returns to location on the top of the stack
--
-L995
-L998
-S995
-CF?1
-CF+9
-A write annotation  
 -
 L994
 L998

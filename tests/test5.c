@@ -3,13 +3,14 @@ extern int readInt();
 
 void main()
 {    
-    printf("0 exit\n1 add\n2 subtract\n3 multiply\n4 divide\n5 mod\n6 AND\n7 OR\n");
+    printf("0 exit\n1 add\n2 subtract\n3 multiply\n4 divide\n5 mod\n6 AND\n7 OR\n8 XOR\n9 ~\n");
     int input = readInt();
     while (input)
     {
         int a,b;
         a = readInt();
-        b = readInt();
+        if (input < 9)
+            b = readInt();
         
         if (input == 1)
         {
@@ -33,13 +34,21 @@ void main()
         }
         if (input == 6)
         {
-            printf("%d AND %d = %d\n",a,b,a&&b);
+            printf("%d AND %d = %d\n",a,b,a&b);
         }
         if (input == 7)
         {
-            printf("%d OR %d = %d\n",a,b,a||b);
+            printf("%d OR %d = %d\n",a,b,a|b);
         }
-        printf("0 exit\n1 add\n2 subtract\n3 multiply\n4 divide\n5 mod\n6 AND\n7 OR\n");
+        if (input == 8)
+        {
+            printf("%d XOR %d = %d\n",a,b,a^b);
+        }
+        if (input == 9)
+        {
+            printf("~%d = %d\n",a,~a);
+        }
+        printf("0 exit\n1 add\n2 subtract\n3 multiply\n4 divide\n5 mod\n6 AND\n7 OR\n8 XOR\n9 ~\n");
         input = readInt();
     }
 }

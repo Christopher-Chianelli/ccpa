@@ -468,7 +468,7 @@ char *getType(char *op, char *arg1, char *arg2, char *arg3)
 	else if (!strcmp(op,"=") || !strcmp(op,"+=") ||!strcmp(op,"-=") ||
 	!strcmp(op,"/=") ||!strcmp(op,"*=") ||!strcmp(op,"&=") ||!strcmp(op,"|=") ||
 	 !strcmp(op,"^=") || !strcmp(op,"[]") || !strcmp(op,"PRE++") ||
-	  !strcmp(op,"POST++") || !strcmp(op,"PRE--") || !strcmp(op,"POST--"))
+	  !strcmp(op,"POST++") || !strcmp(op,"PRE--") || !strcmp(op,"POST--") || !strcmp(op,"~"))
 	    return arg1;
 	else if (!strcmp(op,";") || !strcmp(op,",") || !strcmp(op,"GET_->"))
 	    return arg2;

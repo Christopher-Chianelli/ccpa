@@ -2,5 +2,5 @@ extern void printf(char*,...);
 
 void main()
 {
-    printf("%d %f %s",1,1.0,"test");
+    printf("%d\n%f\n%s\n",1,6.3 / 2.5,"test");
 }

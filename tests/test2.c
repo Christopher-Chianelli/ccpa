@@ -1,19 +1,43 @@
-int foo(int a, int b)
+extern float readFloat();
+extern void printf(char *,...);
+
+float fun(float a)
 {
-    int c = 0;
-    return a + b;
+    return a*a;
 }
 
-int fun()
+float der(float a)
 {
-    int j = 0;
+    return 2.0*a;
+}
+
+float guess(float *a, float *b)
+{
+    float m = (a + b)/2.0;
+    if (fun(m) < 10.0)
+    {
+        *a = m;
+    }
+    else
+    {
+        *b = m;
+    }
+    return m;
+}
+
+void main()
+{
+    float a = readFloat();
+    float start,end;
+    
+    start = 0.0;
+    end = a;
+    float answer;
+    
     for (int i = 0; i < 10; i++)
-        j = j + i;
-    return j;
-}
-
-int main()
-{
-    int c = foo(1,2);
-    return fun();
+    {
+        answer = guess(&start,&end);
+    }
+    
+    printf("%f\n",answer);
 }
