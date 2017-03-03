@@ -86,9 +86,14 @@ public class CreateMathOp {
 			
 			binaryOp(op,"DEC0","DEC1","TEMP");
 			
+			System.out.println("/");
+			System.out.println("L[TEMP]");
+		    System.out.println("L[TEN]");
+			System.out.println("S[TEMP]'");
+			
 			putDecPart("TEMP",out,"OTHER");
+			
 			binaryOp("-","OTHER","FIFTY","OTHER");
-			binaryOp("-","OTHER","ONE","OTHER");
 			binaryOp("-","EXP0","ONE","EXP0");
 			binaryOp("+","EXP0","OTHER","EXP0");
 			putExpPart("EXP0",out);
@@ -387,7 +392,7 @@ public class CreateMathOp {
 	public static String toFloat(String number)
 	{
 		int dot = number.indexOf('.');
-		int power = dot + 50;
+		int power = dot + 49;
 		
 		if (dot == 1 && number.charAt(0) == '0')
 		{
@@ -396,8 +401,11 @@ public class CreateMathOp {
 				dot++;
 				power--;
 			}
-			while(number.charAt(dot) == '0');
+			while(dot < number.length() && number.charAt(dot) == '0');
 		}
+		
+		if (dot == number.length())
+			power = 0;
 		
 		String powerString = String.format("%d", power);
 		String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');

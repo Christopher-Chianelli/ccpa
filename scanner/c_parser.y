@@ -441,6 +441,10 @@ int main(int argc, char** argv) {
 	structs.members = NULL;
 	structs.next = NULL;
 
+	declareVariable("void(char*,...)","printf");
+	declareVariable("int()","readInt");
+	declareVariable("float()","readFloat");
+
 	// parse through the input until there is no more:
 	do {
 		yyparse();

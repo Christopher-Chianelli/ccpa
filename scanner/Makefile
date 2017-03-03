@@ -10,7 +10,7 @@ lex.yy.c: c_scanner.lex c_parser.tab.h
 	flex c_scanner.lex
 
 cparse: lex.yy.c c_parser.tab.c c_parser.tab.h cparse.c
-	gcc -Wall -ll -o cparse -g c_parser.tab.c lex.yy.c cparse.c
+	gcc -Wall -o cparse -g c_parser.tab.c lex.yy.c cparse.c
 
 treegen: treegen.c cparse.c
 	gcc -Wall -o treegen -g treegen.c cparse.c

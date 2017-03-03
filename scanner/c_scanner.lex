@@ -11,6 +11,7 @@
 %}
 
 %option nounput
+%option noyywrap
 
 DOTS     "..."
 DIGIT    [0-9]

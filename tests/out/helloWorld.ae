@@ -59,40 +59,134 @@ N970 0
 L994
 L970
 S994
-N971 1
-N972 2
--
-L971
-L972
-S970
--
-L970
-L997
-S970
-L998'
-L999
-L970
-CF?2
-N970 1
-CF+1
 N970 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
 /
 L999
-L970
+L995
 CF?1
-CF+1
-CF+10
-N996 0
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+237
 N995 0
 -
 L994
 L995
 S994
++
+L999
+L996
+S970
+N970 1
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
 /
 L999
+L995
+CF?1
+CF+7
++
 L999
-A returns to location on the top of the stack
-.$L0
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+194
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+32
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S970
 N995 0
 -
 L994
@@ -253,3 +347,33 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S995
+-
+L995
+L998
+S995
+CF?1
+CF+9
+A write annotation 
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+-
+L995
+L998
+S995
+CF?1
+CF+9
+A write annotation Hello World!
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
