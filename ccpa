@@ -1,20 +1,28 @@
 #!/bin/bash
-#echo "C Card Punching Apparatus for the Analytical Engine"
-while getopts ":p:s:t" o; do
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+outfile=punchcards
+cmd="a"
+
+while getopts ":p:s:t:o:n" o; do
     case "${o}" in
         p)
-            gcc -E $2 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | xmllint --format -
-            exit 1
+            cmd="p"
             ;;
 
         s)
-            gcc -E $2 | scanner/cparse
-            exit 1
+            cmd="s"
             ;;
 
         t)
-            gcc -E $2 | scanner/cparse | scanner/treegen | xmllint --format -
-            exit 1
+            cmd="t"
+            ;;
+
+        o)
+            outfile=$OPTARG
+            ;;
+
+        n)  
+            outfile=""
             ;;
 
         *)
@@ -24,4 +32,27 @@ while getopts ":p:s:t" o; do
     esac
 done
 shift $((OPTIND-1))
-gcc -E $1 | scanner/cparse | scanner/treegen | java -cp "optimization/bin" run/TreeOptimizer | java -cp "backend/treeToAE2/bin" run/TreeToAE2 | bash backend/mk_src/compile_ae2.bash
+
+case "$cmd" in
+    p)
+        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | xmllint --format -"
+        ;;
+    s)
+        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse"
+        ;;
+
+    t)
+        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | xmllint --format -"
+        ;;
+
+    *)
+        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | java -cp $SCRIPT_DIR/backend/treeToAE2/bin run/TreeToAE2 | bash $SCRIPT_DIR/backend/mk_src/compile_ae2.bash"
+        ;;
+esac
+
+if [[ $outfile ]]
+then
+eval $command > $outfile
+else
+eval $command
+fi
