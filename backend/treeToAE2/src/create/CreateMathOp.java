@@ -73,10 +73,24 @@ public class CreateMathOp {
 		
 		if (op.equals("+") || op.equals("-"))
 		{
-			//TODO: Shifts exponents and digits to match
-			binaryOp(op,"DEC0","DEC1",out);
-			putDecPart(out,out,"OTHER");
-			binaryOp("-", "EXP0", "ONE", "EXP0");
+			shiftFloatsToMatch();
+			
+			System.out.println("/");
+			System.out.println("L[DEC0]");
+			System.out.println("L[TEN]");
+			System.out.println("S[DEC0]'");
+			
+			System.out.println("L[DEC1]");
+			System.out.println("L[TEN]");
+			System.out.println("S[DEC1]'");
+			
+			binaryOp(op,"DEC0","DEC1","TEMP");
+			
+			putDecPart("TEMP",out,"OTHER");
+			binaryOp("-","OTHER","FIFTY","OTHER");
+			binaryOp("-","OTHER","ONE","OTHER");
+			binaryOp("-","EXP0","ONE","EXP0");
+			binaryOp("+","EXP0","OTHER","EXP0");
 			putExpPart("EXP0",out);
 		}
 		else if (op.equals("*"))
@@ -102,7 +116,7 @@ public class CreateMathOp {
 		}
 		else if (op.equals("/"))
 		{
-			//TODO: FIND OUT HOW TO MOVE DEC0 INTO PRIMED INGRESS AXIS FOR MORE ACCURATE MULTIPLICATION
+			//TODO: FIND OUT HOW TO MOVE DEC0 INTO PRIMED INGRESS AXIS FOR MORE ACCURATE DIVISION
 			System.out.println("/");
 			System.out.println("L[DEC1]");
 			System.out.println("L[SIG]");
@@ -153,6 +167,54 @@ public class CreateMathOp {
 		}
 	}
 	
+	private static void shiftFloatsToMatch() {
+		int myLabel = CreateControlOp.createLabel(3);
+		int e0EQe1 = myLabel;
+		int e0LTe1 = myLabel + 1;
+		int e0GTe1 = myLabel + 2;
+		
+		isEqual("EXP0","EXP1","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",e0EQe1);
+		
+		isLessThan("EXP0","EXP1","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",e0LTe1);
+		System.out.printf("J[.$L%d]\n",e0GTe1);
+		
+		System.out.printf(".$L%d\n",e0LTe1);//EXP0 < EXP1
+		binaryOp("/","DEC0","TEN", "DEC0");
+		binaryOp("+","EXP0","ONE", "EXP0");
+		binaryOp("+","EXP0","ONE", "TEMP");
+		isEqual("TEMP","EXP1","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",e0LTe1);
+		System.out.printf("J[.$L%d]\n",e0EQe1);
+		
+		System.out.printf(".$L%d\n",e0GTe1);//EXP0 > EXP1
+		binaryOp("/","DEC1","TEN", "DEC1");
+		binaryOp("+","EXP1","ONE", "EXP1");
+		binaryOp("+","EXP1","ONE", "TEMP");
+		isEqual("EXP0","TEMP","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",e0GTe1);
+		System.out.printf("J[.$L%d]\n",e0EQe1);
+		
+		System.out.printf(".$L%d\n",e0EQe1);//EXP0 = EXP1
+	}
+
 	public static void bitwiseOp(String op, String regA, String regB, String out)
 	{
 		BigInteger powerOfTwo = new BigInteger("1");

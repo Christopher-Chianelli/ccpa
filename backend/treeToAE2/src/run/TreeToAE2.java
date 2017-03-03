@@ -460,13 +460,22 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals("-U"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(0), regA);
-				CreateMathOp.binaryOp("-","ZERO",regA,outR);
+				if (type.equals("float"))
+					CreateMathOp.floatBinaryOp("-","ZERO",regA,outR);
+				else
+					CreateMathOp.binaryOp("-","ZERO",regA,outR);
+				
 			}
 			else if (operation.equals("+U"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(0), regA);
-				CreateMathOp.binaryOp("+","ZERO",regA,outR);
+				if (type.equals("float"))
+					CreateMathOp.floatBinaryOp("+","ZERO",regA,outR);
+				else
+					CreateMathOp.binaryOp("+","ZERO",regA,outR);
 			}
 			else if (operation.equals("POST++"))
 			{
