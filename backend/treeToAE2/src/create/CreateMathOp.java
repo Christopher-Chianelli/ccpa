@@ -528,4 +528,29 @@ public class CreateMathOp {
 		System.out.printf(".$L%d\n",label);
 	}
 	
+	public static void shiftOp(String op, String regA, String regB, String outR)
+	{
+		int label = CreateControlOp.createLabel(2);
+		int loopStart = label;
+		int loopEnd = label + 1;
+		CreateMemoryOp.moveToRegister(regA, outR);
+		CreateMemoryOp.moveToRegister(regB, "TEMP");
+		
+		System.out.printf(".$L%d\n",loopStart);
+		isLessThan("TEMP","ONE","DIRTY");
+		System.out.println("/");
+		System.out.printf("L[%s]\n", "ZERO");
+		System.out.printf("L[%s]\n", "DIRTY");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",loopEnd);
+		
+		if (op.equals("LS"))
+		    binaryOp("*",outR,"TWO",outR);
+		else if (op.equals("RS"))
+			binaryOp("/",outR,"TWO",outR);
+		binaryOp("-","TEMP","ONE","TEMP");
+		System.out.printf("J[.$L%d]\n",loopStart);
+		
+		System.out.printf(".$L%d\n",loopEnd);
+	}
 }

@@ -77,6 +77,8 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"^=") ||
         !strcmp(op,"AND-bitwise=") ||
         !strcmp(op,"OR-bitwise=") ||
+        !strcmp(op,"LS=") ||
+        !strcmp(op,"RS=") ||
         !strcmp(op,"==") ||
         !strcmp(op,"!=") ||
         !strcmp(op,"LT") ||

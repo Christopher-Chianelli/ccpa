@@ -549,6 +549,12 @@ public class TreeToAE2 {
 				printNode(children.item(0), regB);
 				CreateMathOp.bitwiseOp(operation,regA,regB,outR);
 			}
+			else if (operation.equals("LS") || operation.equals("RS"))
+			{
+				printNode(children.item(1), regA);
+				printNode(children.item(0), regB);
+				CreateMathOp.shiftOp(operation,regA,regB,outR);
+			}
 			else if (operation.equals("~"))
 			{
 				printNode(children.item(0), regB);
@@ -607,61 +613,32 @@ public class TreeToAE2 {
 				printNode(children.item(1), regB);
 				CreateMemoryOp.storeAtAddress(regA);
 			}
-			else if (operation.equals("+="))
+			else if (operation.equals("+=") || operation.equals("-=") || operation.equals("/=") || operation.equals("*=") || operation.equals("%="))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
-				CreateMathOp.binaryOp("+", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
+				
+				if (type.equals("int"))
+				    CreateMathOp.binaryOp(operation.substring(0, 1), regB, regA, "OUT");
+				else
+				    CreateMathOp.floatBinaryOp(operation.substring(0, 1), regB, regA, "OUT");
+					
+				CreateMemoryOp.storeAtAddress("OUT");
 			}
-			else if (operation.equals("-="))
+			else if (operation.equals("AND-bitwise=") || operation.equals("OR-bitwise=") || operation.equals("^="))
 			{
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
-				CreateMathOp.binaryOp("-", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
+				CreateMathOp.bitwiseOp(operation.substring(0,operation.length() - 1), regB, regA, "OUT");
+				CreateMemoryOp.storeAtAddress("OUT");
 			}
-			else if (operation.equals("*="))
+			else if (operation.equals("LS=") || operation.equals("RS="))
 			{
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
-				CreateMathOp.binaryOp("*", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
-			}
-			else if (operation.equals("/="))
-			{
-				printNode(children.item(0), regA);
-				printNode(children.item(1), regB);
-				CreateMathOp.binaryOp("/", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
-			}
-			else if (operation.equals("%="))
-			{
-				printNode(children.item(0), regA);
-				printNode(children.item(1), regB);
-				CreateMathOp.binaryOp("%", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
-			}
-			else if (operation.equals("&="))
-			{
-				printNode(children.item(0), regA);
-				printNode(children.item(1), regB);
-				CreateMathOp.bitwiseOp("AND-bitwise", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
-			}
-			else if (operation.equals("|="))
-			{
-				printNode(children.item(0), regA);
-				printNode(children.item(1), regB);
-				CreateMathOp.bitwiseOp("OR-bitwise", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
-			}
-			else if (operation.equals("^="))
-			{
-				printNode(children.item(0), regA);
-				printNode(children.item(1), regB);
-				CreateMathOp.bitwiseOp("^", regB, regA, regA);
-				CreateMemoryOp.storeAtAddress(regA);
+				CreateMathOp.shiftOp(operation.substring(0,2), regB, regA, "OUT");
+				CreateMemoryOp.storeAtAddress("OUT");
 			}
 			else if (operation.equals("LT"))
 			{

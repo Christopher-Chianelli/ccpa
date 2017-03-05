@@ -31,22 +31,21 @@ while getopts ":p:s:t:o:n" o; do
             ;;
     esac
 done
-shift $((OPTIND-1))
-
+file="${@: -1}"
 case "$cmd" in
     p)
-        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | xmllint --format -"
+        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | xmllint --format -"
         ;;
     s)
-        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse"
+        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse"
         ;;
 
     t)
-        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | xmllint --format -"
+        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | xmllint --format -"
         ;;
 
     *)
-        command="gcc -E $1 | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | java -cp $SCRIPT_DIR/backend/treeToAE2/bin run/TreeToAE2 | bash $SCRIPT_DIR/backend/mk_src/compile_ae2.bash"
+        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | java -cp $SCRIPT_DIR/backend/treeToAE2/bin run/TreeToAE2 | bash $SCRIPT_DIR/backend/mk_src/compile_ae2.bash"
         ;;
 esac
 

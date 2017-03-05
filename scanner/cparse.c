@@ -231,7 +231,11 @@ struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr
 	else if (!strcmp(op,"&"))
 		op = "AND-bitwise";
 	else if (!strcmp(op,"&="))
-		op = "=AND-bitwise";
+		op = "AND-bitwise=";
+	else if (!strcmp(op,"<<="))
+		op = "LS=";
+	else if (!strcmp(op,">>="))
+		op = "RS=";
 	else if (!strcmp(op,"&&"))
 		op = "AND";
 	else if (!strcmp(op,"||"))
@@ -239,7 +243,7 @@ struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr
 	else if (!strcmp(op,"|"))
 		op = "OR-bitwise";
 	else if (!strcmp(op,"|="))
-		op = "=OR-bitwise";
+		op = "OR-bitwise=";
     out.rep = concatStrings(7,arg1.rep,arg2.rep,arg3.rep,op,":",out.type,"\n");
     return out;
 }
