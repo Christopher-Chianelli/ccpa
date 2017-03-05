@@ -760,21 +760,19 @@ class Attendant {
     	{
     	    if (dot == 1 && number.charAt(0) == '0')
     	    {
-    		    do
+    	    	while(dot < number.length() && number.charAt(dot) == '0')
     		    {
     			    dot++;
     			    power--;
     		    }
-    		    while(dot < number.length() && number.charAt(dot) == '0');
     	    }
     	}
     	else
     	{
     		dot = 0;
-    		power = 50;
+    		power = 49 + number.length();
     	}
-    	if (dot == number.length())
-    		power = 0;
+    	
     		
     	String powerString = String.format("%d", power);
     	String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');

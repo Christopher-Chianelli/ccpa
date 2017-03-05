@@ -173,7 +173,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+591
+CF+598
 N995 0
 -
 L994
@@ -216,7 +216,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+548
+CF+555
 N995 0
 -
 L994
@@ -430,7 +430,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+334
+CF+341
 N995 0
 -
 L994
@@ -473,7 +473,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+291
+CF+298
 N995 0
 -
 L994
@@ -570,7 +570,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+194
+CF+201
 N995 0
 -
 L994
@@ -746,7 +746,14 @@ S984
 L984
 L987
 S984
-A set decimal places to 49
+/
+L984
+L987
+S984'
+L984
+L987
+S984'
+A set decimal places to 47
 A write numbers with decimal point
 P
 A write annotation  * 10^
@@ -755,7 +762,7 @@ L982
 L988
 S982
 A set decimal places to 0
-A write numbers with decimal point
+A write numbers as ##################################################
 P
 -
 L994

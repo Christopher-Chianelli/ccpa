@@ -57,17 +57,17 @@ public class CreateLibraryFunction {
 		CreateMemoryOp.getVariableFromStack("0");
 		CreateMemoryOp.readFromAddress("DIRTY");
 		
-		CreateMathOp.getExpPart("DIRTY", "EXP0");		
+		CreateMathOp.getExpPart("DIRTY", "EXP0");
 		CreateMathOp.getDecPart("DIRTY", "DEC0");
 	    
-		System.out.println("A set decimal places to 49");
+		System.out.println("A set decimal places to 47");
 		System.out.println("A write numbers with decimal point");
 	    System.out.println("P");
 	    System.out.println("A write annotation  * 10^");
 	    CreateMathOp.binaryOp("-", "EXP0", "FIFTY", "EXP0");
 	    
 	    System.out.println("A set decimal places to 0");
-		System.out.println("A write numbers with decimal point");
+	    System.out.println("A write numbers as ##################################################");
 	    System.out.println("P");
 	    
 	    

@@ -74,49 +74,34 @@ public class CreateMathOp {
 		if (op.equals("+") || op.equals("-"))
 		{
 			shiftFloatsToMatch();
-			
-			System.out.println("/");
-			System.out.println("L[DEC0]");
-			System.out.println("L[TEN]");
-			System.out.println("S[DEC0]'");
-			
-			System.out.println("L[DEC1]");
-			System.out.println("L[TEN]");
-			System.out.println("S[DEC1]'");
-			
-			binaryOp(op,"DEC0","DEC1","TEMP");
-			
-			System.out.println("/");
-			System.out.println("L[TEMP]");
-		    System.out.println("L[TEN]");
-			System.out.println("S[TEMP]'");
-			
-			putDecPart("TEMP",out,"OTHER");
-			
-			binaryOp("-","OTHER","FIFTY","OTHER");
-			binaryOp("-","EXP0","ONE","EXP0");
-			binaryOp("+","EXP0","OTHER","EXP0");
+			binaryOp(op,"DEC0","DEC1","DEC0");
+			putDecPart("DEC0",out,"DIRTY");
+			binaryOp("+", "EXP0", "DIRTY", "EXP0");
 			putExpPart("EXP0",out);
 		}
 		else if (op.equals("*"))
 		{	
 			System.out.println("*");
 			System.out.println("L[DEC0]");
+			System.out.println("<2");
 			System.out.println("L[DEC1]");
 			System.out.println("S[DEC0]'");
-			putDecPart("DEC0",out,"OTHER");
+			putDecPart("DEC0",out,"DIRTY");
 			
-			//binaryOp("-", "OTHER", "FIFTY", "OTHER");
-			binaryOp("+", "EXP0", "FIFTY", "EXP0");
-			binaryOp("+", "EXP1", "FIFTY", "EXP1");
-			binaryOp("-", "EXP0", "ONE", "EXP0");
-			binaryOp("-", "EXP1", "ONE", "EXP1");
-			//binaryOp("-", "OTHER", "ONE", "OTHER");
+			System.out.println("/");
+			System.out.println("L[POW]");
+			System.out.println("L[TEN]");
+			System.out.println("S[DEC1]'");
+			
+			isLessThan("DEC0","DEC1","DIRTY");
+			not("DIRTY","DIRTY");
+			
+			binaryOp("-", "EXP0", "FIFTY", "EXP0");
+			binaryOp("-", "EXP1", "FIFTY", "EXP1");
 			
 			binaryOp("+", "EXP0", "EXP1", "EXP0");
-			//binaryOp("+", "EXP0", "OTHER", "EXP0");
 			binaryOp("+", "EXP0", "FIFTY", "EXP0");
-			
+			binaryOp("+", "EXP0", "DIRTY", "EXP0");
 			putExpPart("EXP0",out);
 		}
 		else if (op.equals("/"))
@@ -125,29 +110,27 @@ public class CreateMathOp {
 			System.out.println("/");
 			System.out.println("L[DEC1]");
 			System.out.println("L[SIG]");
-			System.out.println("S[DEC1]'");
+			System.out.println("S[DIRTY]'");
 			
 			System.out.println("L[DEC0]");
-			System.out.println("L[DEC1]");
-			System.out.println("S[DEC0]'");
+			System.out.println("L[DIRTY]");
+			System.out.println("S[OTHER]'");
 			
 			System.out.println("*");
-			System.out.println("L[DEC0]");
+			System.out.println("L[OTHER]");
 			System.out.println("L[SIG]");
-			System.out.println("S[DEC0]");
+			System.out.println("S[DIRTY]");
 			
-			putDecPart("DEC0",out,"OTHER");
-			
-			//binaryOp("-", "OTHER", "FIFTY", "OTHER");
-			binaryOp("+", "EXP0", "FIFTY", "EXP0");
-			binaryOp("+", "EXP1", "FIFTY", "EXP1");
-			binaryOp("-", "EXP0", "ONE", "EXP0");
-			binaryOp("-", "EXP1", "ONE", "EXP1");
-			//binaryOp("-", "OTHER", "ONE", "OTHER");
-			
+			binaryOp("-", "EXP0", "FIFTY", "EXP0");
+			binaryOp("-", "EXP1", "FIFTY", "EXP1");
+
 			binaryOp("-", "EXP0", "EXP1", "EXP0");
-			//binaryOp("+", "EXP0", "OTHER", "EXP0");
 			binaryOp("+", "EXP0", "FIFTY", "EXP0");
+			
+			putDecPart("DIRTY",out,"EXP1");
+			
+			isLessThan("DEC0","DEC1", "DIRTY");
+			binaryOp("-", "EXP0", "DIRTY", "EXP0");
 			
 			putExpPart("EXP0",out);
 		}
@@ -170,6 +153,129 @@ public class CreateMathOp {
 			putDecPart("DEC0",out,"OTHER");
 			putExpPart("EXP1",out);
 		}
+	}
+	
+	public static void getExpPart(String in, String out)
+	{
+		System.out.println("/");
+		System.out.printf("L[%s]\n",in);
+		System.out.println("L[POW]");
+		System.out.printf("S[%s]'\n",out);
+		binaryOp("+","ZERO",out,out);
+		abs(out,out);
+	}
+	
+	public static void getDecPart(String in, String out)
+	{
+		System.out.println("*");
+		System.out.printf("L[%s]\n",in);
+		System.out.println("L[TEN]");
+		System.out.printf("S[%s]\n",out);
+		System.out.printf("L[%s]\n",out);
+		System.out.println("L[TEN]");
+		System.out.printf("S[%s]\n",out);
+		System.out.println("/");
+		System.out.printf("L[%s]\n",out);
+		System.out.println("L[TEN]");
+		System.out.printf("S[%s]'\n",out);
+		System.out.printf("L[%s]\n",out);
+		System.out.println("L[TEN]");
+		System.out.printf("S[%s]'\n",out);
+	}
+	
+	public static void putDecPart(String src, String dec, String exp)
+	{
+		System.out.printf("N[%s] 0\n",exp);
+		abs(src, dec);
+		sign(src,"CONST");
+		
+		int myLabel = CreateControlOp.createLabel(3);
+		int shiftLeft = myLabel;
+		int shiftRight = myLabel + 1;
+		int done = myLabel + 2;
+		
+		isEqual(dec,"ZERO","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",done);
+		
+		isLessThan(dec,"POW","TEMP");
+		not("TEMP","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",shiftRight);
+		
+		binaryOp("/","POW","TEN","OTHER");
+		isLessThan(dec,"OTHER","TEMP");
+		//not("TEMP","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",shiftLeft);
+		System.out.printf("J[.$L%d]\n",done);
+		
+		System.out.printf(".$L%d\n",shiftLeft);//Need to shift left
+		binaryOp("*",dec,"TEN", dec);
+		binaryOp("-",exp,"ONE", exp);
+		isLessThan(dec,"OTHER","TEMP");
+		//not("TEMP","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",shiftLeft);
+		System.out.printf("J[.$L%d]\n",done);
+		
+		System.out.printf(".$L%d\n",shiftRight);//Need to shift right
+		binaryOp("/",dec,"TEN", dec);
+		binaryOp("+",exp,"ONE", exp);
+		isLessThan(dec,"POW","TEMP");
+		not("TEMP","TEMP");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.println("L[TEMP]");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",shiftRight);
+		System.out.printf("J[.$L%d]\n",done);
+		
+		System.out.printf(".$L%d\n",done);//No shift needed
+		binaryOp("*",dec,"CONST",dec);
+	}
+	
+	public static void putExpPart(String src, String dst)
+	{
+		sign(dst,"DIRTY");
+		binaryOp("*",src,"DIRTY","DIRTY");
+		binaryOp("*","DIRTY","POW","DIRTY");
+		binaryOp("+","DIRTY",dst,dst);
+	}
+	
+	public static String toFloat(String number)
+	{
+		int dot = number.indexOf('.');
+		int power = dot + 49;
+		
+		if (dot == 1 && number.charAt(0) == '0')
+		{
+			while(dot < number.length() && number.charAt(dot) == '0')
+			{
+				dot++;
+				power--;
+			}
+		}
+		
+		if (dot == number.length())
+			power = 0;
+		
+		String powerString = String.format("%d", power);
+		String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');
+		
+		return powerString + decimalString;
 	}
 	
 	private static void shiftFloatsToMatch() {
@@ -196,26 +302,24 @@ public class CreateMathOp {
 		System.out.printf(".$L%d\n",e0LTe1);//EXP0 < EXP1
 		binaryOp("/","DEC0","TEN", "DEC0");
 		binaryOp("+","EXP0","ONE", "EXP0");
-		binaryOp("+","EXP0","ONE", "TEMP");
-		isEqual("TEMP","EXP1","TEMP");
+		isEqual("EXP0","EXP1","TEMP");
 		System.out.println("/");
 		System.out.println("L[ZERO]");
 		System.out.println("L[TEMP]");
 		System.out.println("CF?1");
-		System.out.printf("J[.$L%d]\n",e0LTe1);
 		System.out.printf("J[.$L%d]\n",e0EQe1);
+		System.out.printf("J[.$L%d]\n",e0LTe1);
 		
 		System.out.printf(".$L%d\n",e0GTe1);//EXP0 > EXP1
 		binaryOp("/","DEC1","TEN", "DEC1");
 		binaryOp("+","EXP1","ONE", "EXP1");
-		binaryOp("+","EXP1","ONE", "TEMP");
-		isEqual("EXP0","TEMP","TEMP");
+		isEqual("EXP0","EXP1","TEMP");
 		System.out.println("/");
 		System.out.println("L[ZERO]");
 		System.out.println("L[TEMP]");
 		System.out.println("CF?1");
-		System.out.printf("J[.$L%d]\n",e0GTe1);
 		System.out.printf("J[.$L%d]\n",e0EQe1);
+		System.out.printf("J[.$L%d]\n",e0GTe1);
 		
 		System.out.printf(".$L%d\n",e0EQe1);//EXP0 = EXP1
 	}
@@ -387,79 +491,6 @@ public class CreateMathOp {
 		System.out.printf("L[%s]\n", "CONST");
 		System.out.println("CF?1");
 		System.out.printf("J[.$L%d]\n", label);
-	}
-	
-	public static String toFloat(String number)
-	{
-		int dot = number.indexOf('.');
-		int power = dot + 49;
-		
-		if (dot == 1 && number.charAt(0) == '0')
-		{
-			do
-			{
-				dot++;
-				power--;
-			}
-			while(dot < number.length() && number.charAt(dot) == '0');
-		}
-		
-		if (dot == number.length())
-			power = 0;
-		
-		String powerString = String.format("%d", power);
-		String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');
-		
-		return powerString + decimalString;
-	}
-	
-	public static void getExpPart(String in, String out)
-	{
-		System.out.println("/");
-		System.out.printf("L[%s]\n",in);
-		System.out.println("L[POW]");
-		System.out.printf("S[%s]'\n",out);
-		binaryOp("+","ZERO",out,out);
-		abs(out,out);
-	}
-	
-	public static void getDecPart(String in, String out)
-	{
-		System.out.println("*");
-		System.out.printf("L[%s]\n",in);
-		System.out.println("L[TEN]");
-		System.out.printf("S[%s]\n",out);
-		System.out.printf("L[%s]\n",out);
-		System.out.println("L[TEN]");
-		System.out.printf("S[%s]\n",out);
-	}
-	
-	public static void putDecPart(String src, String dec, String exp)
-	{
-		System.out.printf("N[%s] 50\n",exp);
-		CreateMemoryOp.moveToRegister(src, dec);
-		
-		int label = CreateControlOp.createLabel(1);
-		
-		System.out.printf(".$L%d\n",label);
-		abs(dec,"DIRTY");
-		isLessThan("POW","DIRTY","DIRTY");
-		System.out.println("/");
-		System.out.println("L[ZERO]");
-		System.out.println("L[DIRTY]");
-		System.out.println("CF?10");
-		System.out.println("CF+1");
-		binaryOp("/",dec,"TEN",dec);
-		binaryOp("+",exp,"ONE",exp);
-		System.out.printf("J[.$L%d]\n",label);
-	}
-	
-	public static void putExpPart(String src, String dst)
-	{
-		sign(dst,"DIRTY");
-		binaryOp("*",src,"DIRTY","DIRTY");
-		binaryOp("*","DIRTY","POW","DIRTY");
-		binaryOp("+","DIRTY",dst,dst);
 	}
 	
 	private static void twoComplement(String src, String dst)
