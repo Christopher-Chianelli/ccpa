@@ -771,7 +771,7 @@ class Attendant {
     	{
     	    if (dot == 1 && number.charAt(0) == '0')
     	    {
-    	    	while(dot < number.length() && number.charAt(dot) == '0')
+    	    	while(dot < number.length() && number.charAt(dot + 1) == '0')
     		    {
     			    dot++;
     			    power--;
@@ -786,7 +786,7 @@ class Attendant {
     	
     		
     	String powerString = String.format("%d", power);
-    	String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');
+    	String decimalString = String.format("%-48s", number.replace(".", "").substring(dot)).replace(' ', '0');
     		
     	return sign + powerString + decimalString;
 	}
