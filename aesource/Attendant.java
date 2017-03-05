@@ -771,11 +771,17 @@ class Attendant {
     	{
     	    if (dot == 1 && number.charAt(0) == '0')
     	    {
-    	    	while(dot < number.length() && number.charAt(dot + 1) == '0')
-    		    {
-    			    dot++;
-    			    power--;
-    		    }
+    	    	number = number.substring(2);
+    	    	dot = 0;
+    	    	power = 49;
+    	    	
+    	    	while (number.startsWith("0"))
+    	    	{
+    	    		power--;
+    	    		number = number.substring(1);
+    	    	}
+    	    	if (number.equals(""))
+    	    		number = "0";
     	    }
     	}
     	else

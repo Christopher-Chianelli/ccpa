@@ -609,9 +609,9 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals("=") || operation.equals("ASSIGN"))
 			{
-				printNode(children.item(0), regA);
+				printNode(children.item(0), outR);
 				printNode(children.item(1), regB);
-				CreateMemoryOp.storeAtAddress(regA);
+				CreateMemoryOp.storeAtAddress(outR);
 			}
 			else if (operation.equals("+=") || operation.equals("-=") || operation.equals("/=") || operation.equals("*=") || operation.equals("%="))
 			{
@@ -624,8 +624,8 @@ public class TreeToAE2 {
 				else
 					CreateMathOp.binaryOp(operation.substring(0, 1), regB, regA, "OUT");
 				    
-					
 				CreateMemoryOp.storeAtAddress("OUT");
+				CreateMemoryOp.moveToRegister("OUT", outR);
 			}
 			else if (operation.equals("AND-bitwise=") || operation.equals("OR-bitwise=") || operation.equals("^="))
 			{
@@ -633,6 +633,7 @@ public class TreeToAE2 {
 				printNode(children.item(1), regB);
 				CreateMathOp.bitwiseOp(operation.substring(0,operation.length() - 1), regB, regA, "OUT");
 				CreateMemoryOp.storeAtAddress("OUT");
+				CreateMemoryOp.moveToRegister("OUT", outR);
 			}
 			else if (operation.equals("LS=") || operation.equals("RS="))
 			{
@@ -640,6 +641,7 @@ public class TreeToAE2 {
 				printNode(children.item(1), regB);
 				CreateMathOp.shiftOp(operation.substring(0,2), regB, regA, "OUT");
 				CreateMemoryOp.storeAtAddress("OUT");
+				CreateMemoryOp.moveToRegister("OUT", outR);
 			}
 			else if (operation.equals("LT"))
 			{
