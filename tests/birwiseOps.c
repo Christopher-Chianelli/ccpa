@@ -1,11 +1,9 @@
 void main()
 {
     printf("Enter a number\n");
-    int a = readInt();
+    float a = readFloat();
     printf("Enter a number\n");
-    int b = readInt();
+    float b = readFloat();
     
-    a += b;
-    
-    printf("%d + %d = %d\n",a,b,a);
+    printf("%f lt %f = %d\n",a,b,a <= b);
 }

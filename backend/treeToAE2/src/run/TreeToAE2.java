@@ -619,10 +619,11 @@ public class TreeToAE2 {
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
 				
-				if (type.equals("int"))
-				    CreateMathOp.binaryOp(operation.substring(0, 1), regB, regA, "OUT");
+				if (type.equals("float"))
+					CreateMathOp.floatBinaryOp(operation.substring(0, 1), regB, regA, "OUT");
 				else
-				    CreateMathOp.floatBinaryOp(operation.substring(0, 1), regB, regA, "OUT");
+					CreateMathOp.binaryOp(operation.substring(0, 1), regB, regA, "OUT");
+				    
 					
 				CreateMemoryOp.storeAtAddress("OUT");
 			}
@@ -642,31 +643,48 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals("LT"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regA,regB,outR);
+				if (type.equals("float"))
+				    CreateMathOp.isFloatLessThan(regA,regB,outR);
+				else
+					CreateMathOp.isLessThan(regA,regB,outR);
 				return;
 			}
 			else if (operation.equals("GT"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regB,regA,outR);
+				if (type.equals("float"))
+				    CreateMathOp.isFloatLessThan(regB,regA,outR);
+				else
+				    CreateMathOp.isLessThan(regB,regA,outR);
 				return;
 			}
 			else if (operation.equals("LE"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regB,regA,outR);
+				if (type.equals("float"))
+				    CreateMathOp.isFloatLessThan(regB,regA,outR);
+				else
+				    CreateMathOp.isLessThan(regB,regA,outR);
 				CreateMathOp.not(outR,outR);
 				return;
 			}
 			else if (operation.equals("GE"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
-				CreateMathOp.isLessThan(regA,regB,outR);
+				if (type.equals("float"))
+				    CreateMathOp.isFloatLessThan(regA,regB,outR);
+				else
+				    CreateMathOp.isLessThan(regA,regB,outR);
+				
 				CreateMathOp.not(outR,outR);
 				return;
 			}

@@ -16,6 +16,19 @@ public class CreateMathOp {
 		System.out.printf("N[%s] 0\n", out);
 	}
 	
+	public static void isFloatLessThan(String regA, String regB, String out) {
+		floatBinaryOp("-",regA,regB,out);
+		binaryOp("-",out,"MINUS_ONE",out);
+		System.out.printf("L[%s]'\n", "ONE");
+		System.out.printf("L[%s]\n", "ZERO");
+		System.out.printf("L[%s]\n", out);
+		System.out.println("CF?2");
+		System.out.printf("N[%s] 1\n", out);
+		System.out.println("CF+1");
+		System.out.printf("N[%s] 0\n", out);
+	}
+	
+	
 	public static void isEqual(String regA, String regB, String out) {
 		System.out.println("-");
 		System.out.printf("L[%s]\n", regA);
@@ -66,10 +79,13 @@ public class CreateMathOp {
 	
 	public static void floatBinaryOp(String op, String regA, String regB, String out)
 	{
-		getExpPart(regA,"EXP0");
-		getExpPart(regB,"EXP1");
-		getDecPart(regA,"DEC0");
-		getDecPart(regB,"DEC1");
+		if (!op.equals("%"))
+		{
+		    getExpPart(regA,"EXP0");
+		    getExpPart(regB,"EXP1");
+		    getDecPart(regA,"DEC0");
+		    getDecPart(regB,"DEC1");
+		}
 		
 		if (op.equals("+") || op.equals("-"))
 		{
@@ -136,25 +152,25 @@ public class CreateMathOp {
 		}
 		else if (op.equals("%"))
 		{
-			System.out.println("/");
-			System.out.println("L[DEC1]");
-			System.out.println("L[SIG]");
-			System.out.println("S[DEC1]'");
-			
-			System.out.println("L[DEC0]");
-			System.out.println("L[DEC1]");
-			System.out.println("S[DEC0]");
-			
-			System.out.println("*");
-			System.out.println("L[DEC0]");
-			System.out.println("L[SIG]");
-			System.out.println("S[DEC0]");
-			
-			putDecPart("DEC0",out,"OTHER");
-			putExpPart("EXP1",out);
+			//TODO: Find a good algorism for mod
+			/*convertFloatToInt(regA,"DEC1");
+			convertIntToFloat("DEC1",out);*/
 		}
 	}
 	
+	public static void convertFloatToInt(String src, String dst) {
+		getDecPart(src,"DEC0");
+		getExpPart(src,"EXP0");
+		binaryOp("-","EXP0","FIFTY","EXP0");
+		binaryOp("-","FIFTY","EXP0","EXP0");
+		shiftOp("RS","DEC0","EXP0",dst);
+	}
+	
+	public static void convertIntToFloat(String src, String dst) {
+		CreateMemoryOp.moveToRegister(src,dst);
+		putExpPart("FIFTY",dst);
+	}
+
 	public static void getExpPart(String in, String out)
 	{
 		System.out.println("/");

@@ -753,6 +753,17 @@ class Attendant {
     }
 
     private String asFloatingPoint(String number) {
+    	String sign;
+    	if (number.startsWith("-"))
+    	{
+    		sign = "-";
+    		number = number.substring(1);
+    	}
+    	else
+    	{
+    		sign = "+";
+    	}
+    	
     	int dot = number.indexOf('.');
     	int power = dot + 49;
     	
@@ -777,7 +788,7 @@ class Attendant {
     	String powerString = String.format("%d", power);
     	String decimalString = String.format("%-48s", number.replace(".", "")).replace(' ', '0');
     		
-    	return powerString + decimalString;
+    	return sign + powerString + decimalString;
 	}
 
 	/*  Inform the attendant when an abnormality occurs in the
