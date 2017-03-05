@@ -471,6 +471,7 @@ public class TreeToAE2 {
 			else if (operation.equals("GET_MEM"))
 			{
 				printNode(children.item(0),regA);
+				CreateMemoryOp.moveToRegister(regA,"MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
 				return;
 			}
