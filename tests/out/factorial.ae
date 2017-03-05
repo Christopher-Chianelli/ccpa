@@ -1,3 +1,4 @@
+.5
 A write in columns
 N999 0
 N998 1
@@ -32,7 +33,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -51,15 +52,15 @@ S994
 +
 L999
 L996
-S970
+S978
 H
 .main
-N970 3
+N978 3
 +
 L994
-L970
+L978
 S994
-N970 0
+N978 0
 N993 -1
 -
 L994
@@ -82,7 +83,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -101,8 +102,8 @@ S994
 +
 L999
 L996
-S970
-N970 1
+S978
+N978 1
 N993 -1
 -
 L994
@@ -125,7 +126,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -144,7 +145,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N993 -1
 -
 L994
@@ -167,7 +168,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -186,7 +187,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N993 -1
 -
 L994
@@ -209,7 +210,7 @@ CF+7
 L999
 L998
 S995
-L971
+L977
 L999
 CB+13
 N995 0
@@ -228,7 +229,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 0
 -
 L994
@@ -240,7 +241,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 +
 L999
 L999
@@ -258,7 +259,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -272,7 +273,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S970
+S978
 N995 2
 -
 L994
@@ -284,7 +285,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 +
 L999
 L999
@@ -302,7 +303,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 2
@@ -316,7 +317,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 N993 -1
 -
 L994
@@ -339,7 +340,7 @@ CF+7
 L999
 L998
 S995
-L971
+L977
 L999
 CB+13
 N995 0
@@ -358,7 +359,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 1
 -
 L994
@@ -370,7 +371,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 +
 L999
 L999
@@ -388,10 +389,10 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
-N970 0
+N978 0
 N993 -1
 -
 L994
@@ -414,7 +415,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -433,8 +434,8 @@ S994
 +
 L999
 L996
-S970
-N970 0
+S978
+N978 0
 N993 -1
 -
 L994
@@ -457,7 +458,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -476,7 +477,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 2
 -
 L994
@@ -488,7 +489,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S970
+S978
 N993 -1
 -
 L994
@@ -511,7 +512,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -530,8 +531,8 @@ S994
 +
 L999
 L996
-S970
-N970 2
+S978
+N978 2
 N993 -1
 -
 L994
@@ -554,7 +555,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -573,7 +574,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 1
 -
 L994
@@ -585,7 +586,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S970
+S978
 N993 -1
 -
 L994
@@ -608,7 +609,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -627,8 +628,8 @@ S994
 +
 L999
 L996
-S970
-N970 0
+S978
+N978 0
 N993 -1
 -
 L994
@@ -651,7 +652,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -670,7 +671,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N993 -1
 -
 L994
@@ -693,7 +694,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 0
@@ -712,7 +713,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 3
 -
 L994
@@ -723,10 +724,10 @@ L999
 L999
 A returns to location on the top of the stack
 .factorial
-N970 2
+N978 2
 +
 L994
-L970
+L978
 S994
 N995 1
 -
@@ -739,32 +740,32 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
-N972 1
+S977
+N976 1
 -
-L972
-L971
-S970
+L976
+L977
+S978
 -
-L970
+L978
 L997
-S970
+S978
 L998'
 L999
-L970
+L978
 CF?2
-N970 1
+N978 1
 CF+1
-N970 0
+N978 0
 /
 L999
-L970
-N970 1
+L978
+N978 1
 CF?1
-N970 0
+N978 0
 /
 L999
-L970
+L978
 CF?1
 CF+129
 N995 1
@@ -778,12 +779,12 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S972
-N973 1
+S976
+N975 1
 -
-L972
-L973
-S971
+L976
+L975
+S977
 N993 -1
 -
 L994
@@ -806,7 +807,7 @@ CF+7
 L999
 L998
 S995
-L971
+L977
 L999
 CB+13
 N995 0
@@ -825,7 +826,7 @@ S994
 +
 L999
 L996
-S970
+S978
 N995 0
 -
 L994
@@ -837,7 +838,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 +
 L999
 L999
@@ -855,7 +856,7 @@ CF+7
 L999
 L998
 S995
-L970
+L978
 L999
 CB+13
 N995 1
@@ -869,7 +870,7 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S970
+S978
 N995 0
 -
 L994
@@ -881,10 +882,10 @@ L992
 A replace next card with result from the Egress Axis
 L000
 L999
-S971
+S977
 *
-L970
-L971
+L978
+L977
 S996
 N995 2
 -

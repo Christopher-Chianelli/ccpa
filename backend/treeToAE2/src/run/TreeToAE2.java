@@ -61,10 +61,16 @@ public class TreeToAE2 {
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
 		
-		if (operation.equals(";"))
+		if (operation.equals(";") || operation.equals("if") || operation.equals("while"))
 		{
 			return Math.max(getMaxRequiredRegistersInNode(children.item(0)),
 					        getMaxRequiredRegistersInNode(children.item(1)));
+		}
+		else if (operation.equals("if/else"))
+		{
+			return Math.max(Math.max(getMaxRequiredRegistersInNode(children.item(0)),
+					        getMaxRequiredRegistersInNode(children.item(1))),
+					        getMaxRequiredRegistersInNode(children.item(2)));
 		}
 		else
 		{
@@ -321,7 +327,7 @@ public class TreeToAE2 {
 			if (data.item(i).getNodeName().equals("uses"))
 			{
 				Element element = (Element) data.item(i);
-				element.setAttribute("address", "V" + index);
+				element.setAttribute("address", "G" + index);
 				index--;
 			}
 		}
@@ -348,6 +354,7 @@ public class TreeToAE2 {
 		NodeList init = root.getFirstChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
 		
+		System.out.printf(".%d\n", numOfTempRegisters);
 		System.out.println("A write in columns");
 		System.out.println("N[ZERO] 0");
 		System.out.println("N[ONE] 1");
@@ -434,12 +441,13 @@ public class TreeToAE2 {
 			if (address == null)
 				return;
 			
-			if (Integer.parseInt(address.substring(1)) < 900)
+			if (address.startsWith("V"))
 			{
 				CreateMemoryOp.getVariableFromStack(address.substring(1));
 			}
 			else
 			{
+				System.err.println("GLOBAL ADDRESS %d\n");
 				CreateMemoryOp.getGlobalAddress(address.substring(1));
 			}
 			CreateMemoryOp.readFromAddress(outR);

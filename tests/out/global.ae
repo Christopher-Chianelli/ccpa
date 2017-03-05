@@ -1,0 +1,612 @@
+.25
+A write in columns
+N999 0
+N998 1
+N997 -1
+N986 2
+N987 10
+N989 1000000000000000000000000000000000000000000000000
+N979 1000000000000000000000000
+N988 50
+N994 0
+N991 99999999999999999999999999999999999999999999999999
+N990 -99999999999999999999999999999999999999999999999999
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+10
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+H
+.main
+N978 1
++
+L994
+L978
+S994
+N956 1
+N955 2
++
+L956
+L955
+S957
+N956 3
++
+L957
+L956
+S958
+N957 4
++
+L958
+L957
+S959
+N958 5
++
+L959
+L958
+S960
+N959 6
++
+L960
+L959
+S961
+N960 7
++
+L961
+L960
+S962
+N961 8
++
+L962
+L961
+S963
+N962 9
++
+L963
+L962
+S964
+N963 10
++
+L964
+L963
+S965
+N964 11
++
+L965
+L964
+S966
+N965 12
++
+L966
+L965
+S967
+N966 13
++
+L967
+L966
+S968
+N967 14
++
+L968
+L967
+S969
+N968 15
++
+L969
+L968
+S970
+N969 16
++
+L970
+L969
+S971
+N970 17
++
+L971
+L970
+S972
+N971 18
++
+L972
+L971
+S973
+N972 19
++
+L973
+L972
+S974
+N973 20
++
+L974
+L973
+S975
+N974 21
++
+L975
+L974
+S976
+N975 22
++
+L976
+L975
+S977
+N976 23
++
+L977
+L976
+S978
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+341
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+298
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+123
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+201
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+32
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N995 1
+-
+L994
+L995
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.readInt
+A read next integer
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.readFloat
+A read next float
+N996 ?
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printNewLine
+A write new line
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printInt
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995
++
+L995
+L999
+P
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printFloat
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995
+/
+L995
+L989
+S982'
++
+L999
+L982
+S982
+-
+L982
+L999
+S981
+-
+L981
+L997
+S981
+L998'
+L999
+L981
+CF?2
+N981 1
+CF+1
+N981 0
+/
+L999
+L981
+N981 1
+CF?1
+N981 0
+/
+L999
+L981
+CF?5
++
+L999
+L982
+S982
+CF+4
+-
+L999
+L982
+S982
+*
+L995
+L987
+S984
+L984
+L987
+S984
+/
+L984
+L987
+S984'
+L984
+L987
+S984'
+A set decimal places to 47
+A write numbers with decimal point
+P
+A write annotation  * 10^
+-
+L982
+L988
+S982
+A set decimal places to 0
+A write numbers as ##################################################
+P
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
+.$printString
++
+L994
+L998
+S994
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S995
+-
+L995
+L998
+S995
+CF?1
+CF+9
+A write annotation 
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack
