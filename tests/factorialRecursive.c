@@ -1,14 +1,18 @@
-int factorial(int n)
+int A(int m, int n)
 {
-    if (n <= 0)
-        return 1;
+    if (m == 0)
+        return n + 1;
+    if (m > 0 && n == 0)
+        return A(m - 1, 1) + A(m - 1, 1);
     else
-        return factorial(n-1)*n;
+        return A(m - 1, A(m,n-1)) + A(m - 1, A(m,n-1));
 }
 
 void main()
 {
     printf("Enter a number\n");
-    int num = readInt();
-    printf("%d! = %d\n",num,factorial(num));
+    int m = readInt();
+    printf("Enter a number\n");
+    int n = readInt();
+    printf("A(%d,%d) = %d\n",m,n,A(m,n));
 }

@@ -92,7 +92,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2872
+CF+2952
 N995 0
 -
 L994
@@ -135,7 +135,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2829
+CF+2909
 N995 0
 -
 L994
@@ -187,7 +187,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2692
+CF+2772
 N995 0
 -
 L994
@@ -230,7 +230,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2734
+CF+2814
 N995 0
 -
 L994
@@ -272,7 +272,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2572
+CF+2652
 N995 0
 -
 L994
@@ -315,7 +315,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2649
+CF+2729
 N995 0
 -
 L994
@@ -358,7 +358,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2606
+CF+2686
 N995 0
 -
 L994
@@ -400,7 +400,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2444
+CF+2524
 N995 0
 -
 L994
@@ -410,6 +410,38 @@ S994
 L999
 L996
 S970
+N995 2
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
 N993 -1
 -
 L994
@@ -442,7 +474,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2395
+CF+2443
 N995 0
 -
 L994
@@ -452,18 +484,6 @@ S994
 L999
 L996
 S970
-N995 2
--
-L994
-L995
-S992
-+
-L999
-L992
-A replace next card with result from the Egress Axis
-L000
-L999
-S971
 +
 L999
 L999
@@ -595,7 +615,39 @@ L999
 L970
 CF?1
 CF+1
-CF+161
+CF+181
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
 N995 1
 -
 L994
@@ -677,7 +729,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+411
+CF+399
 N995 0
 -
 L994
@@ -687,18 +739,6 @@ S994
 L999
 L996
 S970
-N995 1
--
-L994
-L995
-S992
-+
-L999
-L992
-A replace next card with result from the Egress Axis
-L000
-L999
-S971
 +
 L999
 L999
@@ -756,7 +796,7 @@ S995
 L971
 L999
 CB+13
-CB+196
+CB+216
 .$L1
 N970 0
 N993 -1
@@ -791,7 +831,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2173
+CF+2213
 N995 0
 -
 L994
@@ -834,7 +874,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2130
+CF+2170
 N995 0
 -
 L994
@@ -888,7 +928,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1991
+CF+2031
 N995 0
 -
 L994
@@ -931,7 +971,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2033
+CF+2073
 N995 0
 -
 L994
@@ -985,7 +1025,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1894
+CF+1934
 N995 0
 -
 L994
@@ -1028,7 +1068,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1936
+CF+1976
 N995 0
 -
 L994
@@ -1070,7 +1110,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1774
+CF+1814
 N995 0
 -
 L994
@@ -1095,6 +1135,38 @@ N970 4
 L994
 L970
 S994
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S971
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
 N995 3
 -
 L994
@@ -1176,7 +1248,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1027
+CF+1035
 N995 0
 -
 L994
@@ -1186,7 +1258,27 @@ S994
 L999
 L996
 S970
-N995 1
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L970
+L999
+CB+13
+N995 0
 -
 L994
 L995
@@ -1262,7 +1354,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+669
+CF+657
 N995 0
 -
 L994
@@ -1272,18 +1364,6 @@ S994
 L999
 L996
 S970
-N995 0
--
-L994
-L995
-S992
-+
-L999
-L992
-A replace next card with result from the Egress Axis
-L000
-L999
-S971
 +
 L999
 L999

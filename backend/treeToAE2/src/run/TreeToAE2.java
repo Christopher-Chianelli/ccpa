@@ -7,6 +7,12 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -26,7 +32,7 @@ public class TreeToAE2 {
 	public static LinkedList<String> myStrings;
 	private static String myStackSize = "";
 	private static int numOfTempRegisters = 0;
-	
+	private static int numOfUniqueNames = 0;
 	private static Document readFromInput() throws Exception
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -68,6 +74,95 @@ public class TreeToAE2 {
 			}
 			return max + 1;
 		}
+	}
+	
+	private static void moveFuncionCalls(Node root)
+	{
+		NodeList init = root.getFirstChild().getChildNodes();
+		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
+		
+		for (int i = 0; i < init.getLength(); i++)
+		{
+			moveFuncionCallsInNode(init.item(i));
+		}
+		
+		for (int i = 0; i < functions.getLength(); i++)
+		{
+			moveFuncionCallsInNode(functions.item(i));
+		}
+		
+	}
+	
+	private static void moveFuncionCallsInNode(Node node)
+	{
+		if (!node.getNodeName().equals("op"))
+			return;
+		
+		NamedNodeMap attr = node.getAttributes();
+		String operation = attr.getNamedItem("name").getTextContent();
+		NodeList children = node.getChildNodes();
+		
+		for (int i = 0; i < children.getLength(); i++)
+		{
+			moveFuncionCallsInNode(children.item(i));
+		}
+		
+		if (operation.equals("CALL"))
+		{
+			Node parent = node.getParentNode();
+			Node temp = node;
+			
+			if (parent != null && parent.getAttributes().getNamedItem("name") != null){
+				String parentOp = node.getParentNode().getAttributes().getNamedItem("name").getTextContent();
+			while (!parentOp.equals(";") && !parentOp.equals("while") && !parentOp.equals("if") && !parentOp.equals("if/else") && !parentOp.equals("ASSIGN"))
+			{
+				temp = parent;
+				parent = temp.getParentNode();
+				if (parent == null || parent.getAttributes().getNamedItem("name") == null)
+					return;
+				parentOp = parent.getAttributes().getNamedItem("name").getTextContent();
+			}
+			
+			if (node.getParentNode() != parent)
+			{
+				Element assignOp = doc.createElement("op");
+				Element joinOps = doc.createElement("op");
+				Element funName = doc.createElement("value");
+				Element funType = doc.createElement("value");
+				Element usesVar = doc.createElement("uses");
+				
+				String type = attr.getNamedItem("type").getTextContent();
+				String name = getUniqueName();
+				
+				funName.setTextContent(name);
+				funType.setTextContent(type);
+				
+				usesVar.appendChild(funType.cloneNode(true));
+				usesVar.appendChild(funName.cloneNode(true));
+				
+				assignOp.setAttribute("name", "ASSIGN");
+				assignOp.appendChild(node.cloneNode(true));
+				assignOp.appendChild(funName.cloneNode(true));
+				
+				node.getParentNode().replaceChild(funName.cloneNode(true), node);
+				
+				joinOps.setAttribute("name", ";");
+				joinOps.setAttribute("type", "");
+				joinOps.appendChild(temp.cloneNode(true));
+				joinOps.appendChild(assignOp.cloneNode(true));
+				
+				parent.replaceChild(joinOps.cloneNode(true), temp);
+				parent.appendChild(usesVar);
+			}
+			}
+		}
+	}
+	
+	private static String getUniqueName()
+	{
+		String out = "$F" + numOfUniqueNames;
+		numOfUniqueNames++;
+		return out;
 	}
 	
 	private static void convertPrintf(Node root)
@@ -429,8 +524,8 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals(";"))
 			{
-				printNode(children.item(1),"");
-				printNode(children.item(0),"");
+				printNode(children.item(1),register);
+				printNode(children.item(0),register);
 			}
 			else if (operation.equals(","))
 			{
@@ -505,7 +600,7 @@ public class TreeToAE2 {
 				CreateMathOp.binaryOp("+", outR, regB, outR);
 				CreateMemoryOp.storeAtAddress(outR);
 			}
-			else if (operation.equals("="))
+			else if (operation.equals("=") || operation.equals("ASSIGN"))
 			{
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
@@ -686,14 +781,25 @@ public class TreeToAE2 {
 			return getAddress(variable,node.getParentNode());
 		}
 	}
-
+	
+	private static void printDoc() throws TransformerException
+	{
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(System.err);
+		transformer.transform(source, result);
+	}
+	
 	public static void main(String[] args) throws Exception {
 		doc = readFromInput();
 		myStrings = new LinkedList<String>();
 		Node root = doc.getFirstChild();
+		moveFuncionCalls(root);
+		convertPrintf(root);
+		//printDoc();
 		numOfTempRegisters = getMaxRequiredRegisters(root);
 		giveVariablesAddresses(root);
-		convertPrintf(root);
 		printProgram(root);
 	}
 
