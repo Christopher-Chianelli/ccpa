@@ -188,7 +188,7 @@ char *destroyLocalScope()
 	}
 	if (temp && temp->name)
 	    out = (!strcmp(out,""))?
-		concatStrings(5,temp->name,"\n",temp->type,"\nDECLARE",out) :
+		concatStrings(5,temp->name,"\n",temp->type,"\nDECLARE\n",out) :
 		concatStrings(5,temp->name,"\n",temp->type,"\nDECLARE\n",out);
 	freeVariableList(variables->vars);
 	struct variableStack *toFree = variables;

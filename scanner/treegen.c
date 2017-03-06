@@ -88,6 +88,7 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"RS") ||
         !strcmp(op,"LS") ||
         !strcmp(op,"if") ||
+        !strcmp(op,"while")||
         !strcmp(op,"FUN") ||
         !strcmp(op,"CALL")
         )
@@ -109,12 +110,6 @@ int getNumToPop(char *op, int *opType, char **type)
     {
         *opType = DATA;
         return 0;
-    }
-    else if (!strcmp(op,"while"))
-    {
-        if (!strcmp(s->text,"<value></value>"))
-            pop(&s);
-        return 2;
     }
     else
     {

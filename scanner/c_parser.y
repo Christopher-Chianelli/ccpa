@@ -407,9 +407,9 @@ whileLoop:
     ;
 
 forLoop:
-    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr(concatStrings(2,";\n",$11),$4,createExpr("while",$6,createExpr(";",$10,$8,NO_EXPR),NO_EXPR),NO_EXPR);}
-    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,createExpr(";",$8,$6,NO_EXPR),NO_EXPR);}
-    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr(concatStrings(2,";\n",$10),$4,createExpr("while",$6,$9,NO_EXPR),createTextExpr("",$10));}
+    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr("while",$6,appendExprs($8,$10),NO_EXPR);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$11);}
+    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,appendExprs($6,$8),NO_EXPR);}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr("while",$6,$9,NO_EXPR);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$10);}
     | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("while",$4,$7,NO_EXPR);}
     ;
 %%
