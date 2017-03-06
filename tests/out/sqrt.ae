@@ -93,7 +93,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+3116
+CF+3117
 N995 0
 -
 L994
@@ -136,7 +136,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+3073
+CF+3074
 N995 0
 -
 L994
@@ -178,7 +178,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2904
+CF+2905
 N995 0
 -
 L994
@@ -220,7 +220,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2855
+CF+2856
 N995 0
 -
 L994
@@ -817,44 +817,7 @@ L999
 L978
 CF?1
 CF+1
-CF+205
-N995 1
--
-L994
-L995
-S992
-+
-L999
-L992
-A replace next card with result from the Egress Axis
-L000
-L999
-S978
-N977 1
-+
-L978
-L977
-S977
-+
-L999
-L999
-S995
-L999
-L992
-A replace next card with result from the Egress Axis
-S000
-/
-L999
-L995
-CF?1
-CF+7
-+
-L999
-L998
-S995
-L977
-L999
-CB+13
+CF+206
 N995 3
 -
 L994
@@ -936,7 +899,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+418
+CF+456
 N995 0
 -
 L994
@@ -1022,8 +985,46 @@ S995
 L978
 L999
 CB+13
-CB+240
 .$L4
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S978
+N977 1
++
+L978
+L977
+S977
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L977
+L999
+CB+13
+CB+241
+.$L5
 N978 0
 N993 -1
 -
@@ -1643,7 +1644,7 @@ L981
 CF?1
 CF+1
 CF+66
-.$L5
+.$L6
 *
 L978
 L987
@@ -1673,7 +1674,7 @@ L981
 CF?1
 CB+29
 CF+36
-.$L6
+.$L7
 /
 L978
 L987
@@ -1709,7 +1710,7 @@ L981
 CF?1
 CB+35
 CF+0
-.$L7
+.$L8
 *
 L978
 L980
@@ -2045,7 +2046,7 @@ L981
 CF?1
 CF+1
 CF+66
-.$L8
+.$L9
 *
 L975
 L987
@@ -2075,7 +2076,7 @@ L981
 CF?1
 CB+29
 CF+36
-.$L9
+.$L10
 /
 L975
 L987
@@ -2111,7 +2112,7 @@ L981
 CF?1
 CB+35
 CF+0
-.$L10
+.$L11
 *
 L975
 L980
@@ -2470,7 +2471,7 @@ L981
 CF?1
 CF+1
 CF+66
-.$L11
+.$L12
 *
 L977
 L987
@@ -2500,7 +2501,7 @@ L981
 CF?1
 CB+29
 CF+36
-.$L12
+.$L13
 /
 L977
 L987
@@ -2536,7 +2537,7 @@ L981
 CF?1
 CB+35
 CF+0
-.$L13
+.$L14
 *
 L977
 L980
@@ -2749,7 +2750,7 @@ L981
 CF?1
 CF+1
 CF+26
-.$L15
+.$L16
 /
 L984
 L987
@@ -2775,7 +2776,7 @@ L981
 CF?1
 CF+27
 CB+26
-.$L16
+.$L17
 /
 L985
 L987
@@ -2801,7 +2802,7 @@ L981
 CF?1
 CF+1
 CB+26
-.$L14
+.$L15
 +
 L984
 L985
@@ -2936,7 +2937,7 @@ L981
 CF?1
 CF+1
 CF+66
-.$L17
+.$L18
 *
 L996
 L987
@@ -2966,7 +2967,7 @@ L981
 CF?1
 CB+29
 CF+36
-.$L18
+.$L19
 /
 L996
 L987
@@ -3002,7 +3003,7 @@ L981
 CF?1
 CB+35
 CF+0
-.$L19
+.$L20
 *
 L996
 L980

@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import org.w3c.dom.Node;
 
 public class CreateMemoryOp {
-	private static LinkedList<Integer> argOffsets = init();
+	private static LinkedList<Integer> argOffsets = initList();
 	
-	private static LinkedList<Integer> init()
+	private static LinkedList<Integer> initList()
 	{
 		LinkedList<Integer> out = new LinkedList<Integer>();
 		out.add(0);

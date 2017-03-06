@@ -1,11 +1,22 @@
 package create;
 
+import java.util.LinkedList;
+
 import org.w3c.dom.NodeList;
 
 import run.TreeToAE2;
 
 public class CreateControlOp {
 	private static int labelCount = 0;
+	private static LinkedList<Integer> startLabels = initList();
+	private static LinkedList<Integer> endLabels = initList();
+	
+	private static LinkedList<Integer> initList()
+	{
+		LinkedList<Integer> out = new LinkedList<Integer>();
+		out.add(0);
+		return out;
+	}
 	
 	public static void ifStatement(NodeList children, String regA)
 	{
@@ -107,8 +118,10 @@ public class CreateControlOp {
 	public static void whileStatement(NodeList children)
 	{
 		int myLabel = createLabel(2);
+		int start = myLabel;
+		int end = myLabel + 1;
 		
-		System.out.printf(".$L%d\n",myLabel);
+		System.out.printf(".$L%d\n",start);
 		TreeToAE2.printNode(children.item(1),"T0");
 		
 		System.out.println("/");
@@ -116,11 +129,79 @@ public class CreateControlOp {
 		System.out.printf("L[T0]\n");
 		System.out.println("CF?1");
 		System.out.println("CF+1");
-		System.out.printf("J[.$L%d]\n",myLabel + 1);
+		System.out.printf("J[.$L%d]\n",end);
 		
+		startLabels.push(start);
+		endLabels.push(end);
 		TreeToAE2.printNode(children.item(0),"");
+		startLabels.pop();
+		endLabels.pop();
 		
-		System.out.printf("J[.$L%d]\n",myLabel);
-		System.out.printf(".$L%d\n",myLabel + 1);
+		System.out.printf("J[.$L%d]\n",start);
+		System.out.printf(".$L%d\n",end);
+	}
+	
+	public static void doWhileStatement(NodeList children)
+	{
+		int myLabel = createLabel(3);
+		int start = myLabel;
+		int test = myLabel + 1;
+		int end = myLabel + 2;
+		
+		System.out.printf(".$L%d\n",start);
+		
+		startLabels.push(test);
+		endLabels.push(end);
+		TreeToAE2.printNode(children.item(0),"");
+		startLabels.pop();
+		endLabels.pop();
+		
+		System.out.printf(".$L%d\n",test);
+		TreeToAE2.printNode(children.item(1),"T0");
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.printf("L[T0]\n");
+		System.out.println("CF?1");
+		System.out.printf("J[.$L%d]\n",start);
+		System.out.printf(".$L%d\n",end);
+	}
+	
+	public static void forStatement(NodeList children)
+	{
+		int myLabel = createLabel(3);
+		int start = myLabel;
+		int post = myLabel + 1;
+		int end = myLabel + 2;
+		
+		System.out.printf(".$L%d\n",start);
+		TreeToAE2.printNode(children.item(2),"T0");
+		
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.printf("L[T0]\n");
+		System.out.println("CF?1");
+		System.out.println("CF+1");
+		System.out.printf("J[.$L%d]\n",end);
+		
+		startLabels.push(post);
+		endLabels.push(end);
+		TreeToAE2.printNode(children.item(1),"");
+		startLabels.pop();
+		endLabels.pop();
+		
+		System.out.printf(".$L%d\n",post);
+		TreeToAE2.printNode(children.item(0),"");
+		System.out.printf("J[.$L%d]\n",start);
+		System.out.printf(".$L%d\n",end);
+	}
+	
+	public static void breakFromLoop()
+	{
+		System.out.printf("J[.$L%d]\n",endLabels.peek());
+	}
+	
+	public static void continueLoop()
+	{
+		System.out.printf("J[.$L%d]\n",startLabels.peek());
 	}
 }

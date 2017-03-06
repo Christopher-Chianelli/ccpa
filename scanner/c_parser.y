@@ -40,6 +40,9 @@ void yyerror(const char *s);
 %token <vval> FOR
 
 %token <vval> RETURN
+%token <vval> BREAK
+%token <vval> CONTINUE
+%token <vval> DO
 
 %token <vval> TYPEDEF
 %token <vval> DOTS
@@ -80,7 +83,7 @@ void yyerror(const char *s);
 %token <vval> OPEN_SQUARE
 %token <vval> CLOSE_SQUARE
 
-%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef
+%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop doWhileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef breakStatement continueStatement
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
 %type <ival> multistar
 %%
@@ -199,7 +202,10 @@ code:
     | expression SEMICOLON {$$=$1;}
     | ifStatement {$$=$1;}
     | returnStatement {$$=$1;}
+	| breakStatement {$$=$1;}
+	| continueStatement {$$=$1;}
     | whileLoop {$$=$1;}
+	| doWhileLoop {$$=$1;}
     | forLoop {$$=$1;}
 	| typeDef {$$=$1;}
 	| SEMICOLON {$$=createEmptyExpr();}
@@ -212,7 +218,10 @@ codeBlock:
     | codeBlock expression SEMICOLON {$$=appendExprs($1,$2);}
     | codeBlock ifStatement {$$=appendExprs($1,$2);}
     | codeBlock returnStatement {$$=appendExprs($1,$2);}
+	| codeBlock breakStatement {$$=appendExprs($1,$2);}
+	| codeBlock continueStatement {$$=appendExprs($1,$2);}
     | codeBlock whileLoop {$$=appendExprs($1,$2);}
+	| codeBlock doWhileLoop {$$=appendExprs($1,$2);}
     | codeBlock forLoop {$$=appendExprs($1,$2);}
 	| codeBlock typeDef SEMICOLON {$$=appendExprs($1,$2);}
 	| codeBlock SEMICOLON {$$=appendExprs($1,createEmptyExpr());}
@@ -402,15 +411,32 @@ returnStatement:
     | RETURN expression SEMICOLON {$$=createExpr("RETURN VAL",$2,NO_EXPR,NO_EXPR);}
     ;
 
+breakStatement:
+	BREAK SEMICOLON {$$=createExpr("BREAK",NO_EXPR,NO_EXPR,NO_EXPR);}
+	;
+
+continueStatement:
+	CONTINUE SEMICOLON {$$=createExpr("CONTINUE",NO_EXPR,NO_EXPR,NO_EXPR);}
+	;
+
 whileLoop:
     WHILE OPEN_BRACKET expression CLOSE_BRACKET code {$$=createExpr("while",$3,$5,NO_EXPR);}
     ;
 
+doWhileLoop:
+	DO code WHILE OPEN_BRACKET expression CLOSE_BRACKET SEMICOLON {$$=createExpr("doWhile",$5,$2,NO_EXPR);}
+	;
+
 forLoop:
-    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr("while",$6,appendExprs($8,$10),NO_EXPR);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$11);}
-    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("while",$4,appendExprs($6,$8),NO_EXPR);}
-    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr("while",$6,$9,NO_EXPR);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$10);}
-    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("while",$4,$7,NO_EXPR);}
+    FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr("for",$6,$10,$8);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$11);}
+    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("for",$4,$8,$6);}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON expression SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr("for",$6,$9,createEmptyExpr());$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$10);}
+    | FOR OPEN_BRACKET SEMICOLON expression SEMICOLON CLOSE_BRACKET code {$$=createExpr("for",$4,$7,createEmptyExpr());}
+
+	| FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON  SEMICOLON expression CLOSE_BRACKET code endScope {$$=createExpr("for",createIntExpr(1),$9,$7);$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$10);}
+    | FOR OPEN_BRACKET SEMICOLON SEMICOLON expression CLOSE_BRACKET code {$$=createExpr("for",createIntExpr(1),$7,$5);}
+    | FOR OPEN_BRACKET startScope variableDeclaration SEMICOLON SEMICOLON CLOSE_BRACKET code endScope {$$=createExpr("for",createIntExpr(1),$8,createEmptyExpr());$$=appendExprs($4,$$);$$.rep = concatStrings(2,$$.rep,$9);}
+    | FOR OPEN_BRACKET SEMICOLON SEMICOLON CLOSE_BRACKET code {$$=createExpr("for",createIntExpr(1),$6,createEmptyExpr());}
     ;
 %%
 

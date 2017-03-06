@@ -58,8 +58,11 @@ FILEINFO (#[ ].*)
 if {return IF;}
 else {return ELSE;}
 for {return FOR;}
+do {return DO;}
 while {return WHILE;}
 return {return RETURN;}
+break {return BREAK;}
+continue {return CONTINUE;}
 struct {ignoreTable=1;return STRUCT;}
 union {ignoreTable=1;return UNION;}
 enum {ignoreTable=1;return ENUM;}

@@ -36,7 +36,9 @@ int getNumToPop(char *op, int *opType, char **type)
     }
 
     if (!strcmp(op,"NO_OP") ||
-        !strcmp(op,"RETURN"))
+        !strcmp(op,"RETURN") ||
+        !strcmp(op,"CONTINUE") ||
+        !strcmp(op,"BREAK"))
             return 0;
     else if (!strcmp(op,"-U") ||
         !strcmp(op,"+U") ||
@@ -88,12 +90,14 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"RS") ||
         !strcmp(op,"LS") ||
         !strcmp(op,"if") ||
-        !strcmp(op,"while")||
+        !strcmp(op,"while") ||
+        !strcmp(op,"doWhile") ||
         !strcmp(op,"FUN") ||
         !strcmp(op,"CALL")
         )
             return 2;
     else if (!strcmp(op,"if/else") ||
+        !strcmp(op,"for") ||
         !strcmp(op,"?"))
             return 3;
     else if (!strcmp(op,"DECLARE"))

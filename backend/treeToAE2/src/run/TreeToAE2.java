@@ -61,12 +61,12 @@ public class TreeToAE2 {
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
 		
-		if (operation.equals(";") || operation.equals("if") || operation.equals("while"))
+		if (operation.equals(";") || operation.equals("if") || operation.equals("while") || operation.equals("doWhile"))
 		{
 			return Math.max(getMaxRequiredRegistersInNode(children.item(0)),
 					        getMaxRequiredRegistersInNode(children.item(1)));
 		}
-		else if (operation.equals("if/else"))
+		else if (operation.equals("if/else") || operation.equals("for"))
 		{
 			return Math.max(Math.max(getMaxRequiredRegistersInNode(children.item(0)),
 					        getMaxRequiredRegistersInNode(children.item(1))),
@@ -120,7 +120,7 @@ public class TreeToAE2 {
 			
 			if (parent != null && parent.getAttributes().getNamedItem("name") != null){
 				String parentOp = node.getParentNode().getAttributes().getNamedItem("name").getTextContent();
-			while (!parentOp.equals(";") && !parentOp.equals("while") && !parentOp.equals("if") && !parentOp.equals("if/else") && !parentOp.equals("ASSIGN"))
+			while (!parentOp.equals(";") && !parentOp.equals("while") && !parentOp.equals("doWhile") &&  !parentOp.equals("for") && !parentOp.equals("if") && !parentOp.equals("if/else") && !parentOp.equals("ASSIGN"))
 			{
 				temp = parent;
 				parent = temp.getParentNode();
@@ -528,6 +528,26 @@ public class TreeToAE2 {
 			else if (operation.equals("while"))
 			{
 				CreateControlOp.whileStatement(children);
+				return;
+			}
+			else if (operation.equals("doWhile"))
+			{
+				CreateControlOp.doWhileStatement(children);
+				return;
+			}
+			else if (operation.equals("for"))
+			{
+				CreateControlOp.forStatement(children);
+				return;
+			}
+			else if (operation.equals("BREAK"))
+			{
+				CreateControlOp.breakFromLoop();
+				return;
+			}
+			else if (operation.equals("CONTINUE"))
+			{
+				CreateControlOp.continueLoop();
 				return;
 			}
 			else if (operation.equals(";"))
