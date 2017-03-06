@@ -783,6 +783,10 @@ class Attendant {
     	    	if (number.equals(""))
     	    		number = "0";
     	    }
+    	    else
+    	    {
+    	    	dot = 0;
+    	    }
     	}
     	else
     	{

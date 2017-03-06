@@ -4,6 +4,8 @@ make clean
 make
 cd ..
 
+rm tests/out/*
+
 for i in `ls tests`
 do
 if [ -f "tests/$i" ]

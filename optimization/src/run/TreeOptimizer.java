@@ -3,6 +3,8 @@ package run;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -188,42 +190,24 @@ public class TreeOptimizer {
 		}
 	}
 	
-	private static void convertToFinalForm(Node program)
+	private static void convertToFinalForm(Node program) throws TransformerException
 	{
 		Element functions = doc.createElement("functions");
 		Element dataStructures = doc.createElement("structures");
 		Element init = doc.createElement("init");
 		
 		removeFunctions(program, functions);
+		Node initCode = program.getFirstChild();
+		Node globalVariable = initCode.getLastChild();
 		
-		NodeList statements = program.getChildNodes();
-		for (int i = 0; i < statements.getLength(); i++)
+		while (globalVariable.getNodeName().equals("uses"))
 		{
-			Node statement = statements.item(i);
-			int oldLength = statements.getLength();
-			
-			if (statement.getNodeName().equals("op"))
-			{
-				NamedNodeMap attr = statement.getAttributes();
-				String operation =  attr.getNamedItem("name").getTextContent();
-				if (operation.equals("FUN"))
-				{
-					functions.appendChild(statement);
-				}
-				else if (operation.equals(";"))
-				{
-					convertSemicolon(statement,functions,dataStructures,init);
-				}
-			}
-			else
-			{
-				dataStructures.appendChild(statement);
-			}
-			
-			if (oldLength != statements.getLength()){
-				i = -1;
-			}
+			dataStructures.appendChild(globalVariable.cloneNode(true));
+			globalVariable = globalVariable.getPreviousSibling();
+			initCode.removeChild(globalVariable.getNextSibling());
 		}
+		
+		init.appendChild(initCode.cloneNode(true));
 		
 		while (program.hasChildNodes())
 			program.removeChild(program.getFirstChild());
@@ -294,65 +278,6 @@ public class TreeOptimizer {
 		}
 		return out;
 	}
-
-	private static Node convertSemicolon(Node semicolon, Element functions, Element dataStructures, Element init)
-	{
-		Node first = semicolon.getFirstChild();
-		Node second = semicolon.getLastChild();
-		
-		Node firstConverted = convertPart(first, functions, dataStructures, init);
-		Node secondConverted = convertPart(second, functions, dataStructures, init);
-		
-		if (firstConverted != null && secondConverted != null)
-		{
-			semicolon.replaceChild(firstConverted, first);
-			semicolon.replaceChild(secondConverted, second);
-			init.appendChild(semicolon);
-			return semicolon;
-		}
-		else if (firstConverted != null)
-		{
-			init.appendChild(firstConverted);
-			return firstConverted;
-		}
-		else if (secondConverted != null)
-		{
-			init.appendChild(secondConverted);
-			return secondConverted;
-		}
-		else
-		{
-			return null;
-		}
-		
-	}
-	
-	private static Node convertPart(Node first, Element functions, Element dataStructures, Element init)
-	{
-		if (first == null)
-			return null;
-		
-		Node firstConverted;
-		
-		if (first.getNodeName().equals("op"))
-		{
-			NamedNodeMap attr = first.getAttributes();
-			if (attr.getNamedItem("name").getTextContent().equals(";"))
-			{
-				firstConverted = convertSemicolon(first,functions,dataStructures,init);
-			}
-			else
-			{
-				firstConverted = first;
-			}
-		}
-		else
-		{
-			firstConverted = null;
-			dataStructures.appendChild(first);
-		}
-		return firstConverted;
-	}
 	
 	public static void main(String[] args) throws Exception {
 		doc = readFromInput();
@@ -362,10 +287,17 @@ public class TreeOptimizer {
 		
 		removeNoOps(program);
 		removeUnusedVariables(program);
+		
+		
 		changeCallOps(program);
 		convertToFinalForm(program);
 		
 		doc.replaceChild(program, oldProgram);
+		outputFile();
+	}
+	
+	private static void outputFile() throws TransformerException
+	{
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);

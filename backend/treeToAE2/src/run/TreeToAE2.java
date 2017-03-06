@@ -447,7 +447,6 @@ public class TreeToAE2 {
 			}
 			else
 			{
-				System.err.println("GLOBAL ADDRESS %d\n");
 				CreateMemoryOp.getGlobalAddress(address.substring(1));
 			}
 			CreateMemoryOp.readFromAddress(outR);
