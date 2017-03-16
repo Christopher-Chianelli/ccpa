@@ -1,6 +1,12 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cat > $SCRIPT_DIR/out/temp
+if [ -s $SCRIPT_DIR/out/temp ]
+then
+        :
+else
+        exit 1
+fi
 tempRegs=`head -n 1 $SCRIPT_DIR/out/temp | sed 's/^.//'`
 cat $SCRIPT_DIR/builtin_registers.txt > $SCRIPT_DIR/register_assignment.txt
 

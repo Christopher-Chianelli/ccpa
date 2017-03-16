@@ -3,7 +3,6 @@ package run;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -197,6 +196,7 @@ public class TreeOptimizer {
 		Element init = doc.createElement("init");
 		
 		removeFunctions(program, functions);
+		removeDataStructures(program, dataStructures);
 		Node initCode = program.getFirstChild();
 		Node globalVariable = initCode.getLastChild();
 		
@@ -279,21 +279,54 @@ public class TreeOptimizer {
 		return out;
 	}
 	
+	private static boolean removeDataStructures(Node node, Element dataStructures) {
+		if (node.getNodeName().equals("data"))
+		{
+			node.getParentNode().removeChild(node);
+			dataStructures.appendChild(node);
+			return true;
+		}
+		
+		boolean out = false;
+		Node child = node.getFirstChild();
+		while (child != null)
+		{
+			if (removeDataStructures(child,dataStructures))
+			{
+				child = node.getFirstChild();
+				out = true;
+			}
+			else
+			{
+			    child = child.getNextSibling();
+			}
+		}
+		return out;
+	}
+	
 	public static void main(String[] args) throws Exception {
-		doc = readFromInput();
+		try
+		{
+		    doc = readFromInput();
 		
-		Node program = doc.getFirstChild();
-		Node oldProgram = doc.getFirstChild();
+		    Node program = doc.getFirstChild();
+		    Node oldProgram = doc.getFirstChild();
 		
-		removeNoOps(program);
-		removeUnusedVariables(program);
+		    removeNoOps(program);
+		    removeUnusedVariables(program);
 		
 		
-		changeCallOps(program);
-		convertToFinalForm(program);
+		    changeCallOps(program);
+		    convertToFinalForm(program);
 		
-		doc.replaceChild(program, oldProgram);
-		outputFile();
+		    doc.replaceChild(program, oldProgram);
+		     outputFile();
+		}
+		catch (Exception e)
+		{
+			System.out.println("<error></error>");
+			System.exit(1);
+		}
 	}
 	
 	private static void outputFile() throws TransformerException

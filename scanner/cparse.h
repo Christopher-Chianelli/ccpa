@@ -55,6 +55,7 @@ struct strings
 
 extern struct typedefs my_typedefs;
 extern struct strings existingStrings;
+extern struct strings toDefine;
 extern struct variableStack *variables;
 extern struct structList structs;
 extern struct expr NO_EXPR;
@@ -111,3 +112,11 @@ extern void freeStrings(struct strings *s);
 extern void freeVariableList(struct variableList *vl);
 
 extern void printWithoutNewline(char *str);
+extern char *getFreshId();
+extern char *replaceNewLine(char *str);
+extern void addToDefine(char *item);
+extern struct strings *emptyStringStack();
+extern void addToStringStack(struct strings *stack, char *item);
+
+extern void yyerror(const char *s,...);
+extern void yywarn(const char *s,...);

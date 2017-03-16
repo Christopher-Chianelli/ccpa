@@ -1,15 +1,28 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "cparse.h"
 // stuff from flex that bison needs to know about:
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 extern int yylex();
 extern int yyparse();
 extern FILE *yyin;
 extern char *yytext;
+extern char linebuf[500];
 
-void yyerror(const char *s);
+int error = 0;
 %}
+
+%locations
 
 //Token type
 %union {
@@ -18,6 +31,7 @@ void yyerror(const char *s);
 	char *sval;
     char vval;
 	struct expr expression;
+	struct strings *strings;
 }
 
 //Tokens
@@ -86,6 +100,7 @@ void yyerror(const char *s);
 %type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop doWhileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef breakStatement continueStatement
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
 %type <ival> multistar
+%type <strings> dataList
 %%
 // Grammar
 program:
@@ -104,20 +119,17 @@ global:
     /* empty */ {$$=createEmptyExpr();}
     | global function {$$=appendExprs($1,$2);}
 	| global functionDef endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
-	//| global functionDef ignore endScope SEMICOLON {$$=$1;declareVariable($2.type,$2.rep);}
-	| global dataStatement {$$=appendExprs($1,$2);}
+	| global dataStatement {$$=$1;}
 	| global STRUCT ID SEMICOLON {$$=$1;}
 	| global UNION ID SEMICOLON {$$=$1;}
 	| global ENUM ID SEMICOLON {$$=$1;}
 	| global variableList SEMICOLON {$$=appendExprs($1,$2);}
-	//| global ID OPEN_BRACKET ignore CLOSE_BRACKET {$$=$1;}
 	| global typeDef {$$=appendExprs($1,$2);}
 	| global externStatement {$$=appendExprs($1,$2);}
     ;
 
 externStatement:
     EXTERN functionDef endScope SEMICOLON {$$=createEmptyExpr();declareVariable($2.type,$2.rep);}
-	//| EXTERN functionDef ignore endScope SEMICOLON {$$=createEmptyExpr();declareVariable($2.type,$2.rep);}
 	| EXTERN variableList SEMICOLON {$$=$2;}
 	| EXTERN dataStatement {$$=$2;}
 	| EXTERN STRUCT ID SEMICOLON {$$=createEmptyExpr();}
@@ -125,27 +137,9 @@ externStatement:
 	| EXTERN ENUM ID SEMICOLON {$$=createEmptyExpr();}
 	;
 
-/*ignore:
-    ID {}
-	| STR_LIT {}
-	| INT {}
-	| FLOAT {}
-	| OPEN_BRACKET ignoreInBrackets CLOSE_BRACKET {}
-	| OPEN_BRACKET TYPE CLOSE_BRACKET {}
-	| ignore ignore {}
-	;
-
-ignoreInBrackets:
-     {}
-    | ignore {}
-	| ignoreInBrackets COMMA ignore {}
-	| ignoreInBrackets EQUALS ignore {}
-	;*/
-
 functionQuantifiers:
     INLINE {}
 	| STATIC INLINE {}
-	//| INLINE ignore  {}
 	;
 
 function:
@@ -187,7 +181,6 @@ variable:
 
 variableList:
       type variable {declareVariable($1,$2);$$ = createTypeExpr($1);}
-	//| type variable ignore {declareVariable($1,$2);$$ = createTypeExpr($1);}
 	| type OPEN_BRACKET multistar variable CLOSE_BRACKET OPEN_BRACKET arglist CLOSE_BRACKET {declareVariable(functionType($1,$3,$7),$4);$$ = createTypeExpr($1);}
 	| type variable EQUALS ternary {declareVariable($1,$2);$$=createExpr("=",getVariable($2),$4,NO_EXPR);}
     | variableList COMMA multistar variable {declareVariable(addStars(getBaseType($1.type),$3),$4);$$ = $1;}
@@ -209,6 +202,8 @@ code:
     | forLoop {$$=$1;}
 	| typeDef {$$=$1;}
 	| SEMICOLON {$$=createEmptyExpr();}
+	| error SEMICOLON {}
+	| error CLOSE_BLOCK {}
 	;
 
 codeBlock:
@@ -225,6 +220,8 @@ codeBlock:
     | codeBlock forLoop {$$=appendExprs($1,$2);}
 	| codeBlock typeDef SEMICOLON {$$=appendExprs($1,$2);}
 	| codeBlock SEMICOLON {$$=appendExprs($1,createEmptyExpr());}
+	| codeBlock error SEMICOLON {}
+	| codeBlock error CLOSE_BLOCK {}
 	;
 
 variableDeclaration:
@@ -244,13 +241,13 @@ type:
 	| STRUCT ID {$$=appendStr("struct ",$2);}
 	| UNION ID {$$=appendStr("struct ",$2);}
 	| ENUM ID {$$=appendStr("struct ",$2);}
-	| unamedDef {$$=$1;}
+	| unamedDef {$$=appendStr("struct ", replaceNewLine($1)); }
 	| type TYPE {$$=appendStr($1,$2);}
 	| type STRUCT ID  {$$=appendStr("struct ",$3);}
 	| type UNION ID {$$=appendStr("union ",$3);}
 	| type ENUM ID  {$$=appendStr("enum ",$3);}
 	| type STAR  {$$=addStars($1,1);}
-	| type unamedDef {$$=$2;}
+	| type unamedDef {$$=appendStr("struct ", replaceNewLine($2));}
 	;
 
 typecast:
@@ -263,40 +260,39 @@ multistar:
 	;
 
 dataStatement:
-    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);}
+    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);while($2 && $2->string){declareVariable(concatStrings(2,"struct ", replaceNewLine($1)),$2->string);$2 = $2->next;}}
 	;
 
 dataDef:
-     STRUCT ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nSTRUCT\n",$7);declareStruct($2,$7);}
-    | UNION ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nUNION\n",$7);declareStruct($2,$7);}
-	| ENUM ID OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nENUM\n",$7);declareStruct($2,$7);}
+     STRUCT ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nSTRUCT\n",$7);declareStruct($2,$7);addToDefine($$);}
+    | UNION ID OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nUNION\n",$7);declareStruct($2,$7);addToDefine($$);}
+	| ENUM ID OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {$$=concatStrings(3,$2,"\nENUM\n",$7);declareStruct($2,$7);addToDefine($$);}
 	;
 
 unamedDef:
-    STRUCT OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_STRUCT\n",$6);}
-    | UNION OPEN_BLOCK startScope members CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_UNION\n",$6);}
-    | ENUM OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {$$=concatStrings(2,"UNAMED_ENUM\n",$6);}
+    STRUCT OPEN_BLOCK startScope members CLOSE_BLOCK endScope {char *id = getFreshId(); $$=concatStrings(3,id,"\nSTRUCT\n",$6);declareStruct(id,$6);addToDefine($$);}
+    | UNION OPEN_BLOCK startScope members CLOSE_BLOCK endScope {char *id = getFreshId(); $$=concatStrings(3,id,"\nUNION\n",$6);declareStruct(id,$6);addToDefine($$);}
+    | ENUM OPEN_BLOCK startScope enumList CLOSE_BLOCK endScope {char *id = getFreshId(); $$=concatStrings(3,id,"\nENUM\n",$6);declareStruct(id,$6);addToDefine($$);}
 	;
 
 
 enumList:
     ID {declareVariable("int",$1);}
 	| ID EQUALS expression {declareVariable("int",$1);}
-	//| ID ignore EQUALS expression {}
 	| enumList COMMA enumList {}
 	;
 
 dataList:
-    /* empty */ {}
-    | variable {}
-	| dataList COMMA variable {}
+    /* empty */ {$$=emptyStringStack();}
+    | variable {$$=emptyStringStack();addToStringStack($$,$1);}
+	| dataList COMMA variable {$$=$1;addToStringStack($$,$3);}
 	;
 
 members:
     variableList SEMICOLON {}
-	| dataDef dataList SEMICOLON {}
-	| variableList SEMICOLON members {}
-	| dataDef dataList SEMICOLON members {}
+	| dataStatement {}
+	| members variableList SEMICOLON {}
+	| members dataStatement {}
 	;
 
 expression:
@@ -386,7 +382,7 @@ operand:
     | FLOAT {$$=createFloatExpr($1);}
     | STR_LIT {$$=createStringExpr($1);}
     | operand OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
-	| ID OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),getVariable($1),getStructMember(variableType($1),$3),NO_EXPR);}
+	| operand OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),$1,getStructMember($1.type,$3),NO_EXPR);}
 	| operand UNI {$$=createExpr(concatStrings(2,"POST",$2),$1,NO_EXPR,NO_EXPR);}
 	| operand OPEN_SQUARE expression CLOSE_SQUARE {$$=createExpr("[]",$1,$3,NO_EXPR);}
 	| OPEN_BRACKET expression CLOSE_BRACKET {$$=$2;}
@@ -456,6 +452,9 @@ int main(int argc, char** argv) {
 	NO_EXPR.type = "";
 	NO_EXPR.rep = "";
 
+	toDefine.string = NULL;
+	toDefine.next = NULL;
+
 	variables = malloc(sizeof(struct variableStack));
 	variables->prev = NULL;
 	variables->vars = malloc(sizeof(struct variableList));
@@ -475,9 +474,45 @@ int main(int argc, char** argv) {
 	do {
 		yyparse();
 	} while (!feof(yyin));
+	return error;
 }
 
-void yyerror(const char *s) {
-	fprintf(stderr, "%s %d: Syntax Error: %s\n",filename, lineNumber, yytext);
-	exit(1);
+void yyerror(const char *s, ...)
+{
+    va_list ap;
+	va_start(ap, s);
+    if(yylloc.first_line)
+    {
+		fprintf(stderr, ANSI_COLOR_YELLOW "%s " ANSI_COLOR_RESET "%d.%d-%d.%d "
+	            ANSI_COLOR_RED "error: " ANSI_COLOR_RESET, filename, yylloc.first_line, yylloc.first_column,
+	                    yylloc.last_line, yylloc.last_column);
+    }
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+	fprintf(stderr, ANSI_COLOR_CYAN "Error happened here: %d. ", yylloc.first_line);
+	for (int i = 0; i < yylloc.first_column; i++)
+	    fputc(linebuf[i],stderr);
+	fprintf(stderr, ANSI_COLOR_YELLOW);
+	for (int i = yylloc.first_column; i <= yylloc.last_column; i++)
+		fputc(linebuf[i],stderr);
+	fprintf(stderr, ANSI_COLOR_CYAN);
+	for (int i = yylloc.last_column + 1; linebuf[i]; i++)
+		fputc(linebuf[i],stderr);
+	fprintf(stderr,ANSI_COLOR_RESET "\n");
+    error = 1;
+}
+
+void yywarn(const char *s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+    if(yylloc.first_line)
+    {
+	    fprintf(stderr, ANSI_COLOR_YELLOW "%s " ANSI_COLOR_RESET "%d.%d-%d.%d "
+	            ANSI_COLOR_MAGENTA "warning: " ANSI_COLOR_RESET, filename, yylloc.first_line, yylloc.first_column,
+	                    yylloc.last_line, yylloc.last_column);
+    }
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
+	fprintf(stderr, ANSI_COLOR_CYAN "Happened here: %d. %s\n" ANSI_COLOR_RESET, yylloc.first_line, linebuf);
 }

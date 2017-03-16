@@ -21,6 +21,14 @@ char *pop(struct stack **s)
     return out;
 }
 
+void push(char *data, struct stack **s)
+{
+    struct stack *next = allocate(sizeof(struct stack));
+    next->prev = *s;
+    next->text = data;
+    *s = next;
+}
+
 int getNumToPop(char *op, int *opType, char **type)
 {
     *opType = OPERATOR;
@@ -122,14 +130,6 @@ int getNumToPop(char *op, int *opType, char **type)
     }
 }
 
-void push(char *data, struct stack **s)
-{
-    struct stack *next = allocate(sizeof(struct stack));
-    next->prev = *s;
-    next->text = data;
-    *s = next;
-}
-
 int main(int argc, char **argv)
 {
     struct stack data;
@@ -191,3 +191,6 @@ int main(int argc, char **argv)
     }
     printf("</program>");
 }
+
+void yyerror(const char *s,...){}
+void yywarn(const char *s,...){}

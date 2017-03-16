@@ -7,7 +7,14 @@
     extern void comment();
     extern void hashtag();
     extern void updateFileInfo(char *info);
-    extern void yyerror(const char *);
+    extern void yyerror(const char *,...);
+    char linebuf[500];
+
+    int columnNumber = 1;
+
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = lineNumber; \
+    yylloc.first_column = columnNumber; yylloc.last_column = columnNumber+yyleng-1; \
+    columnNumber += yyleng;
 %}
 
 %option nounput
@@ -112,7 +119,9 @@ _Nonnull {}
 {OP14} {yylval.sval = strdup(yytext); return OP14;}
 
 {WHITESPACE} {}
-{NEWLINE} {lineNumber++;}
+\n.*  { lineNumber++;columnNumber=0;strncpy(linebuf, yytext+1, 500); /* save the next line */
+           yyless(1);      /* give back all but the \n to rescan */
+      }
 {COMMENT} {}
 {HASHTAG} { hashtag(); }
 {FILEINFO} {updateFileInfo(yytext + 2); hashtag();}
@@ -156,6 +165,7 @@ void updateFileInfo(char *info)
 {
     char *num = strtok(info, " ");
     lineNumber = atoi(num);
+    columnNumber=0;
     char *name = strtok(NULL, " ");
     strcpy(filename,name);
 }

@@ -6,11 +6,13 @@
 
 int lineNumber;
 int ignoreTable;
+int numOfIds = 0;
 struct typedefs my_typedefs;
 struct strings existingStrings;
 struct variableStack *variables;
 struct expr NO_EXPR;
 struct structList structs;
+struct strings toDefine;
 char filename[256];
 
 void addType(char *type, char *name)
@@ -31,6 +33,50 @@ void addType(char *type, char *name)
 	temp->next->type = name;
 	temp->next->realType = type;
 	temp->next->next = NULL;
+}
+
+void addToDefine(char *item)
+{
+	struct strings *temp = &toDefine;
+	if (temp->string == NULL)
+	{
+		temp->string = item;
+		temp->next = NULL;
+		return;
+	}
+	while (temp->next != NULL)
+	{
+		temp = temp->next;
+	}
+	temp->next = allocate(sizeof(struct strings));
+	temp->next->string = item;
+	temp->next->next = NULL;
+}
+
+struct strings *emptyStringStack()
+{
+	struct strings *out = allocate(sizeof(struct strings));
+	out->string = NULL;
+	out->next = NULL;
+	return out;
+}
+
+
+void addToStringStack(struct strings *stack, char *item)
+{
+	if (stack->string == NULL)
+	{
+		stack->string = item;
+		stack->next = NULL;
+		return;
+	}
+	while (stack->next != NULL)
+	{
+		stack = stack->next;
+	}
+	stack->next = allocate(sizeof(struct strings));
+	stack->next->string = item;
+	stack->next->next = NULL;
 }
 
 int isType(char **name)
@@ -64,7 +110,7 @@ void declareVariable(char *type, char *name)
 	if (findVariable(variables, name) != NULL)
 	{
 		variables->prev = old;
-		fprintf(stderr, "%s line %d: Error: Variable \"%s\" already defined\n",filename,lineNumber,name);
+		yyerror("Variable \"%s\" already defined\n", name);
 		return;
 	}
 
@@ -132,13 +178,13 @@ struct expr getStructMember(char *name, char *member)
 		}
 		else
 		{
-			fprintf(stderr,"%s: line %d: Error: struct %s does not have member %s\n",filename, lineNumber, name, member);
+			yyerror("struct %s does not have member %s\n", name, member);
 			return createVariableExpr("",member);
 		}
     }
 	else
 	{
-		fprintf(stderr,"%s: line %d: Error: %s is not a struct\n",filename, lineNumber, name);
+		yyerror("%s is not a struct\n", name);
 		return createVariableExpr("",member);
 	}
 }
@@ -204,7 +250,7 @@ struct expr createExpr(char *op, struct expr arg1, struct expr arg2, struct expr
 
 	if (out.type == NULL)
 	{
-		fprintf(stderr, "%s line %d: Error: Incompatiable types for %s: %s %s %s\n",filename,lineNumber,op, arg1.type, arg2.type, arg3.type);
+		yyerror("Incompatiable types for %s: %s %s %s\n",op, arg1.type, arg2.type, arg3.type);
 		out.type = "";
 	}
 	//Change ops with angle brackets to XML friendly format
@@ -264,7 +310,7 @@ struct expr getVariable(char *var)
 
 	if (out.type == NULL)
 	{
-		fprintf(stderr, "%s line %d: Undefined Variable: %s\n",filename, lineNumber, var);
+		yyerror("Undefined Variable: %s\n", var);
 		out.type = "";
 	}
     return out;
@@ -313,18 +359,14 @@ struct expr createFunctionCall(struct expr fun, struct expr args)
 	out.rep = concatStrings(5,args.rep,fun.rep,"CALL:",out.type,"\n");
 
 	if (!strcmp(out.type,"")){
-		fprintf(stderr,"%s line %d: Error: ",filename,lineNumber);
-		printWithoutNewline(fun.rep);
-	    fprintf(stderr," is not a function\n");
+		yyerror("%s is not a function", replaceNewLine(fun.rep));
 		return out;
 	}
 
 	char *funArgs = getFunctionArgsType(fun.type);
 	int canCallOut = canCall(funArgs,args.type);
 	if (canCallOut == 0){
-		fprintf(stderr,"%s line %d: Error: ",filename,lineNumber);
-		printWithoutNewline(fun.rep);
-	    fprintf(stderr, " takes %s as arguments; recieved %s\n",funArgs,args.type);
+		yyerror("%s takes %s as arguments, recieved %s", replaceNewLine(fun.rep), funArgs, args.type);
 	}
 	else if (canCallOut == -1){
 		fprintf(stderr,"%s line %d: Warning: ",filename,lineNumber);
@@ -474,7 +516,7 @@ char *getType(char *op, char *arg1, char *arg2, char *arg3)
 	 !strcmp(op,"^=") || !strcmp(op,"[]") || !strcmp(op,"PRE++") ||
 	  !strcmp(op,"POST++") || !strcmp(op,"PRE--") || !strcmp(op,"POST--") || !strcmp(op,"~"))
 	    return arg1;
-	else if (!strcmp(op,";") || !strcmp(op,",") || !strcmp(op,"GET_->"))
+	else if (!strcmp(op,";") || !strcmp(op,",") || !strcmp(op,"GET_->") || !strcmp(op,"GET_."))
 	    return arg2;
 	else if (!strcmp(op,"||") || !strcmp(op,"&&") || !strcmp(op,"==") || !strcmp(op,"!=") || !strcmp(op,">=") || !strcmp(op,"<=") || !strcmp(op,"<") || !strcmp(op,">") || !strcmp(op,"sizeof"))
 	    return "int";
@@ -691,6 +733,12 @@ char *functionTypeAfterCall(char *type)
 
 void preorderTranversal(struct expr tree)
 {
+	struct strings *temp = &toDefine;
+	while (temp && temp->string)
+	{
+		printf("%s\n",temp->string);
+		temp = temp->next;
+	}
     printf("%s\n", tree.rep);
 }
 
@@ -838,4 +886,19 @@ void printWithoutNewline(char *str)
 	    fputc(*str,stderr);
 		str++;
 	}
+}
+
+char *getFreshId()
+{
+	char *out = findOrCreateString("#%d",numOfIds);
+	numOfIds++;
+	return out;
+}
+
+char *replaceNewLine(char *str)
+{
+	char *out = findOrCreateString("%s",str);
+	char *pos = strchr(out,'\n');
+	*pos = '\0';
+	return out;
 }

@@ -12,5 +12,5 @@ void main()
         ans = guess(ans,num);
     }
     
-    printf("sqrt(%f) = %f\n", num, ans);
+    printf("sqrt(%d) = %d\n", num, ans);
 }
