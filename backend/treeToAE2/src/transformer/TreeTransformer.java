@@ -80,8 +80,10 @@ public class TreeTransformer {
 				Element funType = doc.createElement("value");
 				Element usesVar = doc.createElement("uses");
 				
-				String type = attr.getNamedItem("type").getTextContent();
+				String type;
 				String name = getUniqueName();
+				
+				type =  attr.getNamedItem("type").getTextContent();
 				
 				funName.setTextContent(name);
 				funType.setTextContent(type);
@@ -90,6 +92,7 @@ public class TreeTransformer {
 				usesVar.appendChild(funName.cloneNode(true));
 				
 				assignOp.setAttribute("name", "ASSIGN");
+				assignOp.setAttribute("type", type);
 				assignOp.appendChild(node.cloneNode(true));
 				assignOp.appendChild(funName.cloneNode(true));
 				
@@ -264,7 +267,7 @@ public class TreeTransformer {
 			{
 				Element element = (Element) data.item(i);
 				element.setAttribute("address", "G" + index);
-				index--;
+				index -= TreeToAE2.getSizeOf(element.getFirstChild().getTextContent());
 			}
 		}
 	}
@@ -276,7 +279,11 @@ public class TreeTransformer {
 			{
 				Element element = (Element) child;
 				element.setAttribute("address", "V" + index);
-				index++;
+				try {
+					index += TreeToAE2.getSizeOf(child.getFirstChild().getTextContent());
+				}  catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			else
 			{
@@ -391,7 +398,7 @@ public class TreeTransformer {
 				int totalSize = 0;
 				for (Node child = n.getLastChild(); !child.getNodeName().equals("value"); child = child.getPreviousSibling())
 				{
-					TreeToAE2.setIndexOf(n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), totalSize);
+					TreeToAE2.setIndexOf("struct " + n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), totalSize);
 					try
 					{
 					    totalSize += TreeToAE2.getSizeOf(child.getFirstChild().getTextContent());

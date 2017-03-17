@@ -1,22 +1,25 @@
 struct test
 {
     int a;
-    int b;
     struct
     {
-        char *text;
-        struct
-        {
-            int ha;
-            float what;
-        }e,f;
+        int d;
+        int f;
     }c;
+    int b;
+    
 };
 
 void main()
 {
-    struct test a;
-    a.a = 1;
-    a.b = 2;
-    a.c.text = "hello";
+    struct test e;
+    struct test *other = &e;
+    other->a = -5;
+    other->b = 8;
+    other->c.d = 9;
+    other->c.f = 7;
+    printf("%d\n", other->a);
+    printf("%d\n", e.b);
+    printf("%d\n", e.c.d);
+    printf("%d\n", e.c.f);
 }

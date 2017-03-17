@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -161,6 +162,32 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(0),regA);
 				CreateMemoryOp.moveToRegister(regA,"MEMADD");
+				CreateMemoryOp.readFromAddress(outR);
+				return;
+			}
+			else if (operation.equals("GET_MEMBER"))
+			{
+				printNode(children.item(1),regA);
+				String type = getTypeOf(children.item(1));
+				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
+				System.out.printf("N[%s] %s\n", regB, num);
+				
+				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
+				CreateMemoryOp.readFromAddress(outR);
+				return;
+			}
+			else if (operation.equals("GET_ACCESS"))
+			{
+				printNode(children.item(1),regA);
+				CreateMemoryOp.moveToRegister(regA,"MEMADD");
+				
+				String type = getTypeOf(children.item(1));
+				type = type.substring(0,type.length() - 1);
+				
+				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
+				System.out.printf("N[%s] %s\n", regB, num);
+				
+				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
 				return;
 			}
@@ -454,7 +481,7 @@ public class TreeToAE2 {
 		}
 		return;
 	}
-	
+
 	private static String getAddress(String variable, Node node) {
 		if (node == null)
 		{
@@ -507,10 +534,10 @@ public class TreeToAE2 {
 		    TreeTransformer.moveFuncionCalls(root);
 		    TreeTransformer.convertPrintf(root);
 		    //printDoc();
-		    TreeTransformer.getMaxRequiredRegisters(root);
-		    TreeTransformer.giveVariablesAddresses(root);
 		    TreeTransformer.setStructSizes(root);
 		    TreeTransformer.setStructIndices(root);
+		    TreeTransformer.getMaxRequiredRegisters(root);
+		    TreeTransformer.giveVariablesAddresses(root);
 		    printProgram(root);
 		}
 		catch (Exception e)
@@ -519,8 +546,8 @@ public class TreeToAE2 {
 		}
 	}
 
-	public static int getSizeOf(String type) throws Exception {
-		if (type.equals("int") || type.equals("float") || type.endsWith("*"))
+	public static int getSizeOf(String type) throws RuntimeException {
+		if (type.equals("int") || type.equals("float") || type.endsWith("*") || type.endsWith(")"))
 		{
 			return 1;
 		}
@@ -533,7 +560,7 @@ public class TreeToAE2 {
 			}
 			else
 			{
-				throw new Exception();
+				throw new RuntimeException();
 			}
 		}
 	}
@@ -547,5 +574,33 @@ public class TreeToAE2 {
 	{
 		structIndex.put(type + "." + member, index);
 	}
-
+	
+	private static String getTypeOf(Node node) 
+	{
+		if (!node.getNodeName().equals("value"))
+		{
+			return node.getAttributes().getNamedItem("type").getTextContent();
+		}
+		else
+		{
+			return findVariable(node.getTextContent(),node.getParentNode()).getFirstChild().getTextContent();
+		}
+		
+	}
+	
+	private static Node findVariable(String variable, Node node) 
+	{
+		if (node.getNodeName().equals("program"))
+		{
+			return findVariable(variable, node.getLastChild());
+		}
+		
+		for (Node child = node.getLastChild();child != null;child = child.getPreviousSibling())
+		{
+			if (child.getNodeName().equals("uses") && child.getLastChild().getTextContent().equals(variable))
+				return child;
+		}
+		
+		return findVariable(variable, node.getParentNode());
+	}
 }
