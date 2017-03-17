@@ -261,7 +261,7 @@ multistar:
 	;
 
 dataStatement:
-    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);while($2 && $2->string){declareVariable(concatStrings(3,convertStringToLowerCase(replaceNewLine(strchr($1,'\n')))," ",replaceNewLine($1)),$2->string);$2 = $2->next;}}
+    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);while($2 && $2->string){declareVariable(intIfEnum(concatStrings(3,convertStringToLowerCase(replaceNewLine(strchr($1,'\n')))," ",replaceNewLine($1))),$2->string);$2 = $2->next;}}
 	;
 
 dataDef:

@@ -131,3 +131,4 @@ extern void addToStringStack(struct strings *stack, char *item);
 extern void yyerror(const char *s,...);
 extern void yywarn(const char *s,...);
 extern char *convertStringToLowerCase(char *s);
+extern char *intIfEnum(char *type);

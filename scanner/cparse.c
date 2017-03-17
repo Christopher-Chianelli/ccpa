@@ -272,6 +272,7 @@ char *destroyLocalScope()
 {
 	struct variableList *temp = variables->vars;
 	char *out = "";
+	enumIndex = 0;
 
 	while (temp && temp->next)
 	{
@@ -954,4 +955,12 @@ char *convertStringToLowerCase(char *s)
 	for (int i = 0; i < strlen(s); i++)
 	    s[i] = tolower(s[i]);
 	return s;
+}
+
+char *intIfEnum(char *type)
+{
+	if (prefix(type," ")){
+	    return "int";
+	}
+	return type;
 }
