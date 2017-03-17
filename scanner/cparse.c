@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <ctype.h>
 #include "cparse.h"
 
 int lineNumber;
 int ignoreTable;
 int numOfIds = 0;
+int enumIndex = 0;
 struct typedefs my_typedefs;
 struct strings existingStrings;
+struct enumList enumMembers;
 struct variableStack *variables;
 struct expr NO_EXPR;
 struct structList structs;
@@ -152,10 +155,39 @@ void declareStruct(char *name, char *members)
 	temp->next->next = NULL;
 }
 
+void declareEnumMember(char *name, int val)
+{
+	struct enumList *temp = &enumMembers;
+	if (val < 0)
+	{
+		val = enumIndex;
+		enumIndex++;
+	}else
+	{
+		enumIndex = val + 1;
+	}
+
+	if (temp->name == NULL)
+	{
+		temp->name = name;
+		temp->value = val;
+		temp->next = NULL;
+		return;
+	}
+	while (temp->next != NULL)
+	{
+		temp = temp->next;
+	}
+	temp->next = allocate(sizeof(struct enumList));
+	temp->next->name = name;
+	temp->next->value = val;
+	temp->next->next = NULL;
+}
+
 struct expr getStructMember(char *name, char *member)
 {
 	struct structList *temp = &structs;
-	name = getBaseType(name + 7);
+	name = getBaseType(strchr(name,' ') + 1);
 
 	while (temp && temp->name != NULL && strcmp(temp->name,name))
 	    temp = temp->next;
@@ -187,6 +219,20 @@ struct expr getStructMember(char *name, char *member)
 		yyerror("%s is not a struct\n", name);
 		return createVariableExpr("",member);
 	}
+}
+
+int getEnumMember(char *member)
+{
+	struct enumList *temp = &enumMembers;
+    while (temp && temp->name)
+    {
+        if (!strcmp(temp->name,member))
+        {
+            return temp->value;
+        }
+        temp = temp->next;
+    }
+    return -1;
 }
 
 char *findVariable(struct variableStack *stack, char *name)
@@ -744,7 +790,7 @@ void preorderTranversal(struct expr tree)
 
 void *allocate(int s)
 {
-	if (s <= 0)
+	if (s < 0)
 	{
 		fprintf(stderr,"FATAL ERROR: Negative Memory Allocated\n");
 	    exit(1);
@@ -901,4 +947,11 @@ char *replaceNewLine(char *str)
 	char *pos = strchr(out,'\n');
 	*pos = '\0';
 	return out;
+}
+
+char *convertStringToLowerCase(char *s)
+{
+	for (int i = 0; i < strlen(s); i++)
+	    s[i] = tolower(s[i]);
+	return s;
 }

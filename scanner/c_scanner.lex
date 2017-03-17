@@ -101,7 +101,7 @@ static {return STATIC;}
 {TYPE} {yylval.sval = strdup(yytext); return TYPE;}
 _Nullable {}
 _Nonnull {}
-{IDENTIFIER} {yylval.sval = strdup(yytext); return (isType(&yylval.sval))? TYPE : ID;}
+{IDENTIFIER} {yylval.sval = strdup(yytext); int enumMember = getEnumMember(yylval.sval); if (enumMember >= 0){yylval.ival = enumMember; return INT;};return (isType(&yylval.sval))? TYPE : ID;}
 
 {UNI} {yylval.sval = strdup(yytext); return UNI;}
 {OP1} {yylval.sval = strdup(yytext); return OP1;}

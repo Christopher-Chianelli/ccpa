@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "cparse.h"
 // stuff from flex that bison needs to know about:
 
@@ -239,13 +240,13 @@ typeDef:
 type:
     TYPE {$$=$1;}
 	| STRUCT ID {$$=appendStr("struct ",$2);}
-	| UNION ID {$$=appendStr("struct ",$2);}
-	| ENUM ID {$$=appendStr("struct ",$2);}
+	| UNION ID {$$=appendStr("union ",$2);}
+	| ENUM ID {$$="int";}
 	| unamedDef {$$=appendStr("struct ", replaceNewLine($1)); }
 	| type TYPE {$$=appendStr($1,$2);}
 	| type STRUCT ID  {$$=appendStr("struct ",$3);}
 	| type UNION ID {$$=appendStr("union ",$3);}
-	| type ENUM ID  {$$=appendStr("enum ",$3);}
+	| type ENUM ID  {$$="int";}
 	| type STAR  {$$=addStars($1,1);}
 	| type unamedDef {$$=appendStr("struct ", replaceNewLine($2));}
 	;
@@ -260,7 +261,7 @@ multistar:
 	;
 
 dataStatement:
-    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);while($2 && $2->string){declareVariable(concatStrings(2,"struct ", replaceNewLine($1)),$2->string);$2 = $2->next;}}
+    dataDef dataList SEMICOLON {$$=createTextExpr("",$1);while($2 && $2->string){declareVariable(concatStrings(3,convertStringToLowerCase(replaceNewLine(strchr($1,'\n')))," ",replaceNewLine($1)),$2->string);$2 = $2->next;}}
 	;
 
 dataDef:
@@ -277,8 +278,8 @@ unamedDef:
 
 
 enumList:
-    ID {declareVariable("int",$1);}
-	| ID EQUALS expression {declareVariable("int",$1);}
+    ID {declareEnumMember($1,-1);}
+	| ID EQUALS INT {declareEnumMember($1,$3);}
 	| enumList COMMA enumList {}
 	;
 

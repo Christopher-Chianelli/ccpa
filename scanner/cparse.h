@@ -25,6 +25,13 @@ struct structList
     struct structList *next;
 };
 
+struct enumList
+{
+    char *name;
+    int value;
+    struct enumList *next;
+};
+
 struct variableStack
 {
     struct variableStack *prev;
@@ -59,6 +66,7 @@ extern struct strings toDefine;
 extern struct variableStack *variables;
 extern struct structList structs;
 extern struct expr NO_EXPR;
+extern struct enumList enumMembers;
 extern int ignoreTable;
 extern int lineNumber;
 extern char filename[256];
@@ -66,6 +74,8 @@ extern char filename[256];
 extern void addType(char *name, char *type);
 extern int isType(char **type);
 extern void declareVariable(char *type, char *name);
+extern void declareEnumMember(char *name, int val);
+extern int getEnumMember(char *member);
 extern void declareStruct(char *name, char *members);
 extern void createLocalScope();
 extern char *destroyLocalScope();
@@ -120,3 +130,4 @@ extern void addToStringStack(struct strings *stack, char *item);
 
 extern void yyerror(const char *s,...);
 extern void yywarn(const char *s,...);
+extern char *convertStringToLowerCase(char *s);

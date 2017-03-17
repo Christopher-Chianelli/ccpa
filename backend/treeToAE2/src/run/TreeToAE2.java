@@ -170,7 +170,14 @@ public class TreeToAE2 {
 				printNode(children.item(1),regA);
 				String type = getTypeOf(children.item(1));
 				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				System.out.printf("N[%s] %s\n", regB, num);
+				if (!type.startsWith("enum"))
+				    System.out.printf("N[%s] %s\n", regB, num);
+				else
+				{
+					System.out.printf("N[%s] %s\n", regA, num);
+					System.out.printf("N[%s] %s\n", regB, "0");
+					num = "0";
+				}
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
@@ -185,7 +192,14 @@ public class TreeToAE2 {
 				type = type.substring(0,type.length() - 1);
 				
 				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				System.out.printf("N[%s] %s\n", regB, num);
+				if (!type.startsWith("enum"))
+				    System.out.printf("N[%s] %s\n", regB, num);
+				else
+				{
+					System.out.printf("N[%s] %s\n", regA, num);
+					System.out.printf("N[%s] %s\n", regB, "0");
+					num = "0";
+				}
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);

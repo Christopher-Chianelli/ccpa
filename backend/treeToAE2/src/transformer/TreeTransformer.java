@@ -338,19 +338,30 @@ public class TreeTransformer {
 	public static void setStructSizes(Node program)
 	{
 		Node structures = program.getLastChild();
-		LinkedList<Node> queue = new LinkedList<Node>();
+		LinkedList<Node> structQueue = new LinkedList<Node>();
+		LinkedList<Node> unionQueue = new LinkedList<Node>();
+		LinkedList<Node> enumQueue = new LinkedList<Node>();
 		for (Node n = structures.getFirstChild(); n != null; n = n.getNextSibling())
 		{
 			if (n.getNodeName().equals("data"))
 			{
-			    queue.addLast(n);
+				String kind = n.getAttributes().getNamedItem("kind").getTextContent();
+				if (kind.equals("STRUCT")){
+			        structQueue.addLast(n);
+			    }
+				else if (kind.equals("UNION")){
+					unionQueue.addLast(n);
+			    }
+				else if (kind.equals("ENUM")){
+					enumQueue.addLast(n);
+				}
 			}
 		}
 		
 		Node last = null;
-		while (!queue.isEmpty())
+		while (!structQueue.isEmpty())
 		{
-			Node current = queue.pop();
+			Node current = structQueue.pop();
 			Node node = current;
 			int size = 0;
 			boolean breaked = false;
@@ -366,8 +377,9 @@ public class TreeTransformer {
 				{
 					if (current != last)
 					{
-						last = current;
-						queue.addLast(current);
+						if (last == null)
+						    last = current;
+						structQueue.addLast(current);
 						breaked = true;
 						break;
 					}
@@ -386,6 +398,55 @@ public class TreeTransformer {
 				last = null;
 			}
 		}
+		
+		while (!unionQueue.isEmpty())
+		{
+			Node current = unionQueue.pop();
+			Node node = current;
+			int size = 0;
+			boolean breaked = false;
+			
+			for (Node n = node.getLastChild(); !n.getNodeName().equals("value"); n = n.getPreviousSibling())
+			{
+				try
+				{
+				    int memberSize = TreeToAE2.getSizeOf(n.getFirstChild().getTextContent());
+				    if (memberSize > size)
+				        size = memberSize;
+				}
+				catch (Exception e)
+				{
+					if (current != last)
+					{
+						if (last == null)
+						    last = current;
+						unionQueue.addLast(current);
+						breaked = true;
+						break;
+					}
+					else
+					{
+						System.err.printf("%s has undefined size.\n", n.getFirstChild().getTextContent());
+						System.err.println("Infinite Descent Union Detected. Terminating Complication.");
+						System.exit(1);
+					}
+				}
+			}
+			
+			if (!breaked)
+			{
+				TreeToAE2.setSizeOf("union " + node.getFirstChild().getTextContent(), size);
+				last = null;
+			}
+		}
+		
+		while (!enumQueue.isEmpty())
+		{
+			Node current = enumQueue.pop();
+			Node node = current;
+			TreeToAE2.setSizeOf("union " + node.getFirstChild().getTextContent(), 1);
+			last = null;
+		}
 	}
 	
 	public static void setStructIndices(Node program)
@@ -395,16 +456,36 @@ public class TreeTransformer {
 		{
 			if (n.getNodeName().equals("data"))
 			{
-				int totalSize = 0;
-				for (Node child = n.getLastChild(); !child.getNodeName().equals("value"); child = child.getPreviousSibling())
+				String kind = n.getAttributes().getNamedItem("kind").getTextContent();
+				if (kind.equals("STRUCT"))
 				{
-					TreeToAE2.setIndexOf("struct " + n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), totalSize);
-					try
+					int totalSize = 0;
+					for (Node child = n.getLastChild(); !child.getNodeName().equals("value"); child = child.getPreviousSibling())
 					{
-					    totalSize += TreeToAE2.getSizeOf(child.getFirstChild().getTextContent());
+						TreeToAE2.setIndexOf("struct " + n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), totalSize);
+						try
+						{
+						    totalSize += TreeToAE2.getSizeOf(child.getFirstChild().getTextContent());
+						}
+						catch(Exception e)
+						{
+						}
 					}
-					catch(Exception e)
+				}
+				else if (kind.equals("UNION"))
+				{
+					for (Node child = n.getLastChild(); !child.getNodeName().equals("value"); child = child.getPreviousSibling())
 					{
+						TreeToAE2.setIndexOf("union " + n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), 0);
+					}
+				}
+				else if (kind.equals("ENUM"))
+				{
+					int i = 0;
+					for (Node child = n.getLastChild(); !child.getNodeName().equals("value"); child = child.getPreviousSibling())
+					{
+						TreeToAE2.setIndexOf("union " + n.getFirstChild().getTextContent(), child.getLastChild().getTextContent(), i);
+						i++;
 					}
 				}
 			}

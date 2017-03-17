@@ -113,7 +113,7 @@ int getNumToPop(char *op, int *opType, char **type)
         *opType = DECLARE;
         return 3;
     }
-    else if (!strcmp(op,"STRUCT"))
+    else if (!strcmp(op,"STRUCT") || !strcmp(op,"UNION") || !strcmp(op,"ENUM"))
     {
         *opType = DATA;
         return 1;
