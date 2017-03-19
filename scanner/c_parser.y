@@ -100,7 +100,7 @@ int error = 0;
 
 %type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop doWhileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor prefix postfix operand functionDef breakStatement continueStatement
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
-%type <ival> multistar
+%type <ival> multistar int_expression int_orAble int_xorAble int_andAble int_shift int_sum int_factor int_prefix int_operand
 %type <strings> dataList
 %%
 // Grammar
@@ -167,17 +167,11 @@ arglist:
 
 variableName:
     ID {$$ = $1;}
-	| variableName OPEN_SQUARE CLOSE_SQUARE {$$ = $1;}
-	| variableName OPEN_SQUARE type CLOSE_SQUARE {$$ = $1;}
-	| variableName OPEN_SQUARE expression CLOSE_SQUARE {$$ = $1;}
-	| variableName OP13E INT {$$ = $1;}
-	| OP13E INT {$$ = "";}
+	| variableName OPEN_SQUARE int_expression CLOSE_SQUARE {$$ = $1;pushArraySize($3);}
 	;
 
 variable:
 	variableName {$$ = $1;}
-	| OP9 {$$ = "";}
-	| OP9 variableName {$$ = $2;}
 	;
 
 variableList:
@@ -279,7 +273,7 @@ unamedDef:
 
 enumList:
     ID {declareEnumMember($1,-1);}
-	| ID EQUALS INT {declareEnumMember($1,$3);}
+	| ID EQUALS int_expression {declareEnumMember($1,$3);}
 	| enumList COMMA enumList {}
 	;
 
@@ -294,6 +288,52 @@ members:
 	| dataStatement {}
 	| members variableList SEMICOLON {}
 	| members dataStatement {}
+	;
+
+int_expression:
+	int_orAble {$$=$1;}
+
+int_orAble:
+	int_xorAble {$$=$1;}
+	| int_orAble OP10 int_xorAble {$$=$1 | $3;}
+	;
+
+int_xorAble:
+	int_andAble {$$=$1;}
+	| int_xorAble OP9 int_andAble {$$=$1 ^ $3;}
+	;
+
+int_andAble:
+	int_shift {$$=$1;}
+	| int_andAble ADDRESS int_shift {$$=$1 & $3;}
+	;
+
+int_shift:
+	int_sum {$$=$1;}
+	| int_shift OP5 int_sum {if (!strcmp($2,"<<")) $$=$1 << $3; else $$=$1 >> $3;}
+	;
+
+int_sum:
+	int_factor {$$=$1;}
+	| int_sum PLUS int_factor {$$=$1 + $3;}
+	| int_sum MINUS int_factor {$$=$1 + $3;}
+	;
+
+int_factor:
+	int_prefix {$$=$1;}
+	| int_factor OP3 int_prefix {if (!strcmp($2,"/")) $$=$1 / $3; else $$=$1 % $3;}
+	| int_factor STAR int_prefix {$$=$1 * $2;}
+	;
+
+int_prefix:
+	int_operand {$$=$1;}
+	| MINUS int_prefix {$$=-$2;}
+	| PLUS int_prefix {$$=$2;}
+	| OP2 int_prefix {$$=~$2;}
+	;
+
+int_operand:
+	INT {$$=$1;}
 	;
 
 expression:
@@ -379,9 +419,7 @@ prefix:
 postfix:
     operand {}
 	| postfix OPEN_SQUARE expression CLOSE_SQUARE {
-		                                           struct expr sizeofExpr = createExpr("SIZEOF",createExpr("GET_MEM",$1,NO_EXPR,NO_EXPR),NO_EXPR,NO_EXPR);
-	                                               struct expr productExpr = createExpr("*",$3,sizeofExpr,NO_EXPR);
-												   struct expr sumExpr = createExpr("+",$1,productExpr,NO_EXPR);
+												   struct expr sumExpr = createExpr("+",$1,$3,NO_EXPR);
 												   $$=createExpr("GET_MEM",sumExpr,NO_EXPR,NO_EXPR);
 											       }
 	| postfix OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
@@ -473,6 +511,9 @@ int main(int argc, char** argv) {
 	structs.name = NULL;
 	structs.members = NULL;
 	structs.next = NULL;
+
+	arraySizes.size = -1;
+	arraySizes.next = NULL;
 
 	declareVariable("void(char*,...)","printf");
 	declareVariable("int()","readInt");

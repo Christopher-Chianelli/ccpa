@@ -13,6 +13,7 @@ struct typedefs my_typedefs;
 struct strings existingStrings;
 struct enumList enumMembers;
 struct variableStack *variables;
+struct arraySizeStack arraySizes;
 struct expr NO_EXPR;
 struct structList structs;
 struct strings toDefine;
@@ -124,6 +125,17 @@ void declareVariable(char *type, char *name)
 		temp->type = type;
 		temp->name = name;
 		temp->next = NULL;
+
+		struct arraySizeStack *sizes = &arraySizes;
+
+		while (sizes && sizes->size != -1)
+		{
+			temp->type = findOrCreateString("%s[%d]",temp->type,sizes->size);
+			sizes = sizes->next;
+		}
+		arraySizes.size = -1;
+		arraySizes.next = NULL;
+
 		return;
 	}
 	while (temp->next != NULL)
@@ -134,6 +146,16 @@ void declareVariable(char *type, char *name)
 	temp->next->name = name;
 	temp->next->type = type;
 	temp->next->next = NULL;
+
+	struct arraySizeStack *sizes = &arraySizes;
+
+	while (sizes && sizes->size != -1)
+	{
+		temp->next->type = findOrCreateString("%s[%d]",temp->next->type,sizes->size);
+		sizes = sizes->next;
+	}
+	arraySizes.size = -1;
+	arraySizes.next = NULL;
 }
 void declareStruct(char *name, char *members)
 {
@@ -755,7 +777,7 @@ int isCompositeType(char *type)
 
 int isPointer(char *type)
 {
-    return type[strlen(type) - 1] == '*';
+    return type[strlen(type) - 1] == '*' || type[strlen(type) - 1] == ']';
 }
 
 char *functionTypeAfterCall(char *type)
@@ -971,14 +993,57 @@ char *intIfEnum(char *type)
 
 char *removeStars(const char *type, int numOfStars)
 {
-	char *end = strrchr(type,'*');
-	if (end == NULL || strlen(type) < numOfStars || *(end - numOfStars + 1) != '*')
+	char temp = *(type + strlen(type) - 1);
+	if (temp != '*' && temp != ']')
 	{
 		yyerror("Cannot dereference %s", type);
 		return "";
 	}
-	char *out = allocate(strlen(type) - numOfStars);
-	strncpy(out,type,strlen(type) - numOfStars);
-	out[strlen(type) - numOfStars] = '\0';
+	char *out = allocate((strlen(type) + 1)*sizeof(char));
+	strcpy(out,type);
+	char *end = out + strlen(out) - 1;
+
+	while (numOfStars > 0)
+	{
+		if (*end == '*')
+		{
+			*end = '\0';
+			end -= 1;
+		}
+		else if (*end == ']')
+		{
+			while (*end != '[')
+			{
+				*end = '\0';
+				end -= 1;
+			}
+			*end = '\0';
+			end -= 1;
+		}
+		else
+		{
+			yyerror("Cannot dereference %s", type);
+			return "";
+		}
+		numOfStars--;
+	}
 	return out;
+}
+
+void pushArraySize(int size)
+{
+	struct arraySizeStack *temp = &arraySizes;
+	if (temp->size == -1)
+	{
+		temp->size = size;
+		temp->next = NULL;
+		return;
+	}
+
+	while (temp->size != -1 && temp->next)
+	    temp = temp->next;
+
+	temp->next = allocate(sizeof(struct arraySizeStack));
+	temp->next->size = size;
+	temp->next->next = NULL;
 }

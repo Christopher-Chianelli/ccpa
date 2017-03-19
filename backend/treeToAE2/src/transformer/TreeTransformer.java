@@ -127,6 +127,84 @@ public class TreeTransformer {
 		
 	}
 	
+	public static void convertArrayNames(Node root)
+	{
+		NodeList init = root.getFirstChild().getChildNodes();
+		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
+		NodeList dataStructures = root.getLastChild().getChildNodes();
+		LinkedList<StringInt> arrayNames = new LinkedList<StringInt>();
+		
+		for (int i = 0; i < dataStructures.getLength(); i++)
+		{
+			if (dataStructures.item(i).getNodeName().equals("uses"))
+			{
+				if (dataStructures.item(i).getFirstChild().getTextContent().endsWith("]"))
+				{
+					StringInt toAdd = new StringInt();
+					toAdd.name = dataStructures.item(i).getLastChild().getTextContent();
+					String size = dataStructures.item(i).getFirstChild().getTextContent();
+					toAdd.size = Integer.parseInt(size.substring(size.lastIndexOf('[') + 1,size.lastIndexOf(']')));
+					arrayNames.add(toAdd);
+				}
+			}
+		}
+		
+		for (int i = 0; i < init.getLength(); i++)
+		{
+			convertArrayNamesInNode(init.item(i), arrayNames);
+		}
+		
+		for (int i = 0; i < functions.getLength(); i++)
+		{
+			convertArrayNamesInNode(functions.item(i), arrayNames);
+		}
+		
+	}
+	
+	private static void convertArrayNamesInNode(Node node, LinkedList<StringInt> arrayNames) {
+		@SuppressWarnings("unchecked")
+		LinkedList<StringInt> temp = (LinkedList<StringInt>) arrayNames.clone();
+		
+		NodeList children = node.getChildNodes();
+		for (int i = children.getLength() - 1; i >= 0; i--)
+		{
+			if (children.item(i).getNodeName().equals("uses"))
+			{
+				if (children.item(i).getFirstChild().getTextContent().endsWith("]"))
+				{
+					StringInt toAdd = new StringInt();
+					toAdd.name = children.item(i).getLastChild().getTextContent();
+					String size = children.item(i).getFirstChild().getTextContent();
+					toAdd.size = Integer.parseInt(size.substring(size.lastIndexOf('[') + 1,size.lastIndexOf(']')));
+					temp.add(toAdd);
+				}
+		    }
+		}
+		
+		if (node.getNodeName().equals("value"))
+		{
+			for (StringInt array : temp)
+			{
+			    if (array.name.equals(node.getTextContent()))
+			    {
+				    Element addressOf = doc.createElement("op");
+				    addressOf.setAttribute("name", "ADDRESS");
+				    addressOf.setAttribute("type", TreeToAE2.getTypeOf(node));
+				
+				    addressOf.appendChild(node.cloneNode(true));
+				    node.getParentNode().replaceChild(addressOf.cloneNode(true), node);
+			    }
+			}
+		}
+		else if (node.getNodeName().equals("op"))
+		{
+			for (int i = 0; i < children.getLength(); i++)
+			{
+				convertArrayNamesInNode(children.item(i),temp);
+			}
+		}
+	}
+
 	public static void convertPrintfInNode(Node node)
 	{
 		if (!node.getNodeName().equals("op"))
@@ -490,5 +568,11 @@ public class TreeTransformer {
 				}
 			}
 		}
+	}
+	
+	private static class StringInt
+	{
+		String name;
+		int size;
 	}
 }

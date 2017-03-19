@@ -38,6 +38,12 @@ struct variableStack
     struct variableList *vars;
 };
 
+struct arraySizeStack
+{
+    int size;
+    struct arraySizeStack *next;
+};
+
 union value{int ival; float fval; char *sval;struct variable vval;};
 
 struct expr
@@ -70,6 +76,7 @@ extern struct enumList enumMembers;
 extern int ignoreTable;
 extern int lineNumber;
 extern char filename[256];
+extern struct arraySizeStack arraySizes;
 
 extern void addType(char *name, char *type);
 extern int isType(char **type);
@@ -132,3 +139,4 @@ extern void yyerror(const char *s,...);
 extern void yywarn(const char *s,...);
 extern char *convertStringToLowerCase(char *s);
 extern char *intIfEnum(char *type);
+extern void pushArraySize(int size);

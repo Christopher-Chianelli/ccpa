@@ -210,6 +210,13 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(0),regA);
 				CreateMemoryOp.moveToRegister("MEMADD", outR);
+				//if (getTypeOf(children.item(0)).endsWith("]"))
+                //{
+                	String type = getTypeOf(children.item(0));
+                	//int number = Integer.parseInt(type.substring(type.lastIndexOf('[') + 1, type.lastIndexOf(']')));
+                	System.out.printf("N[DIRTY] %d\n", getSizeOf(type) - 1);
+                	CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
+	            //}
 				return;
 			}
 			else if (operation.equals("CALL"))
@@ -290,9 +297,48 @@ public class TreeToAE2 {
 				printNode(children.item(1), regA);
 				printNode(children.item(0), regB);
 				if (type.equals("float"))
+				{
 				    CreateMathOp.floatBinaryOp(operation,regA,regB,outR);
-				else
+				}
+				else if (type.endsWith("*") || type.endsWith("]"))
+				{
+					String leftType = getTypeOf(children.item(1));
+					String rightType = getTypeOf(children.item(0));
+					String pointerType;
+					if (leftType.endsWith("*") || leftType.endsWith("]"))
+					{
+						pointerType = leftType;
+					}
+					else
+					{
+						pointerType = rightType;
+					}
+					
+					int size;
+					if (pointerType.endsWith("*"))
+					{
+						size = getSizeOf(pointerType.substring(0, pointerType.lastIndexOf('*')));
+					}
+					else
+					{
+						size = getSizeOf(pointerType.substring(0, pointerType.lastIndexOf('[')));
+					}
+					
+					System.out.printf("N[DIRTY] %d\n", size);
+					if (leftType.equals(pointerType))
+					{
+						CreateMathOp.binaryOp("*", regB, "DIRTY", regB);
+					}
+					else
+					{
+						CreateMathOp.binaryOp("*", regA, "DIRTY", regA);
+					}
 					CreateMathOp.binaryOp(operation,regA,regB,outR);
+				}
+				else
+				{
+					CreateMathOp.binaryOp(operation,regA,regB,outR);
+				}
 				
 			}
 			else if (operation.equals("AND-bitwise") || operation.equals("OR-bitwise") || operation.equals("^"))
@@ -553,6 +599,7 @@ public class TreeToAE2 {
 		    TreeTransformer.setStructIndices(root);
 		    TreeTransformer.getMaxRequiredRegisters(root);
 		    TreeTransformer.giveVariablesAddresses(root);
+		    TreeTransformer.convertArrayNames(root);
 		    //printDoc();
 		    printProgram(root);
 		}
@@ -567,6 +614,11 @@ public class TreeToAE2 {
 		if (type.equals("int") || type.equals("float") || type.endsWith("*") || type.endsWith(")"))
 		{
 			return 1;
+		}
+		else if (type.endsWith("]"))
+		{
+			int size = Integer.parseInt(type.substring(type.lastIndexOf('[') + 1,type.lastIndexOf(']')));
+			return size * getSizeOf(type.substring(0,type.lastIndexOf('[')));
 		}
 		else
 		{
