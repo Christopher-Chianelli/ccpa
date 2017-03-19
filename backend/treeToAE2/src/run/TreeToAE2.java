@@ -171,12 +171,12 @@ public class TreeToAE2 {
 				return;
 			}
 			else if (operation.equals("GET_MEMBER"))
-			{
+			{	
 				printNode(children.item(1),regA);
 				
 				String type = getTypeOf(children.item(1));
-				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				System.out.printf("N[%s] %s\n", regB, num);
+				int num = structIndex.get(type + "." + children.item(0).getTextContent());
+				System.out.printf("N[%s] %d\n", regB, num);
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				
@@ -194,7 +194,7 @@ public class TreeToAE2 {
 				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
 				System.out.printf("N[%s] %s\n", regB, num);
 				
-				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
+				CreateMathOp.binaryOp("+", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
 				return;
 			}
@@ -210,13 +210,9 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(0),regA);
 				CreateMemoryOp.moveToRegister("MEMADD", outR);
-				//if (getTypeOf(children.item(0)).endsWith("]"))
-                //{
-                	String type = getTypeOf(children.item(0));
-                	//int number = Integer.parseInt(type.substring(type.lastIndexOf('[') + 1, type.lastIndexOf(']')));
-                	System.out.printf("N[DIRTY] %d\n", getSizeOf(type) - 1);
-                	CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
-	            //}
+                String type = getTypeOf(children.item(0));
+                System.out.printf("N[DIRTY] %d\n", getSizeOf(type) - 1);
+                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
 				return;
 			}
 			else if (operation.equals("CALL"))
@@ -328,11 +324,22 @@ public class TreeToAE2 {
 					if (leftType.equals(pointerType))
 					{
 						CreateMathOp.binaryOp("*", regB, "DIRTY", regB);
+						if (pointerType.endsWith("]"))
+						{
+							System.out.printf("N[DIRTY] %d\n", size - 1);
+							CreateMathOp.binaryOp("+", regB,"DIRTY",regB);
+						}
 					}
 					else
 					{
 						CreateMathOp.binaryOp("*", regA, "DIRTY", regA);
+						if (pointerType.endsWith("]"))
+						{
+							System.out.printf("N[DIRTY] %d\n", size - 1);
+							CreateMathOp.binaryOp("+", regA,"DIRTY",regA);
+						}
 					}
+					
 					CreateMathOp.binaryOp(operation,regA,regB,outR);
 				}
 				else
