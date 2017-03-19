@@ -55,11 +55,130 @@ L996
 S978
 H
 .main
-N978 0
+N978 3
 +
 L994
 L978
 S994
+N978 6
+N992 965
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N978 2
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S976
+N975 0
+-
+L992
+L975
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N978 3
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S976
+N975 1
+-
+L992
+L975
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
 N978 0
 N995 0
 -
@@ -126,7 +245,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+769
+CF+1892
 N995 0
 -
 L994
@@ -169,7 +288,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+726
+CF+1849
 N995 0
 -
 L994
@@ -179,11 +298,7 @@ S994
 L999
 L996
 S978
-N995 0
--
-L994
-L995
-S992
+N992 965
 +
 L999
 L992
@@ -223,7 +338,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+551
+CF+1678
 N995 0
 -
 L994
@@ -266,7 +381,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+629
+CF+1756
 N995 0
 -
 L994
@@ -308,50 +423,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+460
-N995 0
--
-L994
-L995
-S994
-+
-L999
-L996
-S978
-N978 0
-N993 -1
--
-L994
-L993
-S992
-+
-L999
-L999
-S995
-L999
-L992
-A replace next card with result from the Egress Axis
-S000
-/
-L999
-L995
-CF?1
-CF+7
-+
-L999
-L998
-S995
-L978
-L999
-CB+13
-N995 0
-+
-L994
-L995
-S994
-A notes location of next card on stack
-CF?1
-CF+544
+CF+1587
 N995 0
 -
 L994
@@ -394,7 +466,50 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+501
+CF+1671
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1628
 N995 0
 -
 L994
@@ -437,7 +552,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+337
+CF+1464
 N995 0
 -
 L994
@@ -480,7 +595,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+415
+CF+1542
 N995 0
 -
 L994
@@ -522,50 +637,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+246
-N995 0
--
-L994
-L995
-S994
-+
-L999
-L996
-S978
-N978 0
-N993 -1
--
-L994
-L993
-S992
-+
-L999
-L999
-S995
-L999
-L992
-A replace next card with result from the Egress Axis
-S000
-/
-L999
-L995
-CF?1
-CF+7
-+
-L999
-L998
-S995
-L978
-L999
-CB+13
-N995 0
-+
-L994
-L995
-S994
-A notes location of next card on stack
-CF?1
-CF+330
+CF+1373
 N995 0
 -
 L994
@@ -608,7 +680,50 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+287
+CF+1457
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1414
 N995 0
 -
 L994
@@ -619,6 +734,1133 @@ L999
 L996
 S978
 N978 6
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1250
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1328
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1159
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1243
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1200
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1036
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1114
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+945
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+1029
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+986
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 1
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+822
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+900
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+731
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+815
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+772
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
+N976 0
+-
+L992
+L976
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+585
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+663
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+494
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+578
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+535
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N995 1
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S977
+N976 1
+-
+L992
+L976
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+348
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+426
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+257
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+341
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N978 0
+N993 -1
+-
+L994
+L993
+S992
++
+L999
+L999
+S995
+L999
+L992
+A replace next card with result from the Egress Axis
+S000
+/
+L999
+L995
+CF?1
+CF+7
++
+L999
+L998
+S995
+L978
+L999
+CB+13
+N995 0
++
+L994
+L995
+S994
+A notes location of next card on stack
+CF?1
+CF+298
+N995 0
+-
+L994
+L995
+S994
++
+L999
+L996
+S978
+N995 0
+-
+L994
+L995
+S992
++
+L999
+L992
+A replace next card with result from the Egress Axis
+L000
+L999
+S978
 N993 -1
 -
 L994
@@ -746,7 +1988,7 @@ S994
 L999
 L996
 S978
-N995 0
+N995 3
 -
 L994
 L995

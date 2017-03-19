@@ -98,7 +98,7 @@ int error = 0;
 %token <vval> OPEN_SQUARE
 %token <vval> CLOSE_SQUARE
 
-%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop doWhileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor term operand functionDef breakStatement continueStatement
+%type <expression> global function code codeBlock callList arglist variableList variableDeclaration externStatement dataStatement ifStatement returnStatement forLoop whileLoop doWhileLoop expression typeDef assignment ternary disjunct conjunct orAble xorAble andAble equalable comparable shift sum factor prefix postfix operand functionDef breakStatement continueStatement
 %type <sval> variableName variable type typecast unamedDef dataDef endScope
 %type <ival> multistar
 %type <strings> dataList
@@ -359,22 +359,34 @@ sum:
 	;
 
 factor:
-    term {}
-	| factor OP3 term {$$=createExpr($2,$1,$3,NO_EXPR);}
-	| factor STAR term {$$=createExpr("*",$1,$3,NO_EXPR);}
+    prefix {}
+	| factor OP3 prefix {$$=createExpr($2,$1,$3,NO_EXPR);}
+	| factor STAR prefix {$$=createExpr("*",$1,$3,NO_EXPR);}
 	;
 
-term:
+prefix:
+    postfix {}
+	| MINUS prefix {$$=createExpr("-U",$2,NO_EXPR,NO_EXPR);}
+	| PLUS prefix {$$=createExpr("+U",$2,NO_EXPR,NO_EXPR);}
+	| OP2 prefix {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
+	| STAR prefix {$$=createExpr("GET_MEM",$2,NO_EXPR,NO_EXPR);}
+	| ADDRESS prefix {$$=createExpr("ADDRESS",$2,NO_EXPR,NO_EXPR);}
+	| UNI prefix {$$=createExpr(concatStrings(2,"PRE",$1),$2,NO_EXPR,NO_EXPR);}
+	| typecast prefix {$$=$2;$$.type=$1;}
+	| SIZEOF typecast {$$=createExpr("SIZEOF",createExpr("PRE++",createTypeExpr($2),NO_EXPR,NO_EXPR),NO_EXPR,NO_EXPR);}
+	| SIZEOF prefix {$$=createExpr("SIZEOF",$2,NO_EXPR,NO_EXPR);}
+
+postfix:
     operand {}
-	| MINUS operand {$$=createExpr("-U",$2,NO_EXPR,NO_EXPR);}
-	| PLUS operand {$$=createExpr("+U",$2,NO_EXPR,NO_EXPR);}
-	| OP2 term {$$=createExpr($1,$2,NO_EXPR,NO_EXPR);}
-	| STAR term {$$=createExpr("GET_MEM",$2,NO_EXPR,NO_EXPR);}
-	| ADDRESS operand {$$=createExpr("ADDRESS",$2,NO_EXPR,NO_EXPR);}
-	| UNI operand {$$=createExpr(concatStrings(2,"PRE",$1),$2,NO_EXPR,NO_EXPR);}
-	| typecast term {$$=$2;$$.type=$1;}
-	| SIZEOF typecast {$$=createExpr("sizeof",createVariableExpr($2,$2),NO_EXPR,NO_EXPR);}
-	| SIZEOF operand {$$=createExpr("sizeof",$2,NO_EXPR,NO_EXPR);}
+	| postfix OPEN_SQUARE expression CLOSE_SQUARE {
+		                                           struct expr sizeofExpr = createExpr("SIZEOF",createExpr("GET_MEM",$1,NO_EXPR,NO_EXPR),NO_EXPR,NO_EXPR);
+	                                               struct expr productExpr = createExpr("*",$3,sizeofExpr,NO_EXPR);
+												   struct expr sumExpr = createExpr("+",$1,productExpr,NO_EXPR);
+												   $$=createExpr("GET_MEM",sumExpr,NO_EXPR,NO_EXPR);
+											       }
+	| postfix OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
+	| postfix OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),$1,getStructMember($1.type,$3),NO_EXPR);}
+	| postfix UNI {$$=createExpr(concatStrings(2,"POST",$2),$1,NO_EXPR,NO_EXPR);}
 	;
 
 operand:
@@ -382,12 +394,7 @@ operand:
     | INT {$$=createIntExpr($1);}
     | FLOAT {$$=createFloatExpr($1);}
     | STR_LIT {$$=createStringExpr($1);}
-    | operand OPEN_BRACKET callList CLOSE_BRACKET {$$=createFunctionCall($1,$3);}
-	| operand OP1 ID {$$=createExpr(concatStrings(2,"GET_",$2),$1,getStructMember($1.type,$3),NO_EXPR);}
-	| operand UNI {$$=createExpr(concatStrings(2,"POST",$2),$1,NO_EXPR,NO_EXPR);}
-	| operand OPEN_SQUARE expression CLOSE_SQUARE {$$=createExpr("[]",$1,$3,NO_EXPR);}
 	| OPEN_BRACKET expression CLOSE_BRACKET {$$=$2;}
-	| operand ID {$$=createEmptyExpr();}
     ;
 
 callList:

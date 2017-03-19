@@ -6,6 +6,11 @@ import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -168,18 +173,13 @@ public class TreeToAE2 {
 			else if (operation.equals("GET_MEMBER"))
 			{
 				printNode(children.item(1),regA);
+				
 				String type = getTypeOf(children.item(1));
 				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				if (!type.startsWith("enum"))
-				    System.out.printf("N[%s] %s\n", regB, num);
-				else
-				{
-					System.out.printf("N[%s] %s\n", regA, num);
-					System.out.printf("N[%s] %s\n", regB, "0");
-					num = "0";
-				}
+				System.out.printf("N[%s] %s\n", regB, num);
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
+				
 				CreateMemoryOp.readFromAddress(outR);
 				return;
 			}
@@ -192,17 +192,18 @@ public class TreeToAE2 {
 				type = type.substring(0,type.length() - 1);
 				
 				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				if (!type.startsWith("enum"))
-				    System.out.printf("N[%s] %s\n", regB, num);
-				else
-				{
-					System.out.printf("N[%s] %s\n", regA, num);
-					System.out.printf("N[%s] %s\n", regB, "0");
-					num = "0";
-				}
+				System.out.printf("N[%s] %s\n", regB, num);
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
+				return;
+			}
+			else if (operation.equals("SIZEOF"))
+			{
+				String type = getTypeOf(children.item(0));
+				String num = Integer.toString(getSizeOf(type));
+				
+				System.out.printf("N[%s] %s\n", outR, num);
 				return;
 			}
 			else if (operation.equals("ADDRESS"))
@@ -292,6 +293,7 @@ public class TreeToAE2 {
 				    CreateMathOp.floatBinaryOp(operation,regA,regB,outR);
 				else
 					CreateMathOp.binaryOp(operation,regA,regB,outR);
+				
 			}
 			else if (operation.equals("AND-bitwise") || operation.equals("OR-bitwise") || operation.equals("^"))
 			{
@@ -530,14 +532,14 @@ public class TreeToAE2 {
 		}
 	}
 	
-	/*private static void printDoc() throws TransformerException
+	private static void printDoc() throws TransformerException
 	{
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(System.err);
 		transformer.transform(source, result);
-	}*/
+	}
 	
 	public static void main(String[] args) throws Exception {
 		try
@@ -547,15 +549,16 @@ public class TreeToAE2 {
 		    Node root = doc.getFirstChild();
 		    TreeTransformer.moveFuncionCalls(root);
 		    TreeTransformer.convertPrintf(root);
-		    //printDoc();
 		    TreeTransformer.setStructSizes(root);
 		    TreeTransformer.setStructIndices(root);
 		    TreeTransformer.getMaxRequiredRegisters(root);
 		    TreeTransformer.giveVariablesAddresses(root);
+		    //printDoc();
 		    printProgram(root);
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -574,6 +577,7 @@ public class TreeToAE2 {
 			}
 			else
 			{
+				System.err.println(type);
 				throw new RuntimeException();
 			}
 		}
@@ -589,7 +593,7 @@ public class TreeToAE2 {
 		structIndex.put(type + "." + member, index);
 	}
 	
-	private static String getTypeOf(Node node) 
+	public static String getTypeOf(Node node) 
 	{
 		if (!node.getNodeName().equals("value"))
 		{

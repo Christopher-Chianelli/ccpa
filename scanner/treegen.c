@@ -61,7 +61,7 @@ int getNumToPop(char *op, int *opType, char **type)
         !strcmp(op,"GET_MEM") ||
         !strcmp(op,"ADDRESS") ||
         !strcmp(op,"RETURN VAL") ||
-        !strcmp(op,"sizeof"))
+        !strcmp(op,"SIZEOF"))
             return 1;
     else if (!strcmp(op,"+") ||
         !strcmp(op,"-") ||

@@ -98,7 +98,7 @@ extern struct expr createFunctionCall(struct expr fun, struct expr args);
 extern char *appendStr(char *a, char *b);
 
 extern char *addStars(char *a, int numOfStars);
-extern char *removeStars(char *a, int numOfStars);
+extern char *removeStars(const char *a, int numOfStars);
 extern char *getBaseType(char *type);
 extern char *functionType(char *returnType, int numOfPointers, struct expr args);
 extern char *getType(char *op, char *arg1, char *arg2, char *arg3);

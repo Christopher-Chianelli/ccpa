@@ -560,12 +560,16 @@ char *getType(char *op, char *arg1, char *arg2, char *arg3)
         return betterType(arg1,arg2);
 	else if (!strcmp(op,"=") || !strcmp(op,"+=") ||!strcmp(op,"-=") ||
 	!strcmp(op,"/=") ||!strcmp(op,"*=") ||!strcmp(op,"&=") ||!strcmp(op,"|=") ||
-	 !strcmp(op,"^=") || !strcmp(op,"[]") || !strcmp(op,"PRE++") ||
+	 !strcmp(op,"^=") || !strcmp(op,"PRE++") ||
 	  !strcmp(op,"POST++") || !strcmp(op,"PRE--") || !strcmp(op,"POST--") || !strcmp(op,"~"))
 	    return arg1;
+	else if (!strcmp(op,"ADDRESS"))
+		return addStars(arg1,1);
+	else if (!strcmp(op,"[]") || !strcmp(op,"GET_MEM"))
+	    return removeStars(arg1,1);
 	else if (!strcmp(op,";") || !strcmp(op,",") || !strcmp(op,"GET_->") || !strcmp(op,"GET_."))
 	    return arg2;
-	else if (!strcmp(op,"||") || !strcmp(op,"&&") || !strcmp(op,"==") || !strcmp(op,"!=") || !strcmp(op,">=") || !strcmp(op,"<=") || !strcmp(op,"<") || !strcmp(op,">") || !strcmp(op,"sizeof"))
+	else if (!strcmp(op,"||") || !strcmp(op,"&&") || !strcmp(op,"==") || !strcmp(op,"!=") || !strcmp(op,">=") || !strcmp(op,"<=") || !strcmp(op,"<") || !strcmp(op,">") || !strcmp(op,"SIZEOF"))
 	    return "int";
     return "";
 }
@@ -963,4 +967,18 @@ char *intIfEnum(char *type)
 	    return "int";
 	}
 	return type;
+}
+
+char *removeStars(const char *type, int numOfStars)
+{
+	char *end = strrchr(type,'*');
+	if (end == NULL || strlen(type) < numOfStars || *(end - numOfStars + 1) != '*')
+	{
+		yyerror("Cannot dereference %s", type);
+		return "";
+	}
+	char *out = allocate(strlen(type) - numOfStars);
+	strncpy(out,type,strlen(type) - numOfStars);
+	out[strlen(type) - numOfStars] = '\0';
+	return out;
 }
