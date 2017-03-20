@@ -199,10 +199,10 @@ public class TreeToAE2 {
 				String type = getTypeOf(children.item(1));
 				type = type.substring(0,type.length() - 1);
 				
-				String num = Integer.toString(structIndex.get(type + "." + children.item(0).getTextContent()));
-				System.out.printf("N[%s] %s\n", regB, num);
+				int num = structIndex.get(type + "." + children.item(0).getTextContent());
+				System.out.printf("N[%s] %d\n", regB, num - 1);
 				
-				CreateMathOp.binaryOp("+", "MEMADD", regB, "MEMADD");
+				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				CreateMemoryOp.readFromAddress(outR);
 				return;
 			}
