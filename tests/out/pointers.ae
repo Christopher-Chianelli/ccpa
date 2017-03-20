@@ -265,7 +265,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+2106
+CF+2111
 N995 0
 -
 L994
@@ -461,7 +461,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+1910
+CF+1915
 N995 0
 -
 L994
@@ -496,6 +496,11 @@ S975
 N974 1
 N995 1
 *
+L974
+L995
+S974
+N995 0
++
 L974
 L995
 S974

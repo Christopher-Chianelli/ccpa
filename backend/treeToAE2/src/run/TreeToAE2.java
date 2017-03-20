@@ -320,14 +320,14 @@ public class TreeToAE2 {
 					
 					int size;
 					int lastIndex = pointerType.length() - 1;
-					while(pointerType.charAt(lastIndex) == '*' || pointerType.charAt(lastIndex) == ']')
+					if (pointerType.charAt(lastIndex) == '*')
 					{
-						if (pointerType.charAt(lastIndex) == '*')
-						{
-							lastIndex--;
-						}
-						else
-						{
+						lastIndex--;
+					}
+					else
+					{
+					    while(pointerType.charAt(lastIndex) == ']')
+					    {
 							while(pointerType.charAt(lastIndex) != '[')
 							{
 								lastIndex--;
@@ -361,20 +361,14 @@ public class TreeToAE2 {
 					if (leftType.equals(pointerType))
 					{
 						CreateMathOp.binaryOp("*", regB, "DIRTY", regB);
-						if (!isPointer && !newType.endsWith("]"))
-						{
-							System.out.printf("N[DIRTY] %d\n", size - 1);
-							CreateMathOp.binaryOp("+", regB,"DIRTY",regB);
-						}
+						System.out.printf("N[DIRTY] %d\n", size - 1);
+						CreateMathOp.binaryOp("+", regB,"DIRTY",regB);
 					}
 					else
 					{
 						CreateMathOp.binaryOp("*", regA, "DIRTY", regA);
-						if (!isPointer && !newType.endsWith("]"))
-						{
-							System.out.printf("N[DIRTY] %d\n", size - 1);
-							CreateMathOp.binaryOp("+", regA,"DIRTY",regA);
-						}
+						System.out.printf("N[DIRTY] %d\n", size - 1);
+						CreateMathOp.binaryOp("+", regA,"DIRTY",regA);
 					}
 					
 					CreateMathOp.binaryOp(operation,regA,regB,outR);

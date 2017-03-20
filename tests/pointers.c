@@ -29,5 +29,5 @@ void main()
     printf("*b %d\n", *b);
     printf("**b %d\n", **b);
     printf("c %d\n", c);
-     printf("overflow %d\n", overflow);
+    printf("overflow %d\n", overflow);
 }
