@@ -669,98 +669,28 @@ char *betterType(char *a, char *b)
 
 char *extractType(char *type)
 {
-	char *old = type;
-
-    while (   *type != '\0' && (!prefix(type,"char")
-           && !prefix(type,"short")
-           && !prefix(type,"int")
-           && !prefix(type,"long")
-           && !prefix(type,"long long")
-           && !prefix(type,"float")
-           && !prefix(type,"double")
-           && !prefix(type,"struct")
-           && !prefix(type,"union")
-           && !prefix(type,"enum")
-           && !prefix(type,"void"))
-       )
-           type++;
-
-	int stars = 0;
-
-    if (prefix(type,"char")){
-		type += 4;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("char",stars);
-	}
-	else if (prefix(type,"short")){
-		type += 5;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("short",stars);
-	}
-	else if (prefix(type,"int")){
-		type += 3;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("int",stars);
-	}
-	else if (prefix(type,"long long")){
-		type += 9;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("long long",stars);
-	}
-	else if (prefix(type,"long")){
-		type += 4;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("long",stars);
-	}
-	else if (prefix(type,"float")){
-		type += 5;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("float",stars);
-	}
-	else if (prefix(type,"double")){
-		type += 6;
-		while (*type == '*'){
-		    stars++;
-			type++;
-		}
-	    return addStars("double",stars);
-	}
-	else if (prefix(type,"struct")){
+	char *arrayStart = strchr(type,'[');
+	if (arrayStart == NULL)
+	{
 		return type;
 	}
-	else if (prefix(type,"union")){
-		return type;
-	}
-	else if (prefix(type,"enum")){
-		return type;
-	}
-	else if (prefix(type,"void")){
-		type += 4;
-		while (*type == '*'){
-		    stars++;
-			type++;
+	else
+	{
+		char *arrayEnd = arrayStart;
+		while (*arrayEnd != ']')
+		{
+			arrayEnd++;
 		}
-	    return addStars("void",stars);
+		arrayEnd++;
+
+		char *out = allocate(sizeof(char)*(strlen(type) + 1));
+		strcpy(out,type);
+		arrayStart = strchr(out,'[');
+		*arrayStart = '\0';
+		strcat(out,arrayEnd);
+		strcat(out,"*");
+		return out;
 	}
-	return old;
 }
 
 int prefix(char *str, char *substr)
