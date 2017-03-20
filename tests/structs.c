@@ -1,6 +1,6 @@
 enum date
 {
-    DAY,MONTH = 5,YEAR
+    DAY,MONTH = 1 << 2,YEAR
 } me;
 
 enum another

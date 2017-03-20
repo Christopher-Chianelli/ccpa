@@ -334,6 +334,7 @@ int_prefix:
 
 int_operand:
 	INT {$$=$1;}
+	| OPEN_BRACKET int_expression CLOSE_BRACKET {$$=$2;}
 	;
 
 expression:
