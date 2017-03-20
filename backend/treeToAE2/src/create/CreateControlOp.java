@@ -115,6 +115,25 @@ public class CreateControlOp {
 		System.out.printf(".$L%d\n",myLabel + 1);
 	}
 	
+	public static void ternaryOp(NodeList children, String regA, String outR)
+	{
+		System.out.println("/");
+		System.out.println("L[ZERO]");
+		System.out.printf("L[%s]\n",regA);
+		System.out.println("CF?1");
+		
+		int myLabel = createLabel(2);
+		System.out.printf("J[.$L%d]\n",myLabel);
+		
+		TreeToAE2.printNode(children.item(0),outR);
+		
+		System.out.printf("J[.$L%d]\n",myLabel + 1);
+		System.out.printf(".$L%d\n",myLabel);
+		
+		TreeToAE2.printNode(children.item(1),outR);
+		System.out.printf(".$L%d\n",myLabel + 1);
+	}
+	
 	public static void whileStatement(NodeList children)
 	{
 		int myLabel = createLabel(2);

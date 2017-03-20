@@ -260,6 +260,12 @@ public class TreeToAE2 {
 				CreateControlOp.ifStatementWithElse(children, regA);
 				return;
 			}
+			else if (operation.equals("?"))
+			{
+				printNode(children.item(2), regA);
+				CreateControlOp.ternaryOp(children, regA, outR);
+				return;
+			}
 			else if (operation.equals("while"))
 			{
 				CreateControlOp.whileStatement(children);
