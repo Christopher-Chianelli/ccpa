@@ -673,7 +673,6 @@ public class TreeToAE2 {
 			}
 			else
 			{
-				System.err.println(type);
 				throw new RuntimeException();
 			}
 		}
