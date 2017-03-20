@@ -6,15 +6,21 @@ struct test
 
 void main()
 {
-    int a[4];
+    struct test a[2][2];
     
-    a[0] = -1;
-    a[1] = -2;
-    a[2] = -3;
-    a[3] = -4;
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++){
+            a[i][j].a = 2 - i + j;
+            a[i][j].b = 2 + i - j;
+        }
+    }
     
-    printf("%d\n",a[0]);
-    printf("%d\n",a[1]);
-    printf("%d\n",a[2]);
-    printf("%d\n",a[3]);
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++){
+            printf("a %d\n", a[i][j].a);
+            printf("b %d\n", a[i][j].b);
+        }
+    }
 }

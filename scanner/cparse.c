@@ -1002,19 +1002,23 @@ char *removeStars(const char *type, int numOfStars)
 	char *out = allocate((strlen(type) + 1)*sizeof(char));
 	strcpy(out,type);
 	char *rest = out + strlen(out) - 1;
+	int toCopy = 0;
 	while (*rest == '*' || *rest == ']')
 	{
 		if (*rest == '*')
 		{
 			rest--;
+			toCopy++;
 		}
 		else
 		{
 			while (*rest != '[')
 			{
 				rest--;
+				toCopy++;
 			}
 			rest--;
+			toCopy++;
 		}
 	}
 	rest++;
@@ -1044,8 +1048,8 @@ char *removeStars(const char *type, int numOfStars)
 		}
 		numOfStars--;
 	}
-	strncpy(oldRest,rest, rest - oldRest);
-	*(oldRest + (rest - oldRest)) = '\0';
+	*oldRest = '\0';
+	out = concatStrings(2,out,rest);
 	return out;
 }
 

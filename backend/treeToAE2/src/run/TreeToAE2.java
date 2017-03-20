@@ -165,9 +165,17 @@ public class TreeToAE2 {
 			}
 			else if (operation.equals("GET_MEM"))
 			{
+				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(0),regA);
 				CreateMemoryOp.moveToRegister(regA,"MEMADD");
-				CreateMemoryOp.readFromAddress(outR);
+				if (type.endsWith("]"))
+				{
+					CreateMemoryOp.moveToRegister(regA,outR);
+				}
+				else
+				{
+				    CreateMemoryOp.readFromAddress(outR);
+				}
 				return;
 			}
 			else if (operation.equals("GET_MEMBER"))
@@ -311,20 +319,49 @@ public class TreeToAE2 {
 					}
 					
 					int size;
-					if (pointerType.endsWith("*"))
+					int lastIndex = pointerType.length() - 1;
+					while(pointerType.charAt(lastIndex) == '*' || pointerType.charAt(lastIndex) == ']')
 					{
-						size = getSizeOf(pointerType.substring(0, pointerType.lastIndexOf('*')));
+						if (pointerType.charAt(lastIndex) == '*')
+						{
+							lastIndex--;
+						}
+						else
+						{
+							while(pointerType.charAt(lastIndex) != '[')
+							{
+								lastIndex--;
+							}
+							lastIndex--;
+						}
+					}
+					
+					lastIndex++;
+					String newType;
+					boolean isPointer;
+					
+					if (pointerType.charAt(lastIndex) == '*')
+					{	
+						newType = pointerType.substring(0, lastIndex) + pointerType.substring(lastIndex + 1);
+						isPointer = true;
 					}
 					else
 					{
-						size = getSizeOf(pointerType.substring(0, pointerType.lastIndexOf('[')));
+						int arrayEnd = lastIndex;
+						while (pointerType.charAt(arrayEnd) != ']')
+						{
+							arrayEnd++;
+						}
+						newType = pointerType.substring(0, lastIndex) + pointerType.substring(arrayEnd + 1);
+						isPointer = false;
 					}
 					
+					size = getSizeOf(newType);
 					System.out.printf("N[DIRTY] %d\n", size);
 					if (leftType.equals(pointerType))
 					{
 						CreateMathOp.binaryOp("*", regB, "DIRTY", regB);
-						if (pointerType.endsWith("]"))
+						if (!isPointer && !newType.endsWith("]"))
 						{
 							System.out.printf("N[DIRTY] %d\n", size - 1);
 							CreateMathOp.binaryOp("+", regB,"DIRTY",regB);
@@ -333,7 +370,7 @@ public class TreeToAE2 {
 					else
 					{
 						CreateMathOp.binaryOp("*", regA, "DIRTY", regA);
-						if (pointerType.endsWith("]"))
+						if (!isPointer && !newType.endsWith("]"))
 						{
 							System.out.printf("N[DIRTY] %d\n", size - 1);
 							CreateMathOp.binaryOp("+", regA,"DIRTY",regA);
