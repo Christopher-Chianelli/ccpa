@@ -126,6 +126,8 @@ public class TreeToAE2 {
 		if (node.getNodeName().equals("value"))
 		{
 			String address = getAddress(node.getTextContent(),node);
+			String type = getTypeOf(node);
+			
 			if (address == null)
 				return;
 			
@@ -137,7 +139,17 @@ public class TreeToAE2 {
 			{
 				CreateMemoryOp.getGlobalAddress(address.substring(1));
 			}
-			CreateMemoryOp.readFromAddress(outR);
+			
+			if (type.endsWith("]"))
+			{
+			    CreateMemoryOp.moveToRegister("MEMADD", outR);
+			    System.out.printf("N[DIRTY] %d\n", getSizeOf(type) - 1);
+                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+			}
+			else
+			{
+			    CreateMemoryOp.readFromAddress(outR);
+			}
 		}
 		else if (node.getNodeName().equals("op"))
 		{
@@ -183,12 +195,22 @@ public class TreeToAE2 {
 				printNode(children.item(1),regA);
 				
 				String type = getTypeOf(children.item(1));
+				String memberType = attr.getNamedItem("type").getTextContent();
 				int num = structIndex.get(type + "." + children.item(0).getTextContent());
 				System.out.printf("N[%s] %d\n", regB, num);
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
 				
-				CreateMemoryOp.readFromAddress(outR);
+				if (memberType.endsWith("]"))
+				{
+				    CreateMemoryOp.moveToRegister("MEMADD", outR);
+				    System.out.printf("N[DIRTY] %d\n", getSizeOf(memberType) - 1);
+	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+				}
+				else
+				{
+				    CreateMemoryOp.readFromAddress(outR);
+				}
 				return;
 			}
 			else if (operation.equals("GET_ACCESS"))
@@ -197,13 +219,24 @@ public class TreeToAE2 {
 				CreateMemoryOp.moveToRegister(regA,"MEMADD");
 				
 				String type = getTypeOf(children.item(1));
+				String memberType = attr.getNamedItem("type").getTextContent();
 				type = type.substring(0,type.length() - 1);
 				
 				int num = structIndex.get(type + "." + children.item(0).getTextContent());
 				System.out.printf("N[%s] %d\n", regB, num - 1);
 				
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
-				CreateMemoryOp.readFromAddress(outR);
+				
+				if (memberType.endsWith("]"))
+				{
+				    CreateMemoryOp.moveToRegister("MEMADD", outR);
+				    System.out.printf("N[DIRTY] %d\n", getSizeOf(memberType) - 1);
+	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+				}
+				else
+				{
+				    CreateMemoryOp.readFromAddress(outR);
+				}
 				return;
 			}
 			else if (operation.equals("SIZEOF"))
@@ -643,7 +676,6 @@ public class TreeToAE2 {
 		    TreeTransformer.setStructIndices(root);
 		    TreeTransformer.getMaxRequiredRegisters(root);
 		    TreeTransformer.giveVariablesAddresses(root);
-		    TreeTransformer.convertArrayNames(root);
 		    //printDoc();
 		    printProgram(root);
 		}

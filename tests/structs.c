@@ -6,6 +6,8 @@ struct test
     {
         int more;
     }c;
+    int d[2];
+    int f;
 };
 
 void main()
@@ -18,6 +20,14 @@ void main()
     b.a = 1;
     b.b = -2;
     b.c.more = -3;
+    
+    printf("%d\n",&a.a);
+    printf("%d\n",&a.b);
+    printf("%d\n",&a.c);
+    printf("%d\n",&a.d[0]);
+    printf("%d\n",&a.d[1]);
+    printf("%d\n",&a.f);
+    printf("-------\n");
     
     printf("%d\n", a.a);
     printf("%d\n", a.b);
