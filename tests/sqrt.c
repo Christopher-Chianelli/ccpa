@@ -1,4 +1,4 @@
-float guess(float x, float c)
+double guess(double x, double c)
 {
     return x/2.0 + c/(2.0*x);
 }
@@ -11,6 +11,6 @@ void main()
     for (int i = 0; i < 100; i++){
         ans = guess(ans,num);
     }
-    
+
     printf("sqrt(%f) = %f\n", num, ans);
 }

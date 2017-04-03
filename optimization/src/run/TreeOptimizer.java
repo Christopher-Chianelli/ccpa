@@ -313,14 +313,14 @@ public class TreeOptimizer {
 		    Node oldProgram = doc.getFirstChild();
 		
 		    removeNoOps(program);
-		    removeUnusedVariables(program);
+		    //removeUnusedVariables(program);
 		
 		
 		    changeCallOps(program);
 		    convertToFinalForm(program);
 		
 		    doc.replaceChild(program, oldProgram);
-		     outputFile();
+		    outputFile();
 		}
 		catch (Exception e)
 		{

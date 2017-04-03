@@ -2,8 +2,21 @@
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 outfile=punchcards
 cmd="a"
+optimize="y"
 
-while getopts ":p:s:t:o:n" o; do
+output_file ()
+{
+    if [[ $outfile ]]
+    then
+        mv $SCRIPT_DIR/temp/out "$outfile"
+    else
+        cat $SCRIPT_DIR/temp/out
+    fi
+}
+
+echoerr() { echo "$@" 1>&2; }
+
+while getopts ":p:s:t:o:n:q" o; do
     case "${o}" in
         p)
             cmd="p"
@@ -21,8 +34,12 @@ while getopts ":p:s:t:o:n" o; do
             outfile=$OPTARG
             ;;
 
-        n)  
+        n)
             outfile=""
+            ;;
+
+        q)
+            optimize="n"
             ;;
 
         *)
@@ -32,26 +49,57 @@ while getopts ":p:s:t:o:n" o; do
     esac
 done
 file="${@: -1}"
-case "$cmd" in
-    p)
-        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | xmllint --format -"
-        ;;
-    s)
-        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse"
-        ;;
-
-    t)
-        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | xmllint --format -"
-        ;;
-
-    *)
-        command="gcc -E $file | $SCRIPT_DIR/scanner/cparse | $SCRIPT_DIR/scanner/treegen | java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer | java -cp $SCRIPT_DIR/backend/treeToAE2/bin run/TreeToAE2 | bash $SCRIPT_DIR/backend/mk_src/compile_ae2.bash"
-        ;;
-esac
-
-if [[ $outfile ]]
+gcc -E $file | $SCRIPT_DIR/scanner/cparse  > $SCRIPT_DIR/temp/out
+if [[ $? -eq 0 ]]
 then
-eval $command > $outfile
+    if [[ "$cmd" == "s" ]]
+    then
+        output_file
+    else
+        ($SCRIPT_DIR/scanner/treegen < $SCRIPT_DIR/temp/out) > $SCRIPT_DIR/temp/out1
+        success=$?
+        mv $SCRIPT_DIR/temp/out1 $SCRIPT_DIR/temp/out
+        if [[ $success -eq 0 ]]
+        then
+            if [[ "$cmd" == "t" ]]
+            then
+                output_file
+            else
+                (java -cp $SCRIPT_DIR/optimization/bin run/TreeOptimizer < $SCRIPT_DIR/temp/out) > $SCRIPT_DIR/temp/out1
+                success=$?
+                mv $SCRIPT_DIR/temp/out1 $SCRIPT_DIR/temp/out
+                if [[ $success -eq 0 ]]
+                then
+                    if [[ "$cmd" == "p" ]]
+                    then
+                        output_file
+                    else
+                        ( java -cp $SCRIPT_DIR/backend/treeToAE2/bin run/TreeToAE2 $optimize < $SCRIPT_DIR/temp/out) > $SCRIPT_DIR/temp/out1
+                        success=$?
+                        mv $SCRIPT_DIR/temp/out1 $SCRIPT_DIR/temp/out
+                        if [[ $success -eq 0 ]]
+                        then
+                            (bash $SCRIPT_DIR/backend/mk_src/compile_ae2.bash < $SCRIPT_DIR/temp/out) > $SCRIPT_DIR/temp/out1
+                            success=$?
+                            mv $SCRIPT_DIR/temp/out1 $SCRIPT_DIR/temp/out
+                            if [[ $success -eq 0 ]]
+                            then
+                                output_file
+                            else
+                                echoerr "Compilation Failed"
+                            fi
+                        else
+                            echoerr "Compilation Failed"
+                        fi
+                    fi
+                else
+                    echoerr "Compilation Failed"
+                fi
+            fi
+        else
+            echoerr "Compilation Failed"
+        fi
+    fi
 else
-eval $command
+    echoerr "Compilation Failed"
 fi

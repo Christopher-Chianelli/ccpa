@@ -6,14 +6,7 @@ import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -171,6 +164,17 @@ public class TreeToAE2 {
 				System.out.println("L[STACK_TOP]");
 				System.out.println("L[T0]");
 				System.out.println("S[STACK_TOP]");
+				
+				if (attr.getNamedItem("isRecursive") != null && attr.getNamedItem("isRecursive").getTextContent().equals("false"))
+				{
+					for (int i = children.getLength() - 1; i >= children.getLength() - getNumberOfArguments(children.item(0).getTextContent()); i--)
+					{
+						loadStackValueIntoGlobalRegister(children.item(0).getTextContent(),
+								children.item(i).getLastChild().getTextContent(),
+								children.item(i).getAttributes().getNamedItem("address").getTextContent());
+					}
+				}
+				
 				printNode(children.item(1),"");
 				returnFromFunction();
 				return;
@@ -377,12 +381,10 @@ public class TreeToAE2 {
 					
 					lastIndex++;
 					String newType;
-					boolean isPointer;
 					
 					if (pointerType.charAt(lastIndex) == '*')
 					{	
 						newType = pointerType.substring(0, lastIndex) + pointerType.substring(lastIndex + 1);
-						isPointer = true;
 					}
 					else
 					{
@@ -392,7 +394,6 @@ public class TreeToAE2 {
 							arrayEnd++;
 						}
 						newType = pointerType.substring(0, lastIndex) + pointerType.substring(arrayEnd + 1);
-						isPointer = false;
 					}
 					
 					size = getSizeOf(newType);
@@ -621,6 +622,38 @@ public class TreeToAE2 {
 		return;
 	}
 
+	private static int getNumberOfArguments(String function) {
+		Node variable = findVariable(function,doc.getFirstChild());
+		String type = variable.getFirstChild().getTextContent();
+		int numberOfBrackets = 0;
+		int i = type.length() - 1;
+		
+		do
+		{
+			if (type.charAt(i) == ')')
+			{
+				numberOfBrackets++;
+			}
+			else if (type.charAt(i) == '(')
+			{
+				numberOfBrackets--;
+			}
+			
+			i--;
+		}while(numberOfBrackets > 0);
+		
+		return (type.substring(i).length() > 3)? type.substring(i).split(",").length : 0;
+	}
+
+	private static void loadStackValueIntoGlobalRegister(String function, String parameter, String parameterNumber) {
+		CreateMemoryOp.getVariableFromStack(parameterNumber.substring(1));
+		CreateMemoryOp.readFromAddress("T0");
+		System.out.printf("+\n");
+		System.out.printf("L[ZERO]\n");
+		System.out.printf("L[T0]\n");
+		System.out.printf("S%s\n",getAddress(function + ":" + parameter, null).substring(1));
+	}
+
 	private static String getAddress(String variable, Node node) {
 		if (node == null)
 		{
@@ -655,28 +688,20 @@ public class TreeToAE2 {
 		}
 	}
 	
-	private static void printDoc() throws TransformerException
-	{
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(System.err);
-		transformer.transform(source, result);
-	}
-	
 	public static void main(String[] args) throws Exception {
 		try
 		{
 		    doc = readFromInput();
 		    myStrings = new LinkedList<String>();
 		    Node root = doc.getFirstChild();
-		    TreeTransformer.moveFuncionCalls(root);
+		    TreeTransformer.moveFunctionCalls(root);
 		    TreeTransformer.convertPrintf(root);
 		    TreeTransformer.setStructSizes(root);
 		    TreeTransformer.setStructIndices(root);
 		    TreeTransformer.getMaxRequiredRegisters(root);
+		    if (args.length > 0 && args[0].equals("y"))
+		    	TreeTransformer.giveFunctionsGlobalAddresses(root);
 		    TreeTransformer.giveVariablesAddresses(root);
-		    //printDoc();
 		    printProgram(root);
 		}
 		catch (Exception e)
@@ -747,5 +772,17 @@ public class TreeToAE2 {
 		}
 		
 		return findVariable(variable, node.getParentNode());
+	}
+
+	public static Node getFunction(String name) {
+		NodeList functions = doc.getFirstChild().getFirstChild().getNextSibling().getChildNodes();
+		for (int i = 0; i < functions.getLength(); i++)
+		{
+			if (functions.item(i).getFirstChild().getTextContent().equals(name))
+			{
+				return functions.item(i);
+			}
+		}
+		return null;
 	}
 }

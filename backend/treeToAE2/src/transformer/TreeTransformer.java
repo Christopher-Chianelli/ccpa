@@ -1,8 +1,15 @@
 package transformer;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,24 +32,145 @@ public class TreeTransformer {
 		return out;
 	}
 	
-	public static void moveFuncionCalls(Node root)
+	public static void giveFunctionsGlobalAddresses(Node root)
+	{
+		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
+		Node globalData = root.getLastChild();
+		for (int i = 0; i < functions.getLength(); i++)
+		{
+			HashSet<String> function = new HashSet<String>();
+			function.add(functions.item(i).getFirstChild().getTextContent());
+			if (!isFunctionRecursive(functions.item(i),function))
+			{
+				Element element = (Element) functions.item(i);
+				element.setAttribute("isRecursive", "false");
+				HashSet<String> localVariables = new HashSet<String>();
+				changeFunctionVariablesToGlobal(functions.item(i).getFirstChild().getTextContent(),
+						functions.item(i),
+						globalData,
+						localVariables);
+			}
+			else
+			{
+				Element element = (Element) functions.item(i);
+				element.setAttribute("isRecursive", "true");
+			}
+		}
+	}
+	
+	private static void changeFunctionVariablesToGlobal(String name, Node node, Node globalData, HashSet<String> localVariables)
+	{
+		if (node.getNodeName().equals("uses"))
+			return;
+		
+		if (node.getNodeName().equals("value"))
+		{
+			if (localVariables.contains(node.getTextContent()))
+			{
+				node.setTextContent(name + ":" + node.getTextContent());
+			}
+		}
+		
+		if (node.getNodeName().equals("op"))
+		{
+			NamedNodeMap attr = node.getAttributes();
+			NodeList children = node.getChildNodes();
+			String operation = attr.getNamedItem("name").getTextContent();
+			
+			if (!operation.equals("STRING") && !operation.equals("FLOAT") && !operation.equals("INT"))
+			{
+				if (operation.equals("GET_MEMBER") || operation.equals("GET_ACCESS"))
+				{
+					changeFunctionVariablesToGlobal(name, children.item(1),globalData,localVariables);
+				}
+				else
+				{
+					for (int i = children.getLength() - 1; i >= 0; i--)
+					{
+						if (children.item(i).getNodeName().equals("uses"))
+						{
+							if (!localVariables.contains(children.item(i).getLastChild().getTextContent()))
+							{
+								localVariables.add(children.item(i).getLastChild().getTextContent());
+							
+								Node globalVariable = TreeToAE2.doc.createElement("uses");
+								Node variableType = children.item(i).getFirstChild().cloneNode(true);
+								Node variableName = children.item(i).getLastChild().cloneNode(true);
+							
+								variableName.setTextContent(name + ":" + children.item(i).getLastChild().getTextContent());
+							
+								globalVariable.appendChild(variableType);
+								globalVariable.appendChild(variableName);
+								globalData.appendChild(globalVariable);
+							}
+						
+						}
+						changeFunctionVariablesToGlobal(name,children.item(i),globalData,localVariables);
+					}
+				}
+			}
+		}
+		
+	}
+
+	private static boolean isFunctionRecursive(Node node, HashSet<String> names)
+	{
+		if (!node.getNodeName().equals("op"))
+			return false;
+		
+		NamedNodeMap attr = node.getAttributes();
+		String operation = attr.getNamedItem("name").getTextContent();
+		NodeList children = node.getChildNodes();
+		
+		if (operation.equals("CALL"))
+		{
+			if (names.contains(node.getFirstChild().getTextContent()))
+			{
+				return true;
+			}
+			else
+			{
+				HashSet<String> temp = new HashSet<String>(names);
+				temp.add(node.getFirstChild().getTextContent());
+				Node calledFunction = TreeToAE2.getFunction(node.getFirstChild().getTextContent());
+				boolean out = (calledFunction == null)? false : isFunctionRecursive(calledFunction, temp);
+				
+				for (int i = 1; i < children.getLength(); i++)
+				{
+					out |= isFunctionRecursive(children.item(i), temp);
+				}
+				return out;
+			}
+		}
+		else
+		{
+			boolean out = false;
+			for (int i = 0; i < children.getLength(); i++)
+			{
+				out |= isFunctionRecursive(children.item(i), names);
+			}
+			return out;
+		}
+	}
+	
+	public static void moveFunctionCalls(Node root)
 	{
 		NodeList init = root.getFirstChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
 		
 		for (int i = 0; i < init.getLength(); i++)
 		{
-			moveFuncionCallsInNode(init.item(i));
+			moveFunctionCallsInNode(init.item(i));
 		}
 		
 		for (int i = 0; i < functions.getLength(); i++)
 		{
-			moveFuncionCallsInNode(functions.item(i));
+			moveFunctionCallsInNode(functions.item(i));
 		}
 		
 	}
 	
-	public static void moveFuncionCallsInNode(Node node)
+	public static void moveFunctionCallsInNode(Node node)
 	{
 		if (!node.getNodeName().equals("op"))
 			return;
@@ -53,7 +181,7 @@ public class TreeTransformer {
 		
 		for (int i = 0; i < children.getLength(); i++)
 		{
-			moveFuncionCallsInNode(children.item(i));
+			moveFunctionCallsInNode(children.item(i));
 		}
 		
 		if (operation.equals("CALL"))
@@ -266,8 +394,8 @@ public class TreeTransformer {
 			if (data.item(i).getNodeName().equals("uses"))
 			{
 				Element element = (Element) data.item(i);
-				element.setAttribute("address", "G" + index);
 				index -= TreeToAE2.getSizeOf(element.getFirstChild().getTextContent());
+				element.setAttribute("address", "G" + index);
 			}
 		}
 	}
@@ -492,9 +620,12 @@ public class TreeTransformer {
 		}
 	}
 	
-	private static class StringInt
+	public static void printDoc() throws TransformerException
 	{
-		String name;
-		int size;
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(System.err);
+		transformer.transform(source, result);
 	}
 }

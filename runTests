@@ -5,11 +5,13 @@ make
 cd ..
 
 rm tests/out/*
+rm tests/opt-out/*
 
 for i in `ls tests`
 do
 if [ -f "tests/$i" ]
 then
-    ./ccpa -o "tests/out/`echo $i | sed 's/\(.*\)\..*/\1/'`.ae" "tests/$i" #2>&1 >/dev/null | xmllint --format -
+    ./ccpa -q -o "tests/out/`echo $i | sed 's/\(.*\)\..*/\1/'`.ae" "tests/$i"
+    ./ccpa -o "tests/opt-out/`echo $i | sed 's/\(.*\)\..*/\1/'`.ae" "tests/$i"
 fi
 done

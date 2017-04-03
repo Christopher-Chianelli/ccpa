@@ -60,7 +60,7 @@ N978 0
 L994
 L978
 S994
-N978 50150000000000000000000000000000000000000000000000
+N978 0
 N993 -1
 -
 L994
@@ -93,7 +93,7 @@ L995
 S994
 A notes location of next card on stack
 CF?1
-CF+18
+CF+159
 N995 0
 -
 L994
@@ -103,21 +103,6 @@ S994
 L999
 L996
 S978
-N995 0
--
-L994
-L995
-S994
-/
-L999
-L999
-A returns to location on the top of the stack
-.fun
-N978 0
-+
-L994
-L978
-S994
 N995 0
 -
 L994
@@ -285,3 +270,18 @@ A replace next card with result from the Egress Axis
 L000
 L999
 S995
+-
+L995
+L998
+S995
+CF?1
+CF+9
+A write annotation Hello World!
+-
+L994
+L998
+S994
+/
+L999
+L999
+A returns to location on the top of the stack

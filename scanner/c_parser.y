@@ -520,6 +520,10 @@ int main(int argc, char** argv) {
 	declareVariable("int()","readInt");
 	declareVariable("float()","readFloat");
 
+	addType("int","long");
+	addType("int","short");
+	addType("float","double");
+
 	// parse through the input until there is no more:
 	do {
 		yyparse();

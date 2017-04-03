@@ -23,7 +23,7 @@
 DOTS     "..."
 DIGIT    [0-9]
 LETTER   [a-zA-Z]
-TYPE    "__builtin_va_list"|"const"|"volatile"|"restrict"|"_Atomic"|"unsigned"|"signed"|"char"|"short"|"long"|"int"|"float"|"double"|"void"|"_Complex"
+TYPE   "char"|"int"|"float"|"void"
 TYPEDEF "typedef"
 IDENTIFIER [a-zA-Z_][a-zA-Z_0-9]*
 STAR "*"
