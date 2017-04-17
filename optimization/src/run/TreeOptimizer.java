@@ -1,3 +1,21 @@
+/*
+ * optimization/src/run/TreeOptimizer.java
+ * Copyright (C) 2017 Christopher Chianelli
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package run;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -17,14 +35,14 @@ import org.w3c.dom.NodeList;
 
 public class TreeOptimizer {
 	private static Document doc;
-	
+
 	private static Document readFromInput() throws Exception
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 		return docBuilder.parse(System.in);
 	}
-	
+
 	private static void removeNoOps(Node program)
 	{
 		NodeList statements = program.getChildNodes();
@@ -41,7 +59,7 @@ public class TreeOptimizer {
 			}
 		}
 	}
-	
+
 	private static void removeNoOpsFromOp(Node root, Node op)
 	{
 		if (!op.getNodeName().equals("op"))
@@ -55,12 +73,12 @@ public class TreeOptimizer {
 		else if (operation.equals(";"))
 		{
 			NodeList children = op.getChildNodes();
-			
+
 			if (children.item(0).getNodeName().equals("op"))
 				removeNoOpsFromOp(op,children.item(0));
 			else if (children.item(0).getNodeName().equals("value"))
 				op.removeChild(children.item(0));
-			
+
 			if (children.item(1) == null)
 			{
 				if (children.item(0).getNodeName().equals("op"))
@@ -75,7 +93,7 @@ public class TreeOptimizer {
 				else if (children.item(1).getNodeName().equals("value"))
 					op.removeChild(children.item(1));
 			}
-			
+
 			if (op.getChildNodes().getLength() == 1)
 				root.replaceChild(op.getFirstChild(), op);
 			else if (op.getChildNodes().getLength() == 0)
@@ -86,7 +104,7 @@ public class TreeOptimizer {
 			removeNoOpsFromOp(op,op.getChildNodes().item(1));
 		}
 	}
-	
+
 	private static void removeUnusedVariables(Node program)
 	{
 		NodeList statements = program.getChildNodes();
@@ -107,7 +125,7 @@ public class TreeOptimizer {
 			}
 		}
 	}
-	
+
 	private static boolean variableNotUsed(Node root, Node variable)
 	{
 		if (root.getNodeName().equals("value"))
@@ -117,7 +135,7 @@ public class TreeOptimizer {
 			else
 				return true;
 		}
-		
+
 		NodeList statements = root.getChildNodes();
 		for (int i = 0; i < statements.getLength(); i++)
 		{
@@ -130,7 +148,7 @@ public class TreeOptimizer {
 		}
 		return true;
 	}
-	
+
 	private static void changeCallOps(Node program)
 	{
 		NodeList statements = program.getChildNodes();
@@ -140,7 +158,7 @@ public class TreeOptimizer {
 			changeCallOpsInStatement(statement, false);
 		}
 	}
-	
+
 	private static void changeCallOpsInStatement(Node statement, boolean isCall)
 	{
 		if (!statement.getNodeName().equals("op"))
@@ -157,9 +175,9 @@ public class TreeOptimizer {
 			{
 				Attr newOp = doc.createAttribute("name");
 				newOp.setValue("COMBINE_ARGS");
-				
+
 				attr.setNamedItem(newOp);
-				
+
 				changeCallOpsInStatement(statement.getFirstChild(),true);
 				changeCallOpsInStatement(statement.getFirstChild().getNextSibling(),true);
 			}
@@ -175,7 +193,7 @@ public class TreeOptimizer {
 			{
 				Attr newOp = doc.createAttribute("name");
 				newOp.setValue("NO_ARG");
-				
+
 				attr.setNamedItem(newOp);
 			}
 		}
@@ -188,32 +206,32 @@ public class TreeOptimizer {
 			}
 		}
 	}
-	
+
 	private static void convertToFinalForm(Node program) throws TransformerException
 	{
 		Element functions = doc.createElement("functions");
 		Element dataStructures = doc.createElement("structures");
 		Element init = doc.createElement("init");
-		
+
 		removeFunctions(program, functions);
 		removeDataStructures(program, dataStructures);
 		Node initCode = program.getFirstChild();
 		Node globalVariable = initCode.getLastChild();
-		
+
 		while (globalVariable.getNodeName().equals("uses"))
 		{
 			dataStructures.appendChild(globalVariable.cloneNode(true));
 			globalVariable = globalVariable.getPreviousSibling();
 			initCode.removeChild(globalVariable.getNextSibling());
 		}
-		
+
 		init.appendChild(initCode.cloneNode(true));
-		
+
 		while (program.hasChildNodes())
 			program.removeChild(program.getFirstChild());
-		
+
 		NodeList myFunctions = functions.getChildNodes();
-		
+
 		for (int i = 0; i < myFunctions.getLength();i++)
 		{
 			for (Node temp = myFunctions.item(i).getLastChild();temp != null;temp = temp.getPreviousSibling())
@@ -225,33 +243,33 @@ public class TreeOptimizer {
 				}
 			}
 		}
-		
+
 		Element callMain = doc.createElement("op");
 		callMain.setAttribute("name", "CALL");
 		callMain.setAttribute("type", "void");
-		
+
 		Element mainName = doc.createElement("value");
 		mainName.setTextContent("main");
-		
+
 		callMain.appendChild(mainName);
-		
+
 		Element mainParams = doc.createElement("op");
 		mainParams.setAttribute("name", "NO_ARG");
 		mainParams.setAttribute("type", "");
-		
+
 		callMain.appendChild(mainParams);
-		
+
 		init.appendChild(callMain);
-		
+
 		Element haltProgram = doc.createElement("op");
 		haltProgram.setAttribute("name", "HALT");
 		init.appendChild(haltProgram);
-		
+
 		program.appendChild(init);
 		program.appendChild(functions);
 		program.appendChild(dataStructures);
 	}
-	
+
 	private static boolean removeFunctions(Node node, Element functions) {
 		if (node.getNodeName().equals("op") && node.getAttributes().getNamedItem("name").getTextContent().equals("FUN"))
 		{
@@ -261,7 +279,7 @@ public class TreeOptimizer {
 			functions.appendChild(node);
 			return true;
 		}
-		
+
 		boolean out = false;
 		Node child = node.getFirstChild();
 		while (child != null)
@@ -278,7 +296,7 @@ public class TreeOptimizer {
 		}
 		return out;
 	}
-	
+
 	private static boolean removeDataStructures(Node node, Element dataStructures) {
 		if (node.getNodeName().equals("data"))
 		{
@@ -286,7 +304,7 @@ public class TreeOptimizer {
 			dataStructures.appendChild(node);
 			return true;
 		}
-		
+
 		boolean out = false;
 		Node child = node.getFirstChild();
 		while (child != null)
@@ -303,22 +321,22 @@ public class TreeOptimizer {
 		}
 		return out;
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		try
 		{
 		    doc = readFromInput();
-		
+
 		    Node program = doc.getFirstChild();
 		    Node oldProgram = doc.getFirstChild();
-		
+
 		    removeNoOps(program);
 		    //removeUnusedVariables(program);
-		
-		
+
+
 		    changeCallOps(program);
 		    convertToFinalForm(program);
-		
+
 		    doc.replaceChild(program, oldProgram);
 		    outputFile();
 		}
@@ -328,7 +346,7 @@ public class TreeOptimizer {
 			System.exit(1);
 		}
 	}
-	
+
 	private static void outputFile() throws TransformerException
 	{
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();

@@ -1,3 +1,21 @@
+/*
+ * backend/treeToAE2/src/run/TreeToAE2.java
+ * Copyright (C) 2017 Christopher Chianelli
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package run;
 
 import java.math.BigInteger;
@@ -24,8 +42,8 @@ public class TreeToAE2 {
 	private static String myStackSize = "";
 	private static HashMap<String,Integer> structSize = new HashMap<String,Integer>();
 	private static HashMap<String, Integer> structIndex = new HashMap<String,Integer>();
-	
-	
+
+
 	private static Document readFromInput() throws Exception
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -36,7 +54,7 @@ public class TreeToAE2 {
 	private static void printProgram(Node root) {
 		NodeList init = root.getFirstChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
-		
+
 		System.out.printf(".%d\n", TreeTransformer.numOfTempRegisters);
 		System.out.println("A write in columns");
 		System.out.println("N[ZERO] 0");
@@ -50,17 +68,17 @@ public class TreeToAE2 {
 		System.out.println("N[STACK_TOP] 0");
 		System.out.println("N[MAX_NUM] 99999999999999999999999999999999999999999999999999");
 		System.out.println("N[MIN_NUM] -99999999999999999999999999999999999999999999999999");
-		
+
 		for (int i = 0; i < init.getLength(); i++)
 		{
 			printNode(init.item(i),"");
 		}
-		
+
 		for (int i = 0; i < functions.getLength(); i++)
 		{
 			printNode(functions.item(i),"");
 		}
-		
+
 		CreateLibraryFunction.defineReadInt();
 		CreateLibraryFunction.defineReadFloat();
 		CreateLibraryFunction.definePrintNewLine();
@@ -68,7 +86,7 @@ public class TreeToAE2 {
 		CreateLibraryFunction.definePrintFloat();
 		CreateLibraryFunction.definePrintString();
 	}
-	
+
 	private static void returnFromFunction()
 	{
 		System.out.printf("N[DIRTY] %s\n", myStackSize);
@@ -78,7 +96,7 @@ public class TreeToAE2 {
 		System.out.println("S[STACK_TOP]");
 		returnToCaller();
 	}
-	
+
 	public static void returnToCaller()
 	{
 		System.out.println("/");
@@ -91,11 +109,11 @@ public class TreeToAE2 {
 	{
 		if (node == null)
 			return;
-		
+
 		String regA;
 		String regB;
 		String outR;
-		
+
 		if (register.startsWith("T"))
 		{
 			regA = "T" + (Integer.parseInt(register.substring(1)) + 1);
@@ -106,7 +124,7 @@ public class TreeToAE2 {
 			regA = "T0";
 			regB = "T1";
 		}
-		
+
 		if (register.isEmpty())
 		{
 			outR = "T0";
@@ -115,15 +133,15 @@ public class TreeToAE2 {
 		{
 			outR = register;
 		}
-		
+
 		if (node.getNodeName().equals("value"))
 		{
 			String address = getAddress(node.getTextContent(),node);
 			String type = getTypeOf(node);
-			
+
 			if (address == null)
 				return;
-			
+
 			if (address.startsWith("V"))
 			{
 				CreateMemoryOp.getVariableFromStack(address.substring(1));
@@ -132,12 +150,12 @@ public class TreeToAE2 {
 			{
 				CreateMemoryOp.getGlobalAddress(address.substring(1));
 			}
-			
+
 			if (type.endsWith("]"))
 			{
 			    CreateMemoryOp.moveToRegister("MEMADD", outR);
 			    System.out.printf("N[DIRTY] %d\n", getSizeOf(type) - 1);
-                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
 			}
 			else
 			{
@@ -149,7 +167,7 @@ public class TreeToAE2 {
 			NamedNodeMap attr = node.getAttributes();
 			String operation = attr.getNamedItem("name").getTextContent();
 			NodeList children = node.getChildNodes();
-			
+
 			if (operation.equals("HALT"))
 			{
 				System.out.println("H");
@@ -164,7 +182,7 @@ public class TreeToAE2 {
 				System.out.println("L[STACK_TOP]");
 				System.out.println("L[T0]");
 				System.out.println("S[STACK_TOP]");
-				
+
 				if (attr.getNamedItem("isRecursive") != null && attr.getNamedItem("isRecursive").getTextContent().equals("false"))
 				{
 					for (int i = children.getLength() - 1; i >= children.getLength() - getNumberOfArguments(children.item(0).getTextContent()); i--)
@@ -174,7 +192,7 @@ public class TreeToAE2 {
 								children.item(i).getAttributes().getNamedItem("address").getTextContent());
 					}
 				}
-				
+
 				printNode(children.item(1),"");
 				returnFromFunction();
 				return;
@@ -195,21 +213,21 @@ public class TreeToAE2 {
 				return;
 			}
 			else if (operation.equals("GET_MEMBER"))
-			{	
+			{
 				printNode(children.item(1),regA);
-				
+
 				String type = getTypeOf(children.item(1));
 				String memberType = attr.getNamedItem("type").getTextContent();
 				int num = structIndex.get(type + "." + children.item(0).getTextContent());
 				System.out.printf("N[%s] %d\n", regB, num);
-				
+
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
-				
+
 				if (memberType.endsWith("]"))
 				{
 				    CreateMemoryOp.moveToRegister("MEMADD", outR);
 				    System.out.printf("N[DIRTY] %d\n", getSizeOf(memberType) - 1);
-	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
 				}
 				else
 				{
@@ -221,21 +239,21 @@ public class TreeToAE2 {
 			{
 				printNode(children.item(1),regA);
 				CreateMemoryOp.moveToRegister(regA,"MEMADD");
-				
+
 				String type = getTypeOf(children.item(1));
 				String memberType = attr.getNamedItem("type").getTextContent();
 				type = type.substring(0,type.length() - 1);
-				
+
 				int num = structIndex.get(type + "." + children.item(0).getTextContent());
 				System.out.printf("N[%s] %d\n", regB, num - 1);
-				
+
 				CreateMathOp.binaryOp("-", "MEMADD", regB, "MEMADD");
-				
+
 				if (memberType.endsWith("]"))
 				{
 				    CreateMemoryOp.moveToRegister("MEMADD", outR);
 				    System.out.printf("N[DIRTY] %d\n", getSizeOf(memberType) - 1);
-	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);	
+	                CreateMathOp.binaryOp("-", outR, "DIRTY", outR);
 				}
 				else
 				{
@@ -247,7 +265,7 @@ public class TreeToAE2 {
 			{
 				String type = getTypeOf(children.item(0));
 				String num = Integer.toString(getSizeOf(type));
-				
+
 				System.out.printf("N[%s] %s\n", outR, num);
 				return;
 			}
@@ -360,7 +378,7 @@ public class TreeToAE2 {
 					{
 						pointerType = rightType;
 					}
-					
+
 					int size;
 					int lastIndex = pointerType.length() - 1;
 					if (pointerType.charAt(lastIndex) == '*')
@@ -378,12 +396,12 @@ public class TreeToAE2 {
 							lastIndex--;
 						}
 					}
-					
+
 					lastIndex++;
 					String newType;
-					
+
 					if (pointerType.charAt(lastIndex) == '*')
-					{	
+					{
 						newType = pointerType.substring(0, lastIndex) + pointerType.substring(lastIndex + 1);
 					}
 					else
@@ -395,7 +413,7 @@ public class TreeToAE2 {
 						}
 						newType = pointerType.substring(0, lastIndex) + pointerType.substring(arrayEnd + 1);
 					}
-					
+
 					size = getSizeOf(newType);
 					System.out.printf("N[DIRTY] %d\n", size);
 					if (leftType.equals(pointerType))
@@ -410,14 +428,14 @@ public class TreeToAE2 {
 						System.out.printf("N[DIRTY] %d\n", size - 1);
 						CreateMathOp.binaryOp("+", regA,"DIRTY",regA);
 					}
-					
+
 					CreateMathOp.binaryOp(operation,regA,regB,outR);
 				}
 				else
 				{
 					CreateMathOp.binaryOp(operation,regA,regB,outR);
 				}
-				
+
 			}
 			else if (operation.equals("AND-bitwise") || operation.equals("OR-bitwise") || operation.equals("^"))
 			{
@@ -444,7 +462,7 @@ public class TreeToAE2 {
 					CreateMathOp.floatBinaryOp("-","ZERO",regA,outR);
 				else
 					CreateMathOp.binaryOp("-","ZERO",regA,outR);
-				
+
 			}
 			else if (operation.equals("+U"))
 			{
@@ -494,12 +512,12 @@ public class TreeToAE2 {
 				String type = attr.getNamedItem("type").getTextContent();
 				printNode(children.item(0), regA);
 				printNode(children.item(1), regB);
-				
+
 				if (type.equals("float"))
 					CreateMathOp.floatBinaryOp(operation.substring(0, 1), regB, regA, "OUT");
 				else
 					CreateMathOp.binaryOp(operation.substring(0, 1), regB, regA, "OUT");
-				    
+
 				CreateMemoryOp.storeAtAddress("OUT");
 				CreateMemoryOp.moveToRegister("OUT", outR);
 			}
@@ -562,7 +580,7 @@ public class TreeToAE2 {
 				    CreateMathOp.isFloatLessThan(regA,regB,outR);
 				else
 				    CreateMathOp.isLessThan(regA,regB,outR);
-				
+
 				CreateMathOp.not(outR,outR);
 				return;
 			}
@@ -627,7 +645,7 @@ public class TreeToAE2 {
 		String type = variable.getFirstChild().getTextContent();
 		int numberOfBrackets = 0;
 		int i = type.length() - 1;
-		
+
 		do
 		{
 			if (type.charAt(i) == ')')
@@ -638,10 +656,10 @@ public class TreeToAE2 {
 			{
 				numberOfBrackets--;
 			}
-			
+
 			i--;
 		}while(numberOfBrackets > 0);
-		
+
 		return (type.substring(i).length() > 3)? type.substring(i).split(",").length : 0;
 	}
 
@@ -687,7 +705,7 @@ public class TreeToAE2 {
 			return getAddress(variable,node.getParentNode());
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		try
 		{
@@ -734,18 +752,18 @@ public class TreeToAE2 {
 			}
 		}
 	}
-	
+
 	public static void setSizeOf(String type, int size)
 	{
 		structSize.put(type,size);
 	}
-	
+
 	public static void setIndexOf(String type, String member, Integer index)
 	{
 		structIndex.put(type + "." + member, index);
 	}
-	
-	public static String getTypeOf(Node node) 
+
+	public static String getTypeOf(Node node)
 	{
 		if (!node.getNodeName().equals("value"))
 		{
@@ -755,22 +773,22 @@ public class TreeToAE2 {
 		{
 			return findVariable(node.getTextContent(),node.getParentNode()).getFirstChild().getTextContent();
 		}
-		
+
 	}
-	
-	private static Node findVariable(String variable, Node node) 
+
+	private static Node findVariable(String variable, Node node)
 	{
 		if (node.getNodeName().equals("program"))
 		{
 			return findVariable(variable, node.getLastChild());
 		}
-		
+
 		for (Node child = node.getLastChild();child != null;child = child.getPreviousSibling())
 		{
 			if (child.getNodeName().equals("uses") && child.getLastChild().getTextContent().equals(variable))
 				return child;
 		}
-		
+
 		return findVariable(variable, node.getParentNode());
 	}
 

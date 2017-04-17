@@ -1,3 +1,21 @@
+/*
+ * backend/treeToAE2/src/transformer/TreeTransformer.java
+ * Copyright (C) 2017 Christopher Chianelli
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package transformer;
 
 import java.util.HashSet;
@@ -24,14 +42,14 @@ public class TreeTransformer {
 	private static int numOfUniqueNames = 0;
 	private static final int GLOBAL_VARIABLES_START = 969;
 	public static int numOfTempRegisters = 0;
-	
+
 	private static String getUniqueName()
 	{
 		String out = "$F" + numOfUniqueNames;
 		numOfUniqueNames++;
 		return out;
 	}
-	
+
 	public static void giveFunctionsGlobalAddresses(Node root)
 	{
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
@@ -57,12 +75,12 @@ public class TreeTransformer {
 			}
 		}
 	}
-	
+
 	private static void changeFunctionVariablesToGlobal(String name, Node node, Node globalData, HashSet<String> localVariables)
 	{
 		if (node.getNodeName().equals("uses"))
 			return;
-		
+
 		if (node.getNodeName().equals("value"))
 		{
 			if (localVariables.contains(node.getTextContent()))
@@ -70,13 +88,13 @@ public class TreeTransformer {
 				node.setTextContent(name + ":" + node.getTextContent());
 			}
 		}
-		
+
 		if (node.getNodeName().equals("op"))
 		{
 			NamedNodeMap attr = node.getAttributes();
 			NodeList children = node.getChildNodes();
 			String operation = attr.getNamedItem("name").getTextContent();
-			
+
 			if (!operation.equals("STRING") && !operation.equals("FLOAT") && !operation.equals("INT"))
 			{
 				if (operation.equals("GET_MEMBER") || operation.equals("GET_ACCESS"))
@@ -92,36 +110,36 @@ public class TreeTransformer {
 							if (!localVariables.contains(children.item(i).getLastChild().getTextContent()))
 							{
 								localVariables.add(children.item(i).getLastChild().getTextContent());
-							
+
 								Node globalVariable = TreeToAE2.doc.createElement("uses");
 								Node variableType = children.item(i).getFirstChild().cloneNode(true);
 								Node variableName = children.item(i).getLastChild().cloneNode(true);
-							
+
 								variableName.setTextContent(name + ":" + children.item(i).getLastChild().getTextContent());
-							
+
 								globalVariable.appendChild(variableType);
 								globalVariable.appendChild(variableName);
 								globalData.appendChild(globalVariable);
 							}
-						
+
 						}
 						changeFunctionVariablesToGlobal(name,children.item(i),globalData,localVariables);
 					}
 				}
 			}
 		}
-		
+
 	}
 
 	private static boolean isFunctionRecursive(Node node, HashSet<String> names)
 	{
 		if (!node.getNodeName().equals("op"))
 			return false;
-		
+
 		NamedNodeMap attr = node.getAttributes();
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
-		
+
 		if (operation.equals("CALL"))
 		{
 			if (names.contains(node.getFirstChild().getTextContent()))
@@ -134,7 +152,7 @@ public class TreeTransformer {
 				temp.add(node.getFirstChild().getTextContent());
 				Node calledFunction = TreeToAE2.getFunction(node.getFirstChild().getTextContent());
 				boolean out = (calledFunction == null)? false : isFunctionRecursive(calledFunction, temp);
-				
+
 				for (int i = 1; i < children.getLength(); i++)
 				{
 					out |= isFunctionRecursive(children.item(i), temp);
@@ -152,43 +170,43 @@ public class TreeTransformer {
 			return out;
 		}
 	}
-	
+
 	public static void moveFunctionCalls(Node root)
 	{
 		NodeList init = root.getFirstChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
-		
+
 		for (int i = 0; i < init.getLength(); i++)
 		{
 			moveFunctionCallsInNode(init.item(i));
 		}
-		
+
 		for (int i = 0; i < functions.getLength(); i++)
 		{
 			moveFunctionCallsInNode(functions.item(i));
 		}
-		
+
 	}
-	
+
 	public static void moveFunctionCallsInNode(Node node)
 	{
 		if (!node.getNodeName().equals("op"))
 			return;
-		
+
 		NamedNodeMap attr = node.getAttributes();
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
-		
+
 		for (int i = 0; i < children.getLength(); i++)
 		{
 			moveFunctionCallsInNode(children.item(i));
 		}
-		
+
 		if (operation.equals("CALL"))
 		{
 			Node parent = node.getParentNode();
 			Node temp = node;
-			
+
 			if (parent != null && parent.getAttributes().getNamedItem("name") != null){
 				String parentOp = node.getParentNode().getAttributes().getNamedItem("name").getTextContent();
 			while (!parentOp.equals(";") && !parentOp.equals("while") && !parentOp.equals("doWhile") &&  !parentOp.equals("for") && !parentOp.equals("if") && !parentOp.equals("if/else") && !parentOp.equals("ASSIGN"))
@@ -199,7 +217,7 @@ public class TreeTransformer {
 					return;
 				parentOp = parent.getAttributes().getNamedItem("name").getTextContent();
 			}
-			
+
 			if (node.getParentNode() != parent)
 			{
 				Element assignOp = doc.createElement("op");
@@ -207,63 +225,63 @@ public class TreeTransformer {
 				Element funName = doc.createElement("value");
 				Element funType = doc.createElement("value");
 				Element usesVar = doc.createElement("uses");
-				
+
 				String type;
 				String name = getUniqueName();
-				
+
 				type =  attr.getNamedItem("type").getTextContent();
-				
+
 				funName.setTextContent(name);
 				funType.setTextContent(type);
-				
+
 				usesVar.appendChild(funType.cloneNode(true));
 				usesVar.appendChild(funName.cloneNode(true));
-				
+
 				assignOp.setAttribute("name", "ASSIGN");
 				assignOp.setAttribute("type", type);
 				assignOp.appendChild(node.cloneNode(true));
 				assignOp.appendChild(funName.cloneNode(true));
-				
+
 				node.getParentNode().replaceChild(funName.cloneNode(true), node);
-				
+
 				joinOps.setAttribute("name", ";");
 				joinOps.setAttribute("type", "");
 				joinOps.appendChild(temp.cloneNode(true));
 				joinOps.appendChild(assignOp.cloneNode(true));
-				
+
 				parent.replaceChild(joinOps.cloneNode(true), temp);
 				parent.appendChild(usesVar);
 			}
 			}
 		}
 	}
-	
+
 	public static void convertPrintf(Node root)
 	{
 		NodeList init = root.getFirstChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
-		
+
 		for (int i = 0; i < init.getLength(); i++)
 		{
 			convertPrintfInNode(init.item(i));
 		}
-		
+
 		for (int i = 0; i < functions.getLength(); i++)
 		{
 			convertPrintfInNode(functions.item(i));
 		}
-		
+
 	}
 
 	public static void convertPrintfInNode(Node node)
 	{
 		if (!node.getNodeName().equals("op"))
 			return;
-		
+
 		NamedNodeMap attr = node.getAttributes();
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
-		
+
 		if (operation.equals("CALL") && node.getFirstChild().getTextContent().equals("printf"))
 		{
 			Node lastArg = node.getFirstChild().getNextSibling();
@@ -283,7 +301,7 @@ public class TreeTransformer {
 			Matcher m = regex.matcher(format);
 			Element toReplaceNodeWith = doc.createElement("op");
 			toReplaceNodeWith.setAttribute("name", "NO_OP");
-			
+
 			int oldStart = 0;
 			while (m.find())
 			{
@@ -291,7 +309,7 @@ public class TreeTransformer {
 				temp.setAttribute("name", ";");
 				Element firstChild = doc.createElement("op");
 				Element toCall = doc.createElement("value");
-				
+
 				firstChild.setAttribute("name","CALL");
 				if (m.group(1).equals("n"))
 				{
@@ -314,7 +332,7 @@ public class TreeTransformer {
 				}
 				firstChild.appendChild(toCall);
 				firstChild.appendChild(args.removeFirst());
-				
+
 				//Also print the non-formatted part!
 				Element temp2 = doc.createElement("op");
 				temp2.setAttribute("name", ";");
@@ -326,23 +344,23 @@ public class TreeTransformer {
 				toCallArg.setAttribute("name", "STRING");
 				Element toCallArgString = doc.createElement("value");
 				toCallArgString.setTextContent("\"" + format.substring(oldStart, m.start()) + "\"");
-				
-				
+
+
 				toCallArg.appendChild(toCallArgString);
 				stringPart.appendChild(callString);
 				stringPart.appendChild(toCallArg);
-				
+
 				temp2.appendChild(firstChild);
 				temp2.appendChild(stringPart);
-				
+
 				temp.appendChild(temp2);
 				temp.appendChild(toReplaceNodeWith);
-				
+
 				toReplaceNodeWith = temp;
-				
+
 				oldStart = m.end();
 			}
-			
+
 			Element temp2 = doc.createElement("op");
 			temp2.setAttribute("name", ";");
 			Element stringPart = doc.createElement("op");
@@ -353,17 +371,17 @@ public class TreeTransformer {
 			toCallArg.setAttribute("name", "STRING");
 			Element toCallArgString = doc.createElement("value");
 			toCallArgString.setTextContent("\"" + format.substring(oldStart) + "\"");
-			
-			
+
+
 			toCallArg.appendChild(toCallArgString);
 			stringPart.appendChild(callString);
 			stringPart.appendChild(toCallArg);
-			
+
 			temp2.appendChild(toReplaceNodeWith);
 			temp2.appendChild(stringPart);
-			
+
 			toReplaceNodeWith = temp2;
-			
+
 			node.getParentNode().replaceChild(toReplaceNodeWith, node);
 		}
 		else
@@ -374,12 +392,12 @@ public class TreeTransformer {
 			}
 		}
 	}
-	
+
 	public static void giveVariablesAddresses(Node root)
 	{
 		NodeList data = root.getLastChild().getChildNodes();
 		NodeList functions = root.getFirstChild().getNextSibling().getChildNodes();
-		
+
 		int index = 0;
 		for (int i = 0; i < functions.getLength(); i++)
 		{
@@ -387,7 +405,7 @@ public class TreeTransformer {
 			Element element = (Element) functions.item(i);
 			element.setAttribute("stackSize", Integer.toString(varCount));
 		}
-		
+
 		index = GLOBAL_VARIABLES_START - numOfTempRegisters;
 		for (int i = 0; i < data.getLength(); i++)
 		{
@@ -399,7 +417,7 @@ public class TreeTransformer {
 			}
 		}
 	}
-	
+
 	private static int giveVariablesAddressesInNode(Node node, int index) {
 		for (Node child = node.getFirstChild();child != null;child = child.getNextSibling())
 		{
@@ -420,7 +438,7 @@ public class TreeTransformer {
 		}
 		return index;
 	}
-	
+
 	public static void getMaxRequiredRegisters(Node root)
 	{
 		int max = getMaxRequiredRegistersInNode(root.getFirstChild());
@@ -431,17 +449,17 @@ public class TreeTransformer {
 		}
 		numOfTempRegisters =  max;
 	}
-	
+
 	private static int getMaxRequiredRegistersInNode(Node node)
 	{
 		int max = 0;
 		if (!node.getNodeName().equals("op"))
 			return 0;
-		
+
 		NamedNodeMap attr = node.getAttributes();
 		String operation = attr.getNamedItem("name").getTextContent();
 		NodeList children = node.getChildNodes();
-		
+
 		if (operation.equals(";") || operation.equals("if") || operation.equals("while") || operation.equals("doWhile"))
 		{
 			return Math.max(getMaxRequiredRegistersInNode(children.item(0)),
@@ -462,7 +480,7 @@ public class TreeTransformer {
 			return max + 1;
 		}
 	}
-	
+
 	public static void setStructSizes(Node program)
 	{
 		Node structures = program.getLastChild();
@@ -485,7 +503,7 @@ public class TreeTransformer {
 				}
 			}
 		}
-		
+
 		Node last = null;
 		while (!structQueue.isEmpty())
 		{
@@ -493,7 +511,7 @@ public class TreeTransformer {
 			Node node = current;
 			int size = 0;
 			boolean breaked = false;
-			
+
 			for (Node n = node.getLastChild(); !n.getNodeName().equals("value"); n = n.getPreviousSibling())
 			{
 				try
@@ -519,21 +537,21 @@ public class TreeTransformer {
 					}
 				}
 			}
-			
+
 			if (!breaked)
 			{
 				TreeToAE2.setSizeOf("struct " + node.getFirstChild().getTextContent(), size);
 				last = null;
 			}
 		}
-		
+
 		while (!unionQueue.isEmpty())
 		{
 			Node current = unionQueue.pop();
 			Node node = current;
 			int size = 0;
 			boolean breaked = false;
-			
+
 			for (Node n = node.getLastChild(); !n.getNodeName().equals("value"); n = n.getPreviousSibling())
 			{
 				try
@@ -560,14 +578,14 @@ public class TreeTransformer {
 					}
 				}
 			}
-			
+
 			if (!breaked)
 			{
 				TreeToAE2.setSizeOf("union " + node.getFirstChild().getTextContent(), size);
 				last = null;
 			}
 		}
-		
+
 		while (!enumQueue.isEmpty())
 		{
 			Node current = enumQueue.pop();
@@ -576,7 +594,7 @@ public class TreeTransformer {
 			last = null;
 		}
 	}
-	
+
 	public static void setStructIndices(Node program)
 	{
 		Node structures = program.getLastChild();
@@ -619,7 +637,7 @@ public class TreeTransformer {
 			}
 		}
 	}
-	
+
 	public static void printDoc() throws TransformerException
 	{
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
