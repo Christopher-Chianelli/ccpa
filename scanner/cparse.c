@@ -23,19 +23,19 @@
 #include <ctype.h>
 #include "cparse.h"
 
-int lineNumber;
-int ignoreTable;
-int numOfIds = 0;
-int enumIndex = 0;
-struct typedefs my_typedefs;
-struct strings existingStrings;
-struct enumList enumMembers;
-struct variableStack *variables;
-struct arraySizeStack arraySizes;
-struct expr NO_EXPR;
-struct structList structs;
+int lineNumber;//line number the scanner is scanning in the current file
+int ignoreTable;//true iff the scanner should not look up an id in the id table
+int numOfIds = 0;//number of variables
+int enumIndex = 0;//enum index
+struct typedefs my_typedefs;//user type definitions via typedefs
+struct strings existingStrings;//strings currently created (UNUSED)
+struct enumList enumMembers;//(enum member, int) list
+struct variableStack *variables;//variables currently defined
+struct arraySizeStack arraySizes;//array sizes for current declaration
+struct expr NO_EXPR;//The NULL expression
+struct structList structs;//structs and unions defined
 struct strings toDefine;
-char filename[256];
+char filename[256];//the current file name
 
 void addType(char *type, char *name)
 {
