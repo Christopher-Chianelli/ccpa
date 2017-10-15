@@ -18,14 +18,14 @@ static void print_op(int addr) {
         P(L[RW]);
         P(CF?4);
 
-        printf("L%d\n", addr);
-        P(L[ZERO]);
-        P(S[REGVAL]);
+        P(L[REGVAL]);
+        P(L[ONE]);
+        printf("S%d'\n", addr);
         P(J[.$returnToCaller]);
 
-        P(L[REGVAL]);
-        P(L[ZERO]);
-        printf("S%d\n", addr);
+        printf("L%d\n", addr);
+        P(L[ONE]);
+        printf("S[REGVAL]'\n");
         P(J[.$returnToCaller]);
     }
 }

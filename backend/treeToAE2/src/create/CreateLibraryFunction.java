@@ -41,20 +41,20 @@ public class CreateLibraryFunction {
 	public static void definePrintInt()
 	{
 		System.out.println(".$printInt");
-		System.out.println("+");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[ONE]");
-		System.out.println("S[STACK_TOP]");
+		//System.out.println("+");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[ONE]");
+		//System.out.println("S[STACK_TOP]");
 		CreateMemoryOp.getVariableFromStack("0");
 		CreateMemoryOp.readFromAddress("DIRTY");
 	    System.out.println("+");
 	    System.out.println("L[DIRTY]");
 	    System.out.println("L[ZERO]");
 	    System.out.printf("P\n");
-	    System.out.println("-");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[ONE]");
-		System.out.println("S[STACK_TOP]");
+	    //System.out.println("-");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[ONE]");
+		//System.out.println("S[STACK_TOP]");
 		TreeToAE2.returnToCaller();
 	}
 
@@ -68,10 +68,10 @@ public class CreateLibraryFunction {
 	public static void definePrintFloat()
 	{
 		System.out.println(".$printFloat");
-		System.out.println("+");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[ONE]");
-		System.out.println("S[STACK_TOP]");
+		//System.out.println("+");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[ONE]");
+		//System.out.println("S[STACK_TOP]");
 		CreateMemoryOp.getVariableFromStack("0");
 		CreateMemoryOp.readFromAddress("DIRTY");
 
@@ -89,20 +89,20 @@ public class CreateLibraryFunction {
 	    System.out.println("P");
 
 
-	    System.out.println("-");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[ONE]");
-		System.out.println("S[STACK_TOP]");
+	    //System.out.println("-");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[ONE]");
+		//System.out.println("S[STACK_TOP]");
 		TreeToAE2.returnToCaller();
 	}
 
 	public static void definePrintString()
 	{
 		System.out.println(".$printString");
-		System.out.println("+");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[ONE]");
-		System.out.println("S[STACK_TOP]");
+		//System.out.println("+");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[ONE]");
+		//System.out.println("S[STACK_TOP]");
 		CreateMemoryOp.getVariableFromStack("0");
 		CreateMemoryOp.readFromAddress("DIRTY");
 
@@ -112,12 +112,12 @@ public class CreateLibraryFunction {
 	        System.out.println("L[ONE]");
 	        System.out.println("S[DIRTY]");
 	        System.out.println("CF?1");
-	        System.out.println("CF+25");
+	        System.out.println("CF+21");
 	        System.out.printf("A write annotation %s\n",TreeToAE2.myStrings.get(i).substring(1,TreeToAE2.myStrings.get(i).length() - 1));
-	        System.out.println("-");
-			System.out.println("L[STACK_TOP]");
-			System.out.println("L[ONE]");
-			System.out.println("S[STACK_TOP]");
+	        //System.out.println("-");
+			//System.out.println("L[STACK_TOP]");
+			//System.out.println("L[ONE]");
+			//System.out.println("S[STACK_TOP]");
 			TreeToAE2.returnToCaller();
 	    }
 	}

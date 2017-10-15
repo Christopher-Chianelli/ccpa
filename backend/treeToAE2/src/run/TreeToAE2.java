@@ -43,7 +43,6 @@ public class TreeToAE2 {
 	private static HashMap<String,Integer> structSize = new HashMap<String,Integer>();
 	private static HashMap<String, Integer> structIndex = new HashMap<String,Integer>();
 
-
 	private static Document readFromInput() throws Exception
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -90,11 +89,11 @@ public class TreeToAE2 {
 
 	private static void returnFromFunction()
 	{
-		System.out.printf("N[DIRTY] %s\n", myStackSize);
-		System.out.println("-");
-		System.out.println("L[STACK_TOP]");
-		System.out.println("L[DIRTY]");
-		System.out.println("S[STACK_TOP]");
+		//System.out.printf("N[DIRTY] %s\n", myStackSize);
+		//System.out.println("-");
+		//System.out.println("L[STACK_TOP]");
+		//System.out.println("L[DIRTY]");
+		//System.out.println("S[STACK_TOP]");
 		returnToCaller();
 	}
 
@@ -179,12 +178,12 @@ public class TreeToAE2 {
 			else if (operation.equals("FUN"))
 			{
 				System.out.println("." + children.item(0).getTextContent());
-				myStackSize = attr.getNamedItem("stackSize").getTextContent();
-				System.out.printf("N[T0] %s\n", myStackSize);
-				System.out.println("+");
-				System.out.println("L[STACK_TOP]");
-				System.out.println("L[T0]");
-				System.out.println("S[STACK_TOP]");
+				//myStackSize = attr.getNamedItem("stackSize").getTextContent();
+				//System.out.printf("N[T0] %s\n", myStackSize);
+				//System.out.println("+");
+				//System.out.println("L[STACK_TOP]");
+				//System.out.println("L[T0]");
+				//System.out.println("S[STACK_TOP]");
 
 				if (attr.getNamedItem("isRecursive") != null && attr.getNamedItem("isRecursive").getTextContent().equals("false"))
 				{

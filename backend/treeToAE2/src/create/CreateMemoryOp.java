@@ -101,7 +101,7 @@ public class CreateMemoryOp {
 
 	public static void getVariableFromStack(String variableNum)
 	{
-		System.out.printf("N[%s] %d\n", "DIRTY", Integer.parseInt(variableNum) + 1);		
+		System.out.printf("N[%s] %d\n", "DIRTY", Integer.parseInt(variableNum) + 1);
 		getAddressFromStack("DIRTY");
 	}
 
@@ -130,7 +130,7 @@ public class CreateMemoryOp {
 	{
 		argOffsets.pop();
 		int offset = argOffsets.peek();
-		System.out.printf("N[DIRTY] %d\n", offset + 1);
+		System.out.printf("N[DIRTY] %d\n", offset + 2);
 		System.out.println("+");
 	    System.out.println("L[STACK_TOP]");
 	    System.out.println("L[DIRTY]");
@@ -146,7 +146,7 @@ public class CreateMemoryOp {
 		System.out.printf("J[.%s]\n",node.getFirstChild().getTextContent());
 		System.out.printf(".R%d\n", label);
 
-		System.out.printf("N[DIRTY] %d\n", offset + 1);
+		System.out.printf("N[DIRTY] %d\n", offset + 2);
 		System.out.println("-");
 	    System.out.println("L[STACK_TOP]");
 	    System.out.println("L[DIRTY]");
