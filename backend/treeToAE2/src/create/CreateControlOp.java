@@ -26,6 +26,7 @@ import run.TreeToAE2;
 
 public class CreateControlOp {
 	private static int labelCount = 0;
+	private static int returnLabelCount = 0;
 	private static LinkedList<Integer> startLabels = initList();
 	private static LinkedList<Integer> endLabels = initList();
 
@@ -56,6 +57,25 @@ public class CreateControlOp {
 	{
 		labelCount += i;
 		return labelCount - i;
+	}
+
+	public static int createReturnLabel() {
+		returnLabelCount++;
+		return returnLabelCount - 1;
+	}
+
+	public static void createReturnFunction() {
+		System.out.println(".$returnToCaller");
+		for (int i = 0; i < returnLabelCount; i++) {
+			System.out.println("/");
+			System.out.println("L[ZERO]");
+			System.out.printf("L[%s]\n","RETURN_ADDR");
+			System.out.println("CF?1");
+			System.out.println("CF+1");
+			System.out.printf("J[.R%d]\n", i);
+			CreateMathOp.binaryOp("-", "RETURN_ADDR", "ONE", "RETURN_ADDR");
+		}
+		System.out.println("H Return address does not exist");
 	}
 
 	public static void circuitAndStatement(NodeList children, String out, String regA)

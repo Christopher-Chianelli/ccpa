@@ -34,6 +34,14 @@ public class CreateMemoryOp {
 
 	public static void storeAtAddress(String valueR)
 	{
+		moveToRegister("MEMADD", "REGADD");
+		moveToRegister(valueR, "REGVAL");
+		moveToRegister("ONE", "RW");
+		int label = CreateControlOp.createReturnLabel();
+		System.out.printf("N[RETURN_ADDR] %d\n", label);
+		System.out.println("J[.$rwFromAddr]");
+		System.out.printf(".R%d\n", label);
+		/*
 		System.out.println("+");
 		System.out.println("L[ZERO]");
 		System.out.println("L[ZERO]");
@@ -57,17 +65,25 @@ public class CreateMemoryOp {
 		System.out.printf("L[%s]\n",valueR);
 		System.out.println("L[ZERO]");
 		System.out.println("CB+13");
+		*/
 	}
 
 	public static void readFromAddress(String dstR)
 	{
-		System.out.println("+");
+		moveToRegister("MEMADD", "REGADD");
+		moveToRegister("ZERO", "RW");
+		int label = CreateControlOp.createReturnLabel();
+		System.out.printf("N[RETURN_ADDR] %d\n", label);
+		System.out.println("J[.$rwFromAddr]");
+		System.out.printf(".R%d\n", label);
+		moveToRegister("REGVAL", dstR);
+		/*System.out.println("+");
 		System.out.println("L[ZERO]");
 		System.out.println("L[MEMADD]");
 		System.out.println("A replace next card with result from the Egress Axis");
 		System.out.println("L000");
 		System.out.println("L[ZERO]");
-		System.out.printf("S[%s]\n",dstR);
+		System.out.printf("S[%s]\n",dstR);*/
 	}
 
 	public static void getAddressFromStack(String offsetR)
@@ -85,7 +101,7 @@ public class CreateMemoryOp {
 
 	public static void getVariableFromStack(String variableNum)
 	{
-		System.out.printf("N[%s] %s\n", "DIRTY", variableNum);
+		System.out.printf("N[%s] %d\n", "DIRTY", Integer.parseInt(variableNum) + 1);		
 		getAddressFromStack("DIRTY");
 	}
 
@@ -114,17 +130,23 @@ public class CreateMemoryOp {
 	{
 		argOffsets.pop();
 		int offset = argOffsets.peek();
-		System.out.printf("N[DIRTY] %d\n", offset);
+		System.out.printf("N[DIRTY] %d\n", offset + 1);
 		System.out.println("+");
 	    System.out.println("L[STACK_TOP]");
 	    System.out.println("L[DIRTY]");
 	    System.out.println("S[STACK_TOP]");
 
-	    System.out.println("A notes location of next card on stack");
-		System.out.println("CF?1");
+		int label = CreateControlOp.createReturnLabel();
+		System.out.printf("N[DIRTY] %d\n", label);
+		moveToRegister("STACK_TOP", "MEMADD");
+		storeAtAddress("DIRTY");
+		System.out.printf("N[RETURN_ADDR] %d\n", label);
+	    //System.out.println("A notes location of next card on stack");
+		//System.out.println("CF?1");
 		System.out.printf("J[.%s]\n",node.getFirstChild().getTextContent());
+		System.out.printf(".R%d\n", label);
 
-		System.out.printf("N[DIRTY] %d\n", offset);
+		System.out.printf("N[DIRTY] %d\n", offset + 1);
 		System.out.println("-");
 	    System.out.println("L[STACK_TOP]");
 	    System.out.println("L[DIRTY]");
@@ -134,7 +156,5 @@ public class CreateMemoryOp {
 		System.out.println("L[ZERO]");
 		System.out.println("L[OUT]");
 		System.out.printf("S[%s]\n", outR);
-
-
 	}
 }

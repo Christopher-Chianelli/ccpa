@@ -85,6 +85,7 @@ public class TreeToAE2 {
 		CreateLibraryFunction.definePrintInt();
 		CreateLibraryFunction.definePrintFloat();
 		CreateLibraryFunction.definePrintString();
+		CreateLibraryFunction.defineReturnFunction();
 	}
 
 	private static void returnFromFunction()
@@ -99,10 +100,12 @@ public class TreeToAE2 {
 
 	public static void returnToCaller()
 	{
-		System.out.println("/");
-		System.out.println("L[ZERO]");
-		System.out.printf("L[ZERO]\n");
-		System.out.println("A returns to location on the top of the stack");
+		CreateMemoryOp.moveToRegister("STACK_TOP", "MEMADD");
+		CreateMemoryOp.readFromAddress("RETURN_ADDR");
+		System.out.println("J[.$returnToCaller]");
+		//System.out.println("L[ZERO]");
+		//System.out.printf("L[ZERO]\n");
+		//System.out.println("A returns to location on the top of the stack");
 	}
 
 	public static void printNode(Node node, String register)

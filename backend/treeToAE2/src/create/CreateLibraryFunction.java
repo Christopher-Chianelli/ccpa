@@ -112,7 +112,7 @@ public class CreateLibraryFunction {
 	        System.out.println("L[ONE]");
 	        System.out.println("S[DIRTY]");
 	        System.out.println("CF?1");
-	        System.out.println("CF+9");
+	        System.out.println("CF+25");
 	        System.out.printf("A write annotation %s\n",TreeToAE2.myStrings.get(i).substring(1,TreeToAE2.myStrings.get(i).length() - 1));
 	        System.out.println("-");
 			System.out.println("L[STACK_TOP]");
@@ -120,5 +120,9 @@ public class CreateLibraryFunction {
 			System.out.println("S[STACK_TOP]");
 			TreeToAE2.returnToCaller();
 	    }
+	}
+
+	public static void defineReturnFunction() {
+		CreateControlOp.createReturnFunction();
 	}
 }

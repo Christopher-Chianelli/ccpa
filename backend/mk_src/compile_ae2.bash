@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 SCRIPT_DIR=-PATH-
-cat > $SCRIPT_DIR/out/temp
+cat - $SCRIPT_DIR/../ae_sources/rw_from_addr.ae > $SCRIPT_DIR/out/temp
 if [ -s $SCRIPT_DIR/out/temp ]
 then
         :
@@ -28,7 +28,7 @@ tempRegs=`head -n 1 $SCRIPT_DIR/out/temp | sed 's/^.//'`
 cat $SCRIPT_DIR/builtin_registers.txt > $SCRIPT_DIR/register_assignment.txt
 
 for ((i=0;i<=$tempRegs;i++)); do
-    n=$((979 - $i - 1))
+    n=$((974 - $i - 1))
     echo "T$i $n" >> $SCRIPT_DIR/register_assignment.txt
 done
 
